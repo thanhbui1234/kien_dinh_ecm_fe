@@ -1,0 +1,149 @@
+@import "../../../../packages/shared-ui/styles/globals.css";
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&display=swap");
+@source "../../src";
+@source "../../../../packages/shared-ui/components";
+
+@font-face {
+  font-family: "Geomanist";
+  src: url("/fonts/Geomanist-Thin.otf") format("opentype");
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geomanist";
+  src: url("/fonts/Geomanist-Light.otf") format("opentype");
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geomanist";
+  src: url("/fonts/Geomanist-Book.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geomanist";
+  src: url("/fonts/Geomanist-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geomanist";
+  src: url("/fonts/Geomanist-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geomanist";
+  src: url("/fonts/Geomanist-Black.otf") format("opentype");
+  font-weight: 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geomanist";
+  src: url("/fonts/Geomanist-Ultra.otf") format("opentype");
+  font-weight: 950;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "San de More";
+  src: url("/fonts/SANDEMORE-REGULAR.OTF") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "FZ Poppins";
+  src: url("/fonts/Font phụ/FZ Poppins-Thin.ttf") format("truetype");
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "FZ Poppins";
+  src: url("/fonts/Font phụ/FZ Poppins-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "FZ Poppins";
+  src: url("/fonts/Font phụ/FZ Poppins-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "FZ Poppins";
+  src: url("/fonts/Font phụ/FZ Poppins-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "FZ Poppins";
+  src: url("/fonts/Font phụ/FZ Poppins-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "FZ Poppins";
+  src: url("/fonts/Font phụ/FZ Poppins-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "FZ Poppins";
+  src: url("/fonts/Font phụ/FZ Poppins-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "FZ Poppins";
+  src: url("/fonts/Font phụ/FZ Poppins-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "FZ Poppins";
+  src: url("/fonts/Font phụ/FZ Poppins-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-display: swap;
+}
+
+html,
+body {
+  overflow-x: clip;
+  overscroll-behavior: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "FZ Poppins", system-ui, sans-serif;
+}
+
+.font-title {
+  font-family: "San de More", serif;
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

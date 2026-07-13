@@ -1,0 +1,198 @@
+@import "../../../packages/shared-ui/styles/globals.css";
+@source "../src";
+@source "../../../packages/shared-ui/components";
+
+/* ──────────────────────────────────────────────────────────────────
+ *  Admin theme — warm stone neutrals + amber primary.
+ *  Mirrors the brand palette used on the user-facing site.
+ * ────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Surfaces — warm-tinted off-white */
+  --background: oklch(0.992 0.003 80);
+  --foreground: oklch(0.216 0.006 56);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.216 0.006 56);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.216 0.006 56);
+
+  /* Brand */
+  --primary: oklch(0.769 0.188 70.08);            /* amber-500 */
+  --primary-foreground: oklch(0.147 0.004 49.25); /* stone-950 */
+
+  /* Greys (warm) */
+  --secondary: oklch(0.97 0.003 80);
+  --secondary-foreground: oklch(0.216 0.006 56);
+  --muted: oklch(0.97 0.003 80);
+  --muted-foreground: oklch(0.49 0.013 58);
+
+  /* Accent — pale amber tint */
+  --accent: oklch(0.965 0.024 85);
+  --accent-foreground: oklch(0.45 0.18 60);
+
+  --destructive: oklch(0.62 0.21 25);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --border: oklch(0.92 0.005 70);
+  --input: oklch(0.92 0.005 70);
+  --ring: oklch(0.769 0.188 70.08);
+
+  --radius: 0.75rem;
+
+  /* Sidebar — slightly warmer, frosted feel */
+  --sidebar-background: oklch(0.985 0.005 75);
+  --sidebar-foreground: oklch(0.216 0.006 56);
+  --sidebar-primary: oklch(0.769 0.188 70.08);
+  --sidebar-primary-foreground: oklch(0.147 0.004 49.25);
+  --sidebar-accent: oklch(0.965 0.024 85);
+  --sidebar-accent-foreground: oklch(0.45 0.18 60);
+  --sidebar-border: oklch(0.92 0.005 70);
+  --sidebar-ring: oklch(0.769 0.188 70.08);
+
+  /* Brand tokens used by custom components */
+  --brand: oklch(0.769 0.188 70.08);              /* amber-500 */
+  --brand-hover: oklch(0.72 0.19 65);
+  --brand-soft: oklch(0.965 0.024 85);            /* amber-50 */
+}
+
+.dark {
+  --background: oklch(0.147 0.004 49.25);
+  --foreground: oklch(0.97 0.005 80);
+  --card: oklch(0.196 0.006 56);
+  --card-foreground: oklch(0.97 0.005 80);
+  --popover: oklch(0.196 0.006 56);
+  --popover-foreground: oklch(0.97 0.005 80);
+
+  --primary: oklch(0.828 0.189 84.429);           /* amber-400 */
+  --primary-foreground: oklch(0.147 0.004 49.25);
+
+  --secondary: oklch(0.245 0.008 60);
+  --secondary-foreground: oklch(0.97 0.005 80);
+  --muted: oklch(0.245 0.008 60);
+  --muted-foreground: oklch(0.7 0.012 70);
+
+  --accent: oklch(0.31 0.075 75);
+  --accent-foreground: oklch(0.879 0.169 91);
+
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.97 0.005 80);
+
+  --border: oklch(0.27 0.007 60);
+  --input: oklch(0.27 0.007 60);
+  --ring: oklch(0.828 0.189 84.429);
+
+  --sidebar-background: oklch(0.165 0.004 50);
+  --sidebar-foreground: oklch(0.97 0.005 80);
+  --sidebar-primary: oklch(0.828 0.189 84.429);
+  --sidebar-primary-foreground: oklch(0.147 0.004 49.25);
+  --sidebar-accent: oklch(0.31 0.075 75);
+  --sidebar-accent-foreground: oklch(0.879 0.169 91);
+  --sidebar-border: oklch(0.27 0.007 60);
+  --sidebar-ring: oklch(0.828 0.189 84.429);
+
+  --brand: oklch(0.828 0.189 84.429);
+  --brand-hover: oklch(0.87 0.18 85);
+  --brand-soft: oklch(0.31 0.075 75);
+}
+
+/* Body + smoothing */
+html,
+body,
+#root {
+  height: 100%;
+  font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle background pattern for the main area — dotted, very low contrast */
+.bg-canvas {
+  background-color: var(--background);
+  background-image: radial-gradient(
+    oklch(0.92 0.005 70 / 0.6) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  background-position: -11px -11px;
+}
+
+.dark .bg-canvas {
+  background-image: radial-gradient(
+    oklch(0.32 0.007 60 / 0.4) 1px,
+    transparent 1px
+  );
+}
+
+/* Frosted surface used by the top bar and sidebar */
+.surface-frosted {
+  background-color: color-mix(in oklch, var(--background) 75%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+}
+
+/* Brand glow used as a soft halo on key surfaces */
+.brand-glow {
+  position: relative;
+}
+.brand-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    140deg,
+    color-mix(in oklch, var(--brand) 22%, transparent),
+    transparent 55%
+  );
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.brand-glow:hover::before {
+  opacity: 1;
+}
+
+/* ── Tiptap / ProseMirror editor content styles ─────────────────── */
+.ProseMirror {
+  outline: none;
+  min-height: 120px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--foreground);
+}
+.ProseMirror p { margin: 0 0 0.5rem; }
+.ProseMirror p:last-child { margin-bottom: 0; }
+.ProseMirror strong { font-weight: 600; }
+.ProseMirror em { font-style: italic; }
+.ProseMirror ul,
+.ProseMirror ol { padding-left: 1.4rem; margin: 0 0 0.5rem; }
+.ProseMirror ul { list-style-type: disc; }
+.ProseMirror ol { list-style-type: decimal; }
+.ProseMirror li { margin-bottom: 0.15rem; }
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--muted-foreground);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+/* Hide scrollbar utility */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 999px;
+}

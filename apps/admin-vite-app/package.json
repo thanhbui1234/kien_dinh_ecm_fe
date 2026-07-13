@@ -1,0 +1,47 @@
+{
+  "name": "admin-vite-app",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.4.0",
+    "@radix-ui/react-dialog": "^1.1.16",
+    "@radix-ui/react-label": "^2.1.9",
+    "@radix-ui/react-separator": "^1.1.9",
+    "@react-oauth/google": "^0.13.5",
+    "@tanstack/react-query": "^5.75.0",
+    "@tanstack/react-query-devtools": "^5.75.0",
+    "@tiptap/pm": "^3.27.1",
+    "@tiptap/react": "^3.27.1",
+    "@tiptap/starter-kit": "^3.27.1",
+    "axios": "^1.13.6",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.577.0",
+    "motion": "^12.40.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.78.0",
+    "react-rnd": "^10.5.3",
+    "react-router-dom": "^7.17.0",
+    "shared-api": "workspace:*",
+    "shared-ui": "workspace:*",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.5.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.5.2",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.9.3",
+    "vite": "^6.3.5"
+  }
+}
