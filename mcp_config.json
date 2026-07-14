@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "upstash": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/mcp-server@latest",
+        "--email",
+        "miktenthanh@gmail.com",
+        "--api-key",
+        "dea229db-35a7-4cd1-9385-c16fdb95b894"
+      ]
+    }
+  }
+}
