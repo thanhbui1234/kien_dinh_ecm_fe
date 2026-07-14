@@ -12,6 +12,12 @@
 
 *(Lưu ý: Chạy các lệnh này tại thư mục `packages/shared-api`. Code sinh ra đã được `.gitignore` nên mỗi người cần tự chạy ở local).*
 
+```bash
+cd packages/shared-api
+pnpm gen-api
+pnpm download-spec
+```
+
 ### 📜 Script 1: Sinh tự động các DTO/Types cho Typescript
 ```bash
 pnpm gen-api
@@ -28,3 +34,10 @@ pnpm download-spec
 - Lệnh này sẽ kéo file cấu hình OpenAPI chuẩn (`swagger-spec.json`) về máy.
 - File `swagger-spec.json` chứa toàn bộ mô tả chi tiết của API dưới dạng cấu trúc dữ liệu JSON (định nghĩa endpoint, required fields, params, type...).
 - **Khi nào cần dùng?** Khi bạn muốn đưa file này cho các công cụ Code Generator khác, hoặc cung cấp cho các AI Assistant/Plugin để chúng đọc, phân tích và hiểu hệ thống API của bạn một cách chính xác nhất mà không cần giải thích dài dòng.
+
+
+packages/shared-api/
+└── src/
+    └── docs/
+        ├── dto-api.ts
+        └── swagger-spec.json
