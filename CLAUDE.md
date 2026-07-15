@@ -9,6 +9,13 @@ Before taking **ANY** action related to frontend development, you **MUST** read,
 
 This rule is **ALWAYS ON**. You are strictly forbidden from bypassing the FRONTEND PRE-IMPLEMENTATION PROTOCOL & USER CONFIRMATION defined in that file. Do not start any UI changes or speculative implementations without explicit user approval as described in the protocol.
 
+## 🔗 SHARED API USAGE (CRITICAL)
+
+When working with data fetching in either the Client (Next.js) or Admin (Vite) applications, you **MUST** strictly follow the API integration guidelines defined in:
+👉 **`.claude/rules/api-usage.md`**
+
+This document outlines the Master SDK Factory pattern for Next.js (`fetch`) and the React Query `keepPreviousData` pattern for Admin Hooks.
+
 ## Project Context & Architecture
 
 The project architecture, monorepo folder structure, tech stack, and build commands have been moved to **[`README.md`](README.md)**. 
