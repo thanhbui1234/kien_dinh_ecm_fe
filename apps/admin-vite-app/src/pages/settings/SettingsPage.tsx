@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSettings, useUpdateSetting } from '@/queries/settings';
+import { useSystemSettings, useUpdateSystemSetting } from '@/queries/settings';
 import { Loader2, Save } from 'lucide-react';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { SystemSetting } from 'shared-api';
@@ -8,8 +8,8 @@ const inputCls = "w-full h-9 px-3 rounded-md bg-white border border-gray-300 tex
 const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2";
 
 export default function SettingsPage() {
-  const { data: settings, isLoading } = useSettings();
-  const updateMutation = useUpdateSetting();
+  const { data: settings, isLoading } = useSystemSettings();
+  const updateMutation = useUpdateSystemSetting();
 
   const handleUpdate = (key: string, value: string) => {
     updateMutation.mutate({ key, data: { value } });
@@ -19,8 +19,8 @@ export default function SettingsPage() {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 text-black animate-spin" /></div>;
   }
 
-  const textSettings = settings?.filter(s => !s.key.includes('HTML') && !s.key.includes('POLICY')) || [];
-  const htmlSettings = settings?.filter(s => s.key.includes('HTML') || s.key.includes('POLICY')) || [];
+  const textSettings = settings?.filter((s: SystemSetting) => !s.key.includes('HTML') && !s.key.includes('POLICY')) || [];
+  const htmlSettings = settings?.filter((s: SystemSetting) => s.key.includes('HTML') || s.key.includes('POLICY')) || [];
 
   return (
     <div className="space-y-6 max-w-5xl pb-12">
@@ -33,7 +33,7 @@ export default function SettingsPage() {
         <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">CẤU HÌNH THÔNG TIN</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {textSettings.map((setting) => (
+          {textSettings.map((setting: SystemSetting) => (
             <SettingItem
               key={setting.key}
               setting={setting}
@@ -46,7 +46,7 @@ export default function SettingsPage() {
         {htmlSettings.length > 0 && (
           <div className="pt-6 border-t border-gray-200 space-y-6">
             <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">CẤU HÌNH NỘI DUNG MỞ RỘNG</h2>
-            {htmlSettings.map((setting) => (
+            {htmlSettings.map((setting: SystemSetting) => (
               <div key={setting.key} className="space-y-3">
                 <label className={labelCls}>{setting.key}</label>
                 <SettingHtmlItem

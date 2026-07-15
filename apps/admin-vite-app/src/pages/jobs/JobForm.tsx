@@ -40,7 +40,7 @@ export default function JobForm() {
         title: jobData.title,
         salary: jobData.salary || '',
         status: jobData.status,
-        sections: jobData.sections?.length ? jobData.sections : [{ title: 'Mô tả công việc', content: '' }] as any,
+        sections: (jobData as any).sections?.length ? (jobData as any).sections : [{ title: 'Mô tả công việc', content: '' }] as any,
       });
     }
   }, [isEdit, jobData, reset]);
