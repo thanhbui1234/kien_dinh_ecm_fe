@@ -1,5 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap");
 @import "../../../../packages/shared-ui/styles/globals.css";
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&display=swap");
 @source "../../src";
 @source "../../../../packages/shared-ui/components";
 
@@ -133,11 +133,82 @@ html {
 }
 
 body {
-  font-family: "FZ Poppins", system-ui, sans-serif;
+  font-family: "Noto Sans", "Noto Sans JP", "Helvetica Neue", Arial, sans-serif;
+  color: #000;
+  background-color: #fff;
 }
 
-.font-title {
-  font-family: "San de More", serif;
+/* Mazak brand tokens */
+:root {
+  --mazak-orange: #ff5901;
+  --mazak-black: #000000;
+  --mazak-white: #ffffff;
+  --mazak-gray: #f5f5f5;
+  --mazak-gray-mid: #e0e0e0;
+  --mazak-gray-text: #666666;
+  --mazak-border: #ddd;
+  --mazak-header-height: 60px;
+}
+
+/* Mazak typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+/* Section headings */
+.section-title {
+  font-size: 40px;
+  font-weight: 400;
+  color: #000;
+  margin-bottom: 40px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  font-size: 12px;
+  color: var(--mazak-gray-text);
+}
+
+/* Orange accent underline */
+.orange-underline {
+  border-bottom: 3px solid var(--mazak-orange);
+  padding-bottom: 4px;
+}
+
+/* Container */
+.mazak-container {
+  max-width: 1266px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Page with breadcrumb */
+.page-content {
+  max-width: 1266px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+/* Tables (company outline) */
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.info-table tr {
+  border-bottom: 1px solid var(--mazak-border);
+}
+.info-table th, .info-table td {
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 14px;
+  vertical-align: top;
+}
+.info-table th {
+  width: 220px;
+  background-color: var(--mazak-gray);
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 @utility scrollbar-hide {

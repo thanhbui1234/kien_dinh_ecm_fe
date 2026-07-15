@@ -14,3 +14,6 @@ export * from "./ui/popover";
 // utility + motion
 export * from "./ui/spinner";
 export * from "./ui/skeleton";
+
+// mazak design system
+export * from "./mazak";

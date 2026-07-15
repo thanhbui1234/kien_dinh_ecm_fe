@@ -1,8 +1,21 @@
-export default function Home() {
+import HeroCarousel from "@/components/home/HeroCarousel";
+import PickupSection from "@/components/home/PickupSection";
+import ProductsSection from "@/components/home/ProductsSection";
+import NewsSection from "@/components/home/NewsSection";
+import TechnologySection from "@/components/home/TechnologySection";
+import GoGreenSection from "@/components/home/GoGreenSection";
+import ShowroomCTA from "@/components/home/ShowroomCTA";
+
+export default function HomePage() {
   return (
-    <main style={{ padding: "2rem", textAlign: "center", fontFamily: "sans-serif" }}>
-      <h1>User App</h1>
-      <p>This is a blank starter template.</p>
+    <main>
+      <HeroCarousel />
+      <PickupSection />
+      <ProductsSection />
+      <NewsSection />
+      <TechnologySection />
+      <GoGreenSection />
+      <ShowroomCTA />
     </main>
   );
 }
