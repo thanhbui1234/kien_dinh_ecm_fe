@@ -5,6 +5,12 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@api/*": [
+        "../../packages/shared-api/src/*"
+      ],
+      "@ui/*": [
+        "../../packages/shared-ui/*"
       ]
     },
     "plugins": [
