@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useApiClient } from '../../../core/ApiProvider';
-import { API_ENDPOINTS } from '../../../shared/constants';
-import { authKeys } from '../../../shared/keys/auth.keys';
-import { LoginInput, TokenResponse } from '../../../shared/schemas';
+import { useApiClient } from '@api/core/ApiProvider';
+import { API_ENDPOINTS } from '@api/shared/constants';
+import { authKeys } from '@api/shared/keys/auth.keys';
+import { LoginInput, TokenResponse } from '@api/shared/schemas';
 
 export const useLogin = () => {
   const client = useApiClient();

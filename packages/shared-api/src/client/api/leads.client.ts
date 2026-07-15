@@ -1,6 +1,6 @@
-import { FetchClient } from '../../core/fetch-client';
-import { API_ENDPOINTS } from '../../shared/constants';
-import { CreateLeadInput, Lead } from '../../shared/schemas';
+import { FetchClient } from '@api/core/fetch-client';
+import { API_ENDPOINTS } from '@api/shared/constants';
+import { CreateLeadInput, Lead } from '@api/shared/schemas';
 
 export const createLeadsApi = (client: FetchClient) => ({
   submitLead: async (

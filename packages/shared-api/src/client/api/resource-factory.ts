@@ -1,6 +1,6 @@
-import { FetchClient } from '../../core/fetch-client';
-import { DEFAULT_PAGINATION } from '../../shared/constants';
-import { PageMeta } from '../../shared/schemas';
+import { FetchClient } from '@api/core/fetch-client';
+import { DEFAULT_PAGINATION } from '@api/shared/constants';
+import { PageMeta } from '@api/shared/schemas';
 
 // Factory cho một hàm lấy danh sách (có phân trang)
 export const createListResource = <T>(client: FetchClient, basePath: string) => {

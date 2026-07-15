@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import { useApiClient } from '../../../core/ApiProvider';
-import { API_ENDPOINTS } from '../../../shared/constants';
-import { jobKeys } from '../../../shared/keys/jobs.keys';
-import { Job, CreateJobInput, UpdateJobInput, PageMeta } from '../../../shared/schemas';
+import { useApiClient } from '@api/core/ApiProvider';
+import { API_ENDPOINTS } from '@api/shared/constants';
+import { jobKeys } from '@api/shared/keys/jobs.keys';
+import { Job, CreateJobInput, UpdateJobInput, PageMeta } from '@api/shared/schemas';
 
 export const useJobs = (params?: Record<string, any>) => {
   const client = useApiClient();

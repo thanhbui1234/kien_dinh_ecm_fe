@@ -3,7 +3,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@api/*": ["../../packages/shared-api/src/*"],
+      "@ui/*": ["../../packages/shared-ui/*"]
     },
     "outDir": "./dist"
   },

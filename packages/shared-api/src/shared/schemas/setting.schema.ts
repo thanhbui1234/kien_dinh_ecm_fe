@@ -1,4 +1,4 @@
-import { BannerResponseDto, TimelineResponseDto, SloganResponseDto, SettingResponseDto, UpdateSettingDto } from '../../docs/dto-api';
+import { BannerResponseDto, TimelineResponseDto, SloganResponseDto, SettingResponseDto, UpdateSettingDto } from '@api/docs/dto-api';
 
 export type Banner = BannerResponseDto;
 export type Timeline = TimelineResponseDto;

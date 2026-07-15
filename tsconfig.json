@@ -3,7 +3,7 @@
     "baseUrl": ".",
     "paths": {
       "@ui/*": ["packages/shared-ui/*"],
-      "@api/*": ["packages/shared-api/*"],
+      "@api/*": ["packages/shared-api/src/*"],
       "@utils/*": ["packages/shared-utils/*"]
     }
   }

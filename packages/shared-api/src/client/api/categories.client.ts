@@ -1,6 +1,6 @@
-import { FetchClient } from '../../core/fetch-client';
-import { API_ENDPOINTS } from '../../shared/constants';
-import { Category } from '../../shared/schemas';
+import { FetchClient } from '@api/core/fetch-client';
+import { API_ENDPOINTS } from '@api/shared/constants';
+import { Category } from '@api/shared/schemas';
 import { createListResource, createDetailResource } from './resource-factory';
 
 export const createCategoriesApi = (client: FetchClient) => ({

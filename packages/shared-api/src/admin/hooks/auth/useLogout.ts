@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useApiClient } from '../../../core/ApiProvider';
-import { API_ENDPOINTS } from '../../../shared/constants';
+import { useApiClient } from '@api/core/ApiProvider';
+import { API_ENDPOINTS } from '@api/shared/constants';
 
 export const useLogout = () => {
   const client = useApiClient();

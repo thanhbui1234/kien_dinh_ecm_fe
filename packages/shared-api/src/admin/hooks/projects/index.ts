@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import { useApiClient } from '../../../core/ApiProvider';
-import { API_ENDPOINTS } from '../../../shared/constants';
-import { projectKeys } from '../../../shared/keys/projects.keys';
-import { Project, CreateProjectInput, UpdateProjectInput, PageMeta } from '../../../shared/schemas';
+import { useApiClient } from '@api/core/ApiProvider';
+import { API_ENDPOINTS } from '@api/shared/constants';
+import { projectKeys } from '@api/shared/keys/projects.keys';
+import { Project, CreateProjectInput, UpdateProjectInput, PageMeta } from '@api/shared/schemas';
 
 export const useProjects = (params?: Record<string, any>) => {
   const client = useApiClient();

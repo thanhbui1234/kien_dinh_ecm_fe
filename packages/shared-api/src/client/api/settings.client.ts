@@ -1,6 +1,6 @@
-import { FetchClient } from '../../core/fetch-client';
-import { API_ENDPOINTS } from '../../shared/constants';
-import { Banner, Timeline, Slogan, SystemSetting } from '../../shared/schemas';
+import { FetchClient } from '@api/core/fetch-client';
+import { API_ENDPOINTS } from '@api/shared/constants';
+import { Banner, Timeline, Slogan, SystemSetting } from '@api/shared/schemas';
 import { createListResource } from './resource-factory';
 
 export const createSettingsApi = (client: FetchClient) => ({

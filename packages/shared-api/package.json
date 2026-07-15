@@ -5,7 +5,7 @@
   "types": "./src/index.ts",
   "scripts": {
     "gen-api": "swagger-typescript-api generate --path https://kien-dinh-ecm-be.onrender.com/api/docs-json --output ./src/docs --name dto-api.ts --no-client --no-response-common",
-    "download-spec": "mkdir -p ./src/docs && curl https://kien-dinh-ecm-be.onrender.com/api/docs-json -o ./src/docs/swagger-spec.json"
+    "download-spec": "node -e \"const fs = require('fs'); fs.mkdirSync('./src/docs', { recursive: true });\" && curl -s https://kien-dinh-ecm-be.onrender.com/api/docs-json -o ./src/docs/swagger-spec.json"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.75.0",
