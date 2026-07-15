@@ -14,7 +14,7 @@ This rule is **ALWAYS ON**. You are strictly forbidden from bypassing the FRONTE
 When working with data fetching in either the Client (Next.js) or Admin (Vite) applications, you **MUST** strictly follow the API integration guidelines defined in:
 👉 **`.claude/rules/api-usage.md`**
 
-This document outlines the Master SDK Factory pattern for Next.js (`fetch`) and the React Query `keepPreviousData` pattern for Admin Hooks.
+This document outlines the decoupled architecture for HTTP Clients (Fetch for Next.js and Axios for Vite) and the React Query `keepPreviousData` pattern for Admin Hooks.
 
 ## Project Context & Architecture
 

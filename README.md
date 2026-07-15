@@ -100,7 +100,8 @@ function AboutSection({ stats = DEFAULT_STATS, images = DEFAULT_IMAGES }: AboutS
 
 ## Shared API Package (shared-api)
 
-Exports: `createApiClient`, token adapters (`createStorageAdapter`, `createCookieAdapter`), `ApiQueryProvider`, `useApiClient` hook, `queryKeys`, and a `createServerFetch` for SSR.
+A pure, framework-agnostic data layer package.
+Exports: Zod `schemas`, `constants` (API endpoints), `types`, and React Query `keys`. It does NOT contain HTTP clients, Axios, Fetch wrappers, or React Context providers. The HTTP clients have been decoupled and moved directly into `apps/admin-vite-app/src/lib/axios.ts` and `apps/user-next-app/src/lib/fetch-client.ts`.
 
 ## Deployment
 
