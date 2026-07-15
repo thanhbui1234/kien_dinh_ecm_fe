@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import { useApiClient } from '../../../core/ApiProvider';
-import { API_ENDPOINTS } from '../../../shared/constants';
-import { settingKeys } from '../../../shared/keys/settings.keys';
-import { SystemSetting, Banner, Timeline, Slogan, PageMeta, UpdateSettingInput } from '../../../shared/schemas';
+import { useApiClient } from '@api/core/ApiProvider';
+import { API_ENDPOINTS } from '@api/shared/constants';
+import { settingKeys } from '@api/shared/keys/settings.keys';
+import { SystemSetting, Banner, Timeline, Slogan, PageMeta, UpdateSettingInput } from '@api/shared/schemas';
 
 // System Settings
 export const useSystemSettings = () => {

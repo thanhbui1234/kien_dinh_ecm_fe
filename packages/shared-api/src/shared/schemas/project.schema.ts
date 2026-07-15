@@ -1,4 +1,4 @@
-import { ProjectResponseDto, CreateProjectDto, UpdateProjectDto } from '../../docs/dto-api';
+import { ProjectResponseDto, CreateProjectDto, UpdateProjectDto } from '@api/docs/dto-api';
 
 export type Project = ProjectResponseDto;
 export type CreateProjectInput = CreateProjectDto;

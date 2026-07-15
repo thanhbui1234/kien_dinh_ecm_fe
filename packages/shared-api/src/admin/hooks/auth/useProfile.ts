@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { useApiClient } from '../../../core/ApiProvider';
-import { API_ENDPOINTS } from '../../../shared/constants';
-import { authKeys } from '../../../shared/keys/auth.keys';
-import { UserProfile } from '../../../shared/schemas';
+import { useApiClient } from '@api/core/ApiProvider';
+import { API_ENDPOINTS } from '@api/shared/constants';
+import { authKeys } from '@api/shared/keys/auth.keys';
+import { UserProfile } from '@api/shared/schemas';
 
 export const useProfile = (options?: { enabled?: boolean }) => {
   const client = useApiClient();

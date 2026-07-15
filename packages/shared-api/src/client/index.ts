@@ -1,4 +1,4 @@
-import { FetchClient } from '../core/fetch-client';
+import { FetchClient } from '@api/core/fetch-client';
 import { createAuthApi } from './api/auth.client';
 import { createProductsApi } from './api/products.client';
 import { createCategoriesApi } from './api/categories.client';

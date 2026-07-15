@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import { useApiClient } from '../../../core/ApiProvider';
-import { API_ENDPOINTS } from '../../../shared/constants';
-import { leadKeys } from '../../../shared/keys/leads.keys';
-import { Lead, UpdateLeadStatusInput, PageMeta } from '../../../shared/schemas';
+import { useApiClient } from '@api/core/ApiProvider';
+import { API_ENDPOINTS } from '@api/shared/constants';
+import { leadKeys } from '@api/shared/keys/leads.keys';
+import { Lead, UpdateLeadStatusInput, PageMeta } from '@api/shared/schemas';
 
 export const useLeads = (params?: Record<string, any>) => {
   const client = useApiClient();

@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useApiClient } from '../../../core/ApiProvider';
-import { API_ENDPOINTS } from '../../../shared/constants';
-import { productKeys } from '../../../shared/keys/products.keys';
-import { CreateProductInput, Product } from '../../../shared/schemas';
+import { useApiClient } from '@api/core/ApiProvider';
+import { API_ENDPOINTS } from '@api/shared/constants';
+import { productKeys } from '@api/shared/keys/products.keys';
+import { CreateProductInput, Product } from '@api/shared/schemas';
 
 export const useCreateProduct = () => {
   const client = useApiClient();

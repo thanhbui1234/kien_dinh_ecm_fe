@@ -1,6 +1,6 @@
-import { FetchClient } from '../../core/fetch-client';
-import { API_ENDPOINTS } from '../../shared/constants';
-import { UserProfile } from '../../shared/schemas';
+import { FetchClient } from '@api/core/fetch-client';
+import { API_ENDPOINTS } from '@api/shared/constants';
+import { UserProfile } from '@api/shared/schemas';
 
 export const createAuthApi = (client: FetchClient) => ({
   getProfile: async (options?: RequestInit): Promise<UserProfile> => {

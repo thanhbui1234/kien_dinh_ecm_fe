@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import { useApiClient } from '../../../core/ApiProvider';
-import { API_ENDPOINTS } from '../../../shared/constants';
-import { categoryKeys } from '../../../shared/keys/categories.keys';
-import { Category, CreateCategoryInput, UpdateCategoryInput, PageMeta } from '../../../shared/schemas';
+import { useApiClient } from '@api/core/ApiProvider';
+import { API_ENDPOINTS } from '@api/shared/constants';
+import { categoryKeys } from '@api/shared/keys/categories.keys';
+import { Category, CreateCategoryInput, UpdateCategoryInput, PageMeta } from '@api/shared/schemas';
 
 export const useCategories = (params?: Record<string, any>) => {
   const client = useApiClient();
