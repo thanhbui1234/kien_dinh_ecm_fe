@@ -65,11 +65,12 @@ export default function TechnologySection() {
 
           <h2
             style={{
-              fontSize: '36px',
+              fontSize: '48px',
               fontWeight: 400,
               color: '#ffffff',
-              lineHeight: 1.2,
-              margin: '0 0 16px 0',
+              lineHeight: 1.15,
+              margin: '0 0 20px 0',
+              letterSpacing: '-0.5px',
             }}
           >
             Công nghệ &amp; Giải pháp
@@ -77,10 +78,10 @@ export default function TechnologySection() {
 
           <div
             style={{
-              width: '40px',
-              height: '3px',
+              width: '64px',
+              height: '4px',
               backgroundColor: '#ff5901',
-              marginBottom: '24px',
+              marginBottom: '28px',
             }}
           />
 

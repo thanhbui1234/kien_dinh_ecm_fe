@@ -62,8 +62,8 @@ export default function GoGreenSection() {
             inset: 0,
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
-            padding: '0 80px',
+            justifyContent: 'flex-end',
+            padding: '0 80px 80px',
             zIndex: 1,
           }}
         >
@@ -79,10 +79,11 @@ export default function GoGreenSection() {
             <MazakWordmark />
             <span
               style={{
-                fontSize: '44px',
+                fontSize: '52px',
                 fontWeight: 700,
                 color: '#3bb54a',
                 lineHeight: 1,
+                letterSpacing: '-1px',
               }}
             >
               Go GREEN

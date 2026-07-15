@@ -148,7 +148,7 @@ export default function Footer() {
       `}</style>
       <footer
         style={{
-          backgroundColor: '#1a1a1a',
+          background: 'linear-gradient(180deg, #1a1a1a 0%, #1a1a1a 70%, #4a2010 88%, #ff5901 100%)',
           color: '#cccccc',
           position: 'relative',
           overflow: 'hidden',
@@ -280,25 +280,24 @@ export default function Footer() {
         {/* Copyright bar */}
         <div
           style={{
-            borderTop: '1px solid #1a1a1a',
-            padding: '16px 40px',
+            padding: '20px 40px',
             fontSize: '12px',
-            color: '#555',
+            color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
             gap: '8px',
             position: 'relative',
-            zIndex: 1,
+            zIndex: 2,
           }}
         >
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-            <Link href="/cookie-declaration/" style={{ color: '#555', textDecoration: 'none', fontSize: '12px' }}>Cookie Declaration</Link>
-            <span style={{ color: '#333' }}>|</span>
-            <span style={{ color: '#555' }}>Cẩn thận hàng giả!</span>
-            <span style={{ color: '#333' }}>|</span>
-            <Link href="/about-website/" style={{ color: '#555', textDecoration: 'none', fontSize: '12px' }}>Về trang web này</Link>
+            <Link href="/cookie-declaration/" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '12px' }}>Cookie Declaration</Link>
+            <span style={{ color: 'rgba(255,255,255,0.5)' }}>|</span>
+            <span style={{ color: '#ffffff' }}>Cẩn thận hàng giả!</span>
+            <span style={{ color: 'rgba(255,255,255,0.5)' }}>|</span>
+            <Link href="/about-website/" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '12px' }}>Về trang web này</Link>
           </div>
           <span>Copyright (C) 2024 Yamazaki Mazak Vietnam Co., Ltd. All Rights Reserved.</span>
         </div>
