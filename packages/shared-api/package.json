@@ -1,8 +1,8 @@
 {
   "name": "shared-api",
   "version": "1.0.0",
-  "main": "./index.ts",
-  "types": "./index.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "scripts": {
     "gen-api": "swagger-typescript-api generate --path https://kien-dinh-ecm-be.onrender.com/api/docs-json --output ./src/docs --name dto-api.ts --no-client --no-response-common",
     "download-spec": "mkdir -p ./src/docs && curl https://kien-dinh-ecm-be.onrender.com/api/docs-json -o ./src/docs/swagger-spec.json"
@@ -10,7 +10,8 @@
   "dependencies": {
     "@tanstack/react-query": "^5.75.0",
     "@tanstack/react-query-devtools": "^5.75.0",
-    "axios": "^1.13.6"
+    "axios": "^1.13.6",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

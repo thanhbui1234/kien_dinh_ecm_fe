@@ -42,4 +42,4 @@ coverage/
 *.log
 
 # Generated API Docs
-packages/shared-api/src/docs/
+packages/shared-api/src/docs/swagger-spec.json

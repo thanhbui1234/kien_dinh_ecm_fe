@@ -6,7 +6,8 @@ import TechnologySection from "@/components/home/TechnologySection";
 import GoGreenSection from "@/components/home/GoGreenSection";
 import ShowroomCTA from "@/components/home/ShowroomCTA";
 
-export default function HomePage() {
+export default async function HomePage() {
+
   return (
     <main>
       <HeroCarousel />
