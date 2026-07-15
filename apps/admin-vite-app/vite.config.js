@@ -8,6 +8,7 @@ export default defineConfig({
         "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV ?? "development"),
     },
     resolve: {
+        dedupe: ['react', 'react-dom'],
         alias: {
             "@": fileURLToPath(new URL("./src", import.meta.url)),
             "@api": fileURLToPath(new URL("../../packages/shared-api/src", import.meta.url)),

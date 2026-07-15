@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from '@/utils/toast';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { productKeys } from 'shared-api';
@@ -14,8 +15,12 @@ export const useUpdateProduct = () => {
       return response.data;
     },
     onSuccess: (_, variables) => {
+      toast.success("Cập nhật sản phẩm thành công");
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       queryClient.invalidateQueries({ queryKey: productKeys.detail(variables.id) });
     },
+    onError: (error: any) => {
+      toast.error(error);
+    }
   });
 };
