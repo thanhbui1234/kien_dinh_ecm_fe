@@ -1,12 +1,15 @@
-# 🛠 HƯỚNG DẪN SỬ DỤNG SHARED API (`shared-api`)
+# 🛠 HƯỚNG DẪN SỬ DỤNG GIAO TIẾP DỮ LIỆU (API USAGE)
 
-Gói `shared-api` là bộ khung giao tiếp dữ liệu trung tâm của toàn bộ hệ thống. Nó được chia thành 2 phần rõ rệt: **Client (Next.js)** và **Admin (Vite + React Query)**.
+Hệ thống đã được thiết kế lại (Decoupled Architecture) nhằm tối ưu và chia tách rõ ràng:
+- **`shared-api`**: CHỈ chứa các hằng số (Constants), cấu hình DTO, Zod Schemas và Query Keys. Không chứa logic gọi API.
+- **`apps/user-next-app`**: Tự quản lý Fetch Client và các API Wrapper tại `src/api`.
+- **`apps/admin-vite-app`**: Tự quản lý Axios Interceptor tại `src/lib/axios.ts` và React Query Hooks tại `src/queries`.
 
 ---
 
 ## 1. DÀNH CHO CLIENT (NEXT.JS APP ROUTER)
 
-Client sử dụng native `fetch` của Next.js (thông qua SDK Master Factory) để tận dụng tối đa sức mạnh Caching/SEO.
+Client sử dụng native `fetch` của Next.js (thông qua SDK Master Factory tại `user-next-app/src/api`) để tận dụng tối đa sức mạnh Caching/SEO.
 
 **File Cấu hình Trung tâm:** `apps/user-next-app/src/lib/api.ts`
 
@@ -17,20 +20,17 @@ import { api } from '@/lib/api';
 export default async function ProductsPage({ searchParams }) {
   
   // 🟢 CÁCH 1: DỄ NHẤT (Default Config)
-  // Không truyền tham số. Tự động gọi { page: 1, limit: 12 }
   const defaultData = await api.products.getProducts();
 
   // 🟡 CÁCH 2: KHI CÓ PHÂN TRANG (Truyền đè Config)
-  // Lấy page từ biến searchParams của Next.js (URL: /products?page=2)
   const paginatedData = await api.products.getProducts(
     { page: searchParams.page },
     { next: { revalidate: 3600 } } // Thêm config riêng của Next.js Cache
   );
-```
 
   return (
     <div>
-      {items.map(product => <div key={product.id}>{product.name}</div>)}
+      {paginatedData.items.map(product => <div key={product.id}>{product.name}</div>)}
     </div>
   );
 }
@@ -43,11 +43,10 @@ import { api } from '@/lib/api';
 
 export default function ContactForm() {
   const submit = async () => {
-    // Tự ép kiểu an toàn theo chuẩn CreateLeadInput
     await api.leads.submitLead({
       fullName: "Nguyễn Văn A",
       phoneNumber: "0900000000",
-      message: "Tư vấn CNC"
+      message: "Tư vấn"
     });
   };
   return <button onClick={submit}>Gửi</button>;
@@ -58,37 +57,34 @@ export default function ContactForm() {
 
 ## 2. DÀNH CHO ADMIN (VITE + REACT QUERY)
 
-Admin là một SPA (Single Page Application) sử dụng **React Query v5** kết hợp Axios để xử lý Data Fetching (có loading, error state và auto-refetch).
+Admin là một SPA (Single Page Application) sử dụng **React Query v5** kết hợp với Axios Instance (tại `src/lib/axios.ts`) để xử lý Data Fetching.
 
-**File Cấu hình Trung tâm:** Provider được bọc ở `apps/admin-vite-app/src/app/App.tsx` (qua `ApiProvider`).
+**Thư mục chứa Hooks:** `apps/admin-vite-app/src/queries/`
 
 ### 🔹 Gọi danh sách (Default vs Có Config)
 ```tsx
-import { useProducts } from 'shared-api/src/admin/hooks';
+import { useProducts } from '@/queries/products/useProducts';
 
 export default function ProductsPage() {
   // 🟢 CÁCH 1: DỄ NHẤT (Default Config)
-  // Không truyền gì cả. Tự động lấy { page: 1, limit: 12 } 
-  // Dùng cho các bảng đơn giản hoặc trang chủ
   const { data: defaultData } = useProducts();
 
   // 🟡 CÁCH 2: KHI CÓ PHÂN TRANG (Truyền đè Config)
-  // Kết hợp với react-router-dom để bóc page từ URL
   const [searchParams] = useSearchParams();
   const { data: paginatedData } = useProducts({ 
       page: searchParams.get('page') || '1',
-      limit: '20' // Ghi đè limit mặc định
+      limit: '20' 
   });
-```
+
   const deleteMutation = useDeleteProduct();
 
   const handleDelete = (id: string) => {
-    deleteMutation.mutate(id); // Gọi xong bảng danh sách TỰ ĐỘNG reload
+    deleteMutation.mutate(id); // Dùng queryClient.invalidateQueries trong hook để reload
   };
 
   if (isLoading) return <div>Đang tải...</div>;
 
-  return <div>{data?.items.map(p => p.name)}</div>;
+  return <div>{paginatedData?.items.map(p => p.name)}</div>;
 }
 ```
 
@@ -98,7 +94,7 @@ export default function ProductsPage() {
 
 Khi Backend cung cấp thêm một Module mới (VD: `news`):
 1. Chạy `pnpm run gen-api` ở thư mục `packages/shared-api` để tải DTO mới.
-2. Cập nhật `src/shared/schemas/news.schema.ts`.
-3. Khai báo Query Key ở `src/shared/keys/news.keys.ts`.
-4. Khai báo **Client Fetch**: Dùng `createListResource` và `createDetailResource` trong `src/client/api/news.client.ts`. Đừng quên update `createApiClient` Master Factory.
-5. Khai báo **Admin React Query**: Viết các Hook (Sử dụng `keepPreviousData` cho List API) trong `src/admin/hooks/news/index.ts`.
+2. Cập nhật `shared-api/src/shared/schemas/news.schema.ts`.
+3. Khai báo Query Key ở `shared-api/src/shared/keys/news.keys.ts`.
+4. Khai báo **Client Fetch**: Dùng `createListResource` và `createDetailResource` trong `user-next-app/src/api/client/news.client.ts`. Đừng quên update `createApiClient` Master Factory.
+5. Khai báo **Admin React Query**: Viết các Hook (Sử dụng `keepPreviousData` cho List API) trong `admin-vite-app/src/queries/news/`.

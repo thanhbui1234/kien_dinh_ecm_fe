@@ -4,8 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@api/*": ["../../packages/shared-api/src/*"],
-      "@ui/*": ["../../packages/shared-ui/*"]
+      "@ui/*": ["../../packages/shared-ui/*"],
+      "@api/*": ["../../packages/shared-api/*"]
     },
     "outDir": "./dist"
   },
