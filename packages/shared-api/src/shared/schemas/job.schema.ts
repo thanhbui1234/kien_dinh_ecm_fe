@@ -1,4 +1,4 @@
-import { JobResponseDto, CreateJobDto, UpdateJobDto } from '@api/docs/dto-api';
+import { JobResponseDto, CreateJobDto, UpdateJobDto } from '../../docs/dto-api';
 
 export type Job = JobResponseDto;
 export type CreateJobInput = CreateJobDto;

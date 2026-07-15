@@ -1,4 +1,4 @@
-import { CreateLeadDto, LeadResponseDto, UpdateLeadStatusDto } from '@api/docs/dto-api';
+import { CreateLeadDto, LeadResponseDto, UpdateLeadStatusDto } from '../../docs/dto-api';
 
 export type CreateLeadInput = CreateLeadDto;
 export type Lead = LeadResponseDto;
