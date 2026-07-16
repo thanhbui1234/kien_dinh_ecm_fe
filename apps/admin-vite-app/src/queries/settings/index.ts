@@ -125,4 +125,178 @@ export const useDeleteBanner = () => {
 
 
 
-// ... Similar hooks can be added here for Timelines, Slogans when needed
+// Slogans
+export const useSlogans = (params?: Record<string, any>) => {
+  const client = axiosInstance;
+  return useQuery({
+    queryKey: settingKeys.slogans(),
+    queryFn: async () => {
+      const response = await client.get<any, { data: Slogan[] }>(
+        API_ENDPOINTS.SETTINGS.SLOGANS,
+        { params }
+      );
+      return response.data;
+    },
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useCreateSlogan = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Partial<Slogan>) => {
+      const response = await client.post<any, { data: Slogan }>(API_ENDPOINTS.SETTINGS.SLOGANS, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Thêm slogan thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.slogans() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+export const useUpdateSlogan = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Slogan> }) => {
+      const response = await client.patch<any, { data: Slogan }>(`${API_ENDPOINTS.SETTINGS.SLOGANS}/${id}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Cập nhật slogan thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.slogans() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+export const useUpdateSloganOrders = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (slogans: { id: string; orderIndex: number }[]) => {
+      const response = await client.patch<any, { data: Slogan[] }>(`${API_ENDPOINTS.SETTINGS.SLOGANS}/order`, { slogans });
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Cập nhật thứ tự slogan thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.slogans() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+export const useDeleteSlogan = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await client.delete<any, { data: Slogan }>(`${API_ENDPOINTS.SETTINGS.SLOGANS}/${id}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Xóa slogan thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.slogans() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+// Timelines
+export const useTimelines = (params?: Record<string, any>) => {
+  const client = axiosInstance;
+  return useQuery({
+    queryKey: settingKeys.timelines(),
+    queryFn: async () => {
+      const response = await client.get<any, { data: Timeline[] }>(
+        API_ENDPOINTS.SETTINGS.TIMELINES,
+        { params }
+      );
+      return response.data;
+    },
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useCreateTimeline = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Partial<Timeline>) => {
+      const response = await client.post<any, { data: Timeline }>(API_ENDPOINTS.SETTINGS.TIMELINES, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Thêm timeline thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.timelines() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+export const useUpdateTimeline = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Timeline> }) => {
+      const response = await client.patch<any, { data: Timeline }>(`${API_ENDPOINTS.SETTINGS.TIMELINES}/${id}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Cập nhật timeline thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.timelines() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+export const useUpdateTimelineOrders = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (timelines: { id: string; orderIndex: number }[]) => {
+      const response = await client.patch<any, { data: Timeline[] }>(`${API_ENDPOINTS.SETTINGS.TIMELINES}/order`, { timelines });
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Cập nhật thứ tự timeline thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.timelines() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+export const useDeleteTimeline = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await client.delete<any, { data: Timeline }>(`${API_ENDPOINTS.SETTINGS.TIMELINES}/${id}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Xóa timeline thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.timelines() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};

@@ -298,7 +298,7 @@ export interface CreateProductDto {
   /** Tên sản phẩm */
   name: string;
   /** Slug định danh */
-  slug: string;
+  slug?: string;
   /** Giá sản phẩm */
   price?: number;
   /** Ảnh thu nhỏ (Thumbnail) */
@@ -564,11 +564,13 @@ export interface SloganResponseDto {
   title: string;
   /** Icon định danh */
   icon: string;
+  /** Mô tả chi tiết slogan */
+  description?: string;
   /**
    * Thứ tự hiển thị
    * @default 0
    */
-  orderIndex: number;
+  orderIndex?: number;
   /** ID */
   id: string;
 }
@@ -578,11 +580,39 @@ export interface SloganDto {
   title: string;
   /** Icon định danh */
   icon: string;
+  /** Mô tả chi tiết slogan */
+  description?: string;
   /**
    * Thứ tự hiển thị
    * @default 0
    */
+  orderIndex?: number;
+}
+
+export interface UpdateSloganDto {
+  /** Tiêu đề slogan */
+  title?: string;
+  /** Icon định danh */
+  icon?: string;
+  /** Mô tả chi tiết slogan */
+  description?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+}
+
+export interface UpdateSloganOrderDto {
+  /** ID của slogan */
+  id: string;
+  /** Thứ tự mới */
   orderIndex: number;
+}
+
+export interface UpdateSloganOrdersDto {
+  /** Danh sách slogan với thứ tự mới */
+  slogans: UpdateSloganOrderDto[];
 }
 
 export interface TimelineResponseDto {
@@ -596,7 +626,7 @@ export interface TimelineResponseDto {
    * Thứ tự hiển thị
    * @default 0
    */
-  orderIndex: number;
+  orderIndex?: number;
   /** ID */
   id: string;
 }
@@ -612,17 +642,49 @@ export interface TimelineDto {
    * Thứ tự hiển thị
    * @default 0
    */
+  orderIndex?: number;
+}
+
+export interface UpdateTimelineDto {
+  /** Năm */
+  year?: string;
+  /** Tiêu đề sự kiện */
+  title?: string;
+  /** Mô tả chi tiết */
+  description?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+}
+
+export interface UpdateTimelineOrderDto {
+  /** ID của timeline */
+  id: string;
+  /** Thứ tự mới */
   orderIndex: number;
 }
 
+export interface UpdateTimelineOrdersDto {
+  /** Danh sách timeline với thứ tự mới */
+  timelines: UpdateTimelineOrderDto[];
+}
+
 export interface BannerResponseDto {
+  /** Tiêu đề banner */
+  title?: string;
+  /** Mô tả banner */
+  description?: string;
+  /** Đường dẫn liên kết */
+  link?: string;
   /** URL hình ảnh banner */
   imageUrl: string;
   /**
    * Thứ tự hiển thị
    * @default 0
    */
-  orderIndex: number;
+  orderIndex?: number;
   /** ID */
   id: string;
   /** Trạng thái hiển thị */
@@ -630,11 +692,47 @@ export interface BannerResponseDto {
 }
 
 export interface BannerDto {
+  /** Tiêu đề banner */
+  title?: string;
+  /** Mô tả banner */
+  description?: string;
+  /** Đường dẫn liên kết */
+  link?: string;
   /** URL hình ảnh banner */
   imageUrl: string;
   /**
    * Thứ tự hiển thị
    * @default 0
    */
+  orderIndex?: number;
+}
+
+export interface UpdateBannerDto {
+  /** Tiêu đề banner */
+  title?: string;
+  /** Mô tả banner */
+  description?: string;
+  /** Đường dẫn liên kết */
+  link?: string;
+  /** URL hình ảnh banner */
+  imageUrl?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+  /** Trạng thái hiển thị */
+  status?: boolean;
+}
+
+export interface UpdateBannerOrderDto {
+  /** ID của banner */
+  id: string;
+  /** Thứ tự mới */
   orderIndex: number;
+}
+
+export interface UpdateBannerOrdersDto {
+  /** Danh sách banner với thứ tự mới */
+  banners: UpdateBannerOrderDto[];
 }

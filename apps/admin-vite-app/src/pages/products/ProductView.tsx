@@ -111,7 +111,7 @@ export default function ProductView() {
               <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">THƯ VIỆN ẢNH</h2>
               <div className="grid grid-cols-4 gap-3">
                 {product.images.map((img, i) => (
-                  <img key={i} src={(img as any).url || img} alt={`Gallery ${i + 1}`}
+                  <img key={i} src={(img as any).imageUrl || (img as any).url || img} alt={`Gallery ${i + 1}`}
                     className="aspect-square w-full object-cover rounded border border-gray-200" />
                 ))}
               </div>
