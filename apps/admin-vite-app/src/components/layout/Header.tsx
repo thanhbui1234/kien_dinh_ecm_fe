@@ -1,4 +1,4 @@
-import { Bell, Search, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
 const routeLabels: Record<string, string> = {
@@ -28,20 +28,6 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
-          <input
-            type="search"
-            placeholder="Tìm kiếm..."
-            className="h-8 w-48 rounded-md bg-white border border-gray-300 pl-8 pr-3 text-xs text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all"
-          />
-        </div>
-
-        <button className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-colors text-gray-600 hover:text-black relative">
-          <Bell className="h-4 w-4" />
-          <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-black rounded-full" />
-        </button>
-
         <button className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-colors text-gray-600 hover:text-black">
           <User className="h-4 w-4" />
         </button>

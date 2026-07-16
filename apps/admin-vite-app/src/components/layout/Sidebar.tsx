@@ -1,8 +1,10 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Settings, Package, FolderTree,
   Briefcase, Phone, Presentation, Hexagon, LogOut, Image
 } from 'lucide-react';
+import { useLogout } from '@/queries/auth/useLogout';
+import { TokenService } from '@/utils/token';
 
 const mainNav = [
   { name: 'Tổng quan', path: '/', icon: LayoutDashboard },
@@ -19,6 +21,22 @@ const systemNav = [
 
 export function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { mutate: logout, isPending } = useLogout();
+
+  const handleLogout = () => {
+    logout(undefined, {
+      onSuccess: () => {
+        TokenService.clearTokens();
+        navigate('/login');
+      },
+      onError: () => {
+        // Fallback clear just in case API fails
+        TokenService.clearTokens();
+        navigate('/login');
+      }
+    });
+  };
 
   const isActive = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
@@ -72,7 +90,10 @@ export function Sidebar() {
 
       {/* User footer */}
       <div className="p-3 border-t border-gray-200 shrink-0">
-        <div className="flex items-center gap-3 rounded-md px-3 py-2 hover:bg-gray-100 cursor-pointer group transition-colors">
+        <div 
+          onClick={handleLogout}
+          className="flex items-center gap-3 rounded-md px-3 py-2 hover:bg-gray-100 cursor-pointer group transition-colors"
+        >
           <div className="w-7 h-7 rounded-md bg-black flex items-center justify-center text-xs font-bold text-white">
             A
           </div>
@@ -80,7 +101,7 @@ export function Sidebar() {
             <div className="text-xs font-semibold text-black truncate">Admin</div>
             <div className="text-[10px] text-gray-500 truncate">admin@kiendinh.vn</div>
           </div>
-          <LogOut className="w-3.5 h-3.5 text-gray-400 group-hover:text-black transition-colors shrink-0" />
+          <LogOut className={`w-3.5 h-3.5 text-gray-400 group-hover:text-black transition-colors shrink-0 ${isPending ? 'opacity-50 animate-pulse' : ''}`} />
         </div>
       </div>
     </div>
