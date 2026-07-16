@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft, Loader2, Plus, Trash2 } from 'lucide-react';
+import { ChevronLeft, Loader2, Plus, Trash2, Sparkles } from 'lucide-react';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { FileUpload } from '@/components/upload/FileUpload';
+import { ProductAIGenerator } from '@/components/products/ProductAIGenerator';
 import { useCreateProduct, useUpdateProduct, useProductDetail } from '@/queries/products';
 import { useCategories } from '@/queries/categories';
 import { CreateProductSchema, CreateProductInput } from 'shared-api';
@@ -43,7 +44,7 @@ export default function ProductForm() {
   });
 
   const { UnsavedChangesModal, markSaved } = useLeaveConfirm(isDirty);
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control,
     name: 'specList',
   });
@@ -56,6 +57,18 @@ export default function ProductForm() {
   const statusValue = watch('status');
   const isFeaturedValue = watch('isFeatured');
   const specListValue = watch('specList');
+
+  const [showAI, setShowAI] = useState(false);
+
+  const handleAIGenerateSuccess = (result: any) => {
+    if (result.name) setValue('name', result.name, { shouldDirty: true });
+    if (result.price !== undefined) setValue('price', result.price, { shouldDirty: true });
+    if (result.contentDetail) setValue('contentDetail', result.contentDetail, { shouldDirty: true });
+    
+    if (result.specs && result.specs.length > 0) {
+      replace(result.specs);
+    }
+  };
 
   useEffect(() => {
     if (isEdit && productData) {
@@ -113,16 +126,31 @@ export default function ProductForm() {
   return (
     <div className="space-y-6 max-w-5xl pb-12">
       <UnsavedChangesModal />
-      <div className="flex items-center gap-3">
-        <button type="button" onClick={() => navigate('/products')}
-          className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-gray-500 hover:text-black hover:bg-gray-50 transition-all shadow-sm">
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <div>
-          <h1 className="text-xl font-bold text-black">{isEdit ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}</h1>
-          <p className="text-xs font-medium text-gray-500 mt-0.5">{isEdit ? 'Cập nhật thông tin sản phẩm' : 'Điền thông tin để tạo sản phẩm mới'}</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button type="button" onClick={() => navigate('/products')}
+            className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-gray-500 hover:text-black hover:bg-gray-50 transition-all shadow-sm">
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold text-black">{isEdit ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}</h1>
+            <p className="text-xs font-medium text-gray-500 mt-0.5">{isEdit ? 'Cập nhật thông tin sản phẩm' : 'Điền thông tin để tạo sản phẩm mới'}</p>
+          </div>
         </div>
+        
+        {!isEdit && (
+          <button type="button" onClick={() => setShowAI(!showAI)} className="flex items-center gap-1.5 h-9 px-3 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors border border-indigo-200 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5" /> Tạo tự động bằng AI
+          </button>
+        )}
       </div>
+
+      {showAI && !isEdit && (
+        <ProductAIGenerator 
+          onGenerateSuccess={handleAIGenerateSuccess} 
+          onClose={() => setShowAI(false)} 
+        />
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div className="grid grid-cols-3 gap-5">

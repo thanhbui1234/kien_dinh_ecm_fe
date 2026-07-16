@@ -1,16 +1,31 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import { useProjects, useDeleteProject } from '@/queries/projects';
+import { useSearchParams } from 'react-router-dom';
+import { useProjects, useDeleteProject, useUpdateProject } from '@/queries/projects';
 import { DataTable, ColumnDef } from '@/components/common/DataTable';
+import { DataFilter, FilterField } from '@/components/common/DataFilter';
+import { StatusSwitch } from '@/components/common/StatusSwitch';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { Project } from 'shared-api';
 import { Link } from 'react-router-dom';
 
 export default function ProjectsList() {
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const { data, isLoading } = useProjects({ page, limit: 10 });
+
+  const page = Number(searchParams.get('page')) || 1;
+  const search = searchParams.get('search') || undefined;
+  const statusParam = searchParams.get('status');
+  const status = statusParam === 'true' ? true : statusParam === 'false' ? false : undefined;
+
+  const { data, isLoading } = useProjects({ page, limit: 10, search, status });
   const deleteMutation = useDeleteProject();
+  const updateMutation = useUpdateProject();
+
+  const filterFields: FilterField[] = [
+    { key: 'search', type: 'search', placeholder: 'Tìm tên dự án...' },
+    { key: 'status', type: 'select', placeholder: 'Tất cả trạng thái', options: [{ label: 'Hiển thị', value: 'true' }, { label: 'Đã ẩn', value: 'false' }] },
+  ];
 
   const handleDelete = () => {
     if (deleteId) deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
@@ -36,12 +51,16 @@ export default function ProjectsList() {
     {
       key: 'status', header: 'Trạng thái',
       cell: (row) => (
-        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${
-          row.status ? 'bg-white border-black text-black' : 'bg-gray-100 border-gray-300 text-gray-500'
-        }`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${row.status ? 'bg-black' : 'bg-gray-400'}`} />
-          {row.status ? 'Hiển thị' : 'Đã ẩn'}
-        </span>
+        <div className="flex items-center gap-2">
+          <StatusSwitch 
+            checked={row.status} 
+            isLoading={updateMutation.isPending && updateMutation.variables?.id === row.id}
+            onChange={(checked) => updateMutation.mutate({ id: row.id, data: { status: checked } })} 
+          />
+          <span className={`text-xs font-semibold ${row.status ? 'text-black' : 'text-gray-500'}`}>
+            {row.status ? 'Hiển thị' : 'Đã ẩn'}
+          </span>
+        </div>
       ),
     },
     {
@@ -74,7 +93,19 @@ export default function ProjectsList() {
         </Link>
       </div>
 
-      <DataTable columns={columns} data={data?.items || []} isLoading={isLoading} pageMeta={data?.meta} onPageChange={setPage} />
+      <DataFilter fields={filterFields} />
+
+      <DataTable 
+        columns={columns} 
+        data={data?.items || []} 
+        isLoading={isLoading} 
+        pageMeta={data?.meta} 
+        onPageChange={(newPage) => {
+          const newParams = new URLSearchParams(searchParams);
+          newParams.set('page', newPage.toString());
+          setSearchParams(newParams);
+        }} 
+      />
 
       <ConfirmModal isOpen={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}
         title="Xóa dự án" description="Bạn có chắc muốn xóa dự án này? Hành động này không thể hoàn tác."

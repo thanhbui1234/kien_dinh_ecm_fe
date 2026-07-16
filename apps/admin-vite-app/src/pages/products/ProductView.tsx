@@ -135,10 +135,12 @@ export default function ProductView() {
           {product.detail?.contentDetail && (
             <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-4">
               <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">NỘI DUNG CHI TIẾT</h2>
-              <div
-                className="prose prose-sm max-w-none text-gray-800 prose-headings:text-black prose-a:text-blue-600"
-                dangerouslySetInnerHTML={{ __html: product.detail.contentDetail }}
-              />
+              <div className="w-full overflow-x-auto">
+                <div
+                  className="prose prose-sm max-w-none text-gray-800 prose-headings:text-black prose-a:text-blue-600 break-words [&>img]:max-w-full [&>img]:h-auto"
+                  dangerouslySetInnerHTML={{ __html: product.detail.contentDetail }}
+                />
+              </div>
             </div>
           )}
         </div>

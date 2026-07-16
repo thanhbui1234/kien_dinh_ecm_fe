@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import { useCategories, useDeleteCategory } from '@/queries/categories';
+import { useCategories, useDeleteCategory, useUpdateCategory } from '@/queries/categories';
 import { DataTable, ColumnDef } from '@/components/common/DataTable';
+import { StatusSwitch } from '@/components/common/StatusSwitch';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { Category } from 'shared-api';
 import { Link } from 'react-router-dom';
@@ -11,6 +12,7 @@ export default function CategoriesList() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { data, isLoading } = useCategories({ page, limit: 10 });
   const deleteMutation = useDeleteCategory();
+  const updateMutation = useUpdateCategory();
 
   const handleDelete = () => {
     if (deleteId) deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
@@ -44,12 +46,16 @@ export default function CategoriesList() {
     {
       key: 'status', header: 'Trạng thái',
       cell: (row) => (
-        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${
-          row.status ? 'bg-white border-black text-black' : 'bg-gray-100 border-gray-300 text-gray-500'
-        }`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${row.status ? 'bg-black' : 'bg-gray-400'}`} />
-          {row.status ? 'Hiển thị' : 'Đã ẩn'}
-        </span>
+        <div className="flex items-center gap-2">
+          <StatusSwitch 
+            checked={row.status} 
+            isLoading={updateMutation.isPending && updateMutation.variables?.id === row.id}
+            onChange={(checked) => updateMutation.mutate({ id: row.id, data: { status: checked } })} 
+          />
+          <span className={`text-xs font-semibold ${row.status ? 'text-black' : 'text-gray-500'}`}>
+            {row.status ? 'Hiển thị' : 'Đã ẩn'}
+          </span>
+        </div>
       ),
     },
     {

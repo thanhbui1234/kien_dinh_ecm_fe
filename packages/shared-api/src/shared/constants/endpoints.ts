@@ -16,6 +16,7 @@ export const API_ENDPOINTS = {
     DETAIL: (id: string) => `/api/v1/products/${id}`,
     RELATED: (id: string) => `/api/v1/products/${id}/related`,
     VIEW: (id: string) => `/api/v1/products/${id}/view`,
+    COPY: (id: string) => `/api/v1/products/${id}/copy`,
   },
   PROJECTS: {
     BASE: '/api/v1/projects',

@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import AdminLayout from '@/layouts/AdminLayout';
 import AuthLayout from '@/layouts/AuthLayout';
+import { PrivateRoute } from '@/components/layout/PrivateRoute';
 
 // Lazy load pages
 const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'));
@@ -36,9 +37,13 @@ const withSuspense = (Component: React.ComponentType) => (
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <AdminLayout />,
+    element: <PrivateRoute />,
     children: [
-      { index: true, element: withSuspense(Dashboard) },
+      {
+        path: '/',
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: withSuspense(Dashboard) },
       { path: 'products', element: withSuspense(ProductsList) },
       { path: 'products/create', element: withSuspense(ProductForm) },
       { path: 'products/:id', element: withSuspense(ProductView) },
@@ -54,8 +59,10 @@ export const router = createBrowserRouter([
       { path: 'jobs/:id/edit', element: withSuspense(JobForm) },
       { path: 'leads', element: withSuspense(LeadsList) },
       { path: 'media', element: withSuspense(MediaGallery) },
-      { path: 'settings', element: withSuspense(SettingsPage) },
-    ],
+          { path: 'settings', element: withSuspense(SettingsPage) },
+        ],
+      }
+    ]
   },
   {
     element: <AuthLayout />,
