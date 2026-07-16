@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Settings, Package, FolderTree,
-  Briefcase, Phone, Presentation, Hexagon, LogOut
+  Briefcase, Phone, Presentation, Hexagon, LogOut, Image
 } from 'lucide-react';
 
 const mainNav = [
@@ -13,6 +13,7 @@ const mainNav = [
 ];
 const systemNav = [
   { name: 'Liên hệ', path: '/leads', icon: Phone },
+  { name: 'Thư viện ảnh', path: '/media', icon: Image },
   { name: 'Cài đặt', path: '/settings', icon: Settings },
 ];
 

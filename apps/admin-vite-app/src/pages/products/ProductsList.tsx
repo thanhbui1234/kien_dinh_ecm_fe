@@ -19,10 +19,17 @@ export default function ProductsList() {
   const columns: ColumnDef<Product>[] = [
     {
       key: 'image', header: 'Hình ảnh',
-      cell: (row) => (
-        <img src={row.thumbnailUrl || 'https://placehold.co/40x40/f9fafb/6b7280?text=...'} alt={row.name}
-          className="w-9 h-9 rounded-md object-cover border border-gray-300" />
-      ),
+      cell: (row) => {
+        // Tối ưu hóa ảnh thumbnail bằng Cloudinary: resize xuống 100x100, tự động format (WebP) và nén chất lượng
+        const optimizedUrl = row.thumbnailUrl 
+          ? row.thumbnailUrl.replace('/upload/', '/upload/c_thumb,w_100,h_100,f_auto,q_auto/') 
+          : 'https://placehold.co/40x40/f9fafb/6b7280?text=...';
+          
+        return (
+          <img src={optimizedUrl} alt={row.name}
+            className="w-9 h-9 rounded-md object-cover border border-gray-300" />
+        );
+      },
     },
     {
       key: 'name', header: 'Tên sản phẩm',
