@@ -8,6 +8,7 @@ import { FileUpload } from '@/components/upload/FileUpload';
 import { useCreateProduct, useUpdateProduct, useProductDetail } from '@/queries/products';
 import { useCategories } from '@/queries/categories';
 import { CreateProductSchema, CreateProductInput } from 'shared-api';
+import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 
 const inputCls = "w-full h-9 px-3 rounded-md bg-white border border-gray-300 text-sm font-medium text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all shadow-sm";
 const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2";
@@ -32,17 +33,24 @@ export default function ProductForm() {
   const updateMutation = useUpdateProduct();
   const { data: productData, isLoading: isLoadingDetail } = useProductDetail(id || '');
 
-  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting }, watch, setValue } = useForm<FormValues>({
+  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting, isDirty }, watch, setValue } = useForm<FormValues>({
     resolver: zodResolver(CreateProductSchema) as any,
     defaultValues: { 
       name: '', price: undefined, thumbnailUrl: '', isFeatured: false, status: true, categoryId: '', contentDetail: '',
-      specList: [{ key: '', value: '' }]
+      specList: [{ key: '', value: '' }],
+      images: []
     },
   });
 
+  const { UnsavedChangesModal, markSaved } = useLeaveConfirm(isDirty);
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'specList',
+  });
+
+  const { fields: imageFields, append: appendImage, remove: removeImage } = useFieldArray({
+    control,
+    name: 'images',
   });
 
   const statusValue = watch('status');
@@ -62,7 +70,12 @@ export default function ProductForm() {
         status: productData.status,
         categoryId: productData.categoryId,
         contentDetail: productData.detail?.contentDetail || '',
-        specList: specsArray.length ? specsArray : [{ key: '', value: '' }]
+        specList: specsArray.length ? specsArray : [{ key: '', value: '' }],
+        images: (productData.images || []).map(img => ({
+          imageUrl: img.imageUrl,
+          isMain: img.isMain || false,
+          orderIndex: img.orderIndex || 0
+        }))
       });
     }
   }, [isEdit, productData, reset]);
@@ -85,9 +98,9 @@ export default function ProductForm() {
     }
 
     if (isEdit && id) {
-      updateMutation.mutate({ id, data }, { onSuccess: () => navigate('/products') });
+      updateMutation.mutate({ id, data }, { onSuccess: () => { markSaved(); navigate('/products'); } });
     } else {
-      createMutation.mutate(data, { onSuccess: () => navigate('/products') });
+      createMutation.mutate(data, { onSuccess: () => { markSaved(); navigate('/products'); } });
     }
   };
 
@@ -98,7 +111,8 @@ export default function ProductForm() {
   }
 
   return (
-    <div className="space-y-5 max-w-5xl pb-12">
+    <div className="space-y-6 max-w-5xl pb-12">
+      <UnsavedChangesModal />
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => navigate('/products')}
           className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-gray-500 hover:text-black hover:bg-gray-50 transition-all shadow-sm">
@@ -174,6 +188,40 @@ export default function ProductForm() {
                 render={({ field }) => <RichTextEditor value={field.value || ''} onChange={field.onChange} placeholder="Nhập mô tả chi tiết sản phẩm..." />}
               />
             </div>
+
+            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
+              <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">THƯ VIỆN ẢNH SẢN PHẨM</h2>
+              
+              {imageFields.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {imageFields.map((field, index) => (
+                    <div key={field.id} className="relative aspect-square rounded-md border border-gray-200 overflow-hidden group bg-gray-50">
+                      <img src={field.imageUrl} alt={`Ảnh ${index + 1}`} className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-50">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 py-1 px-2">
+                         <p className="text-[10px] text-white font-medium truncate">Ảnh {index + 1}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <div className="pt-2">
+                <FileUpload 
+                  label="Tải thêm ảnh vào thư viện" 
+                  value="" 
+                  onChange={(url) => {
+                    if (url) {
+                      appendImage({ imageUrl: url, isMain: false, orderIndex: imageFields.length });
+                    }
+                  }} 
+                  bgOption="none" 
+                />
+              </div>
+            </div>
           </div>
 
           {/* Right sidebar */}
@@ -193,19 +241,19 @@ export default function ProductForm() {
                   <p className="text-sm font-bold text-black">Hiển thị</p>
                   <p className="text-xs font-medium text-gray-500">Hiện trên website</p>
                 </div>
-                <Toggle checked={!!statusValue} onToggle={() => setValue('status', !statusValue)} />
+                <Toggle checked={!!statusValue} onToggle={() => setValue('status', !statusValue, { shouldDirty: true })} />
               </div>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-bold text-black">Nổi bật</p>
                   <p className="text-xs font-medium text-gray-500">Trang chủ</p>
                 </div>
-                <Toggle checked={!!isFeaturedValue} onToggle={() => setValue('isFeatured', !isFeaturedValue)} />
+                <Toggle checked={!!isFeaturedValue} onToggle={() => setValue('isFeatured', !isFeaturedValue, { shouldDirty: true })} />
               </div>
             </div>
 
             <div className="flex flex-col gap-2.5">
-              <button type="submit" disabled={isSaving}
+              <button type="submit" disabled={isSaving || !isDirty}
                 className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
                 {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
                 {isEdit ? 'CẬP NHẬT' : 'TẠO SẢN PHẨM'}

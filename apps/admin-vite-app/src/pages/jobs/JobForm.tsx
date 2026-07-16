@@ -6,6 +6,7 @@ import { ChevronLeft, Loader2, Plus, Trash2 } from 'lucide-react';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { useCreateJob, useUpdateJob, useJobDetail } from '@/queries/jobs';
 import { CreateJobSchema, CreateJobInput } from 'shared-api';
+import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 
 const inputCls = "w-full h-9 px-3 rounded-md bg-white border border-gray-300 text-sm font-medium text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all shadow-sm";
 const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2";
@@ -26,13 +27,14 @@ export default function JobForm() {
   const updateMutation = useUpdateJob();
   const { data: jobData, isLoading: isLoadingDetail } = useJobDetail(id || '');
 
-  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<CreateJobInput>({
+  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm<CreateJobInput>({
     resolver: zodResolver(CreateJobSchema) as any,
     defaultValues: { title: '', salary: '', status: true, sections: [{ title: 'Mô tả công việc', content: '' }] as any },
   });
 
   const { fields, append, remove } = useFieldArray({ control, name: "sections" as any });
   const statusValue = watch('status');
+  const { UnsavedChangesModal, markSaved } = useLeaveConfirm(isDirty);
 
   useEffect(() => {
     if (isEdit && jobData) {
@@ -47,9 +49,9 @@ export default function JobForm() {
 
   const onSubmit = (data: CreateJobInput) => {
     if (isEdit && id) {
-      updateMutation.mutate({ id, data }, { onSuccess: () => navigate('/jobs') });
+      updateMutation.mutate({ id, data }, { onSuccess: () => { markSaved(); navigate('/jobs'); } });
     } else {
-      createMutation.mutate(data, { onSuccess: () => navigate('/jobs') });
+      createMutation.mutate(data, { onSuccess: () => { markSaved(); navigate('/jobs'); } });
     }
   };
 
@@ -60,7 +62,8 @@ export default function JobForm() {
   }
 
   return (
-    <div className="space-y-5 max-w-5xl pb-12">
+    <div className="space-y-6 max-w-4xl pb-12">
+      <UnsavedChangesModal />
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => navigate('/jobs')}
           className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-gray-500 hover:text-black hover:bg-gray-50 transition-all shadow-sm">
@@ -143,12 +146,12 @@ export default function JobForm() {
                   <p className="text-sm font-bold text-black">Trạng thái tuyển dụng</p>
                   <p className="text-xs font-medium text-gray-500">{statusValue ? 'Đang tuyển' : 'Đã đóng'}</p>
                 </div>
-                <Toggle checked={!!statusValue} onToggle={() => setValue('status' as any, !statusValue)} />
+                <Toggle checked={!!statusValue} onToggle={() => setValue('status' as any, !statusValue, { shouldDirty: true })} />
               </div>
             </div>
 
             <div className="flex flex-col gap-2.5">
-              <button type="submit" disabled={isSaving}
+              <button type="submit" disabled={isSaving || !isDirty}
                 className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
                 {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
                 {isEdit ? 'CẬP NHẬT' : 'ĐĂNG TIN'}

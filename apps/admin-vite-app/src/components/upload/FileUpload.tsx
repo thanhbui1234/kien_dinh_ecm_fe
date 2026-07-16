@@ -1,9 +1,17 @@
 import { type ChangeEvent, type DragEvent, useRef, useState, useEffect } from 'react';
-import { ImagePlus, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { ImagePlus, X, Image as ImageIcon, Loader2, FolderSearch, Scissors, Square } from 'lucide-react';
 import { useUpload } from '@/queries/upload/useUpload';
 import { toast } from '@/utils/toast';
 import imageCompression from 'browser-image-compression';
 import { removeBackground } from '@imgly/background-removal';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MediaPickerModal } from './MediaPickerModal';
+
+const aiOptions = [
+  { value: 'none', label: 'Giữ nguyên bản gốc', icon: ImageIcon },
+  { value: 'transparent', label: 'Xóa nền (Tách nền trong suốt)', icon: Scissors },
+  { value: 'cloudinary_white', label: 'Xóa nền & Chuyển thành nền trắng', icon: Square },
+];
 
 interface FileUploadProps {
   value?: string;
@@ -19,6 +27,7 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
   const [progress, setProgress] = useState(0);
   const [localBgOption, setLocalBgOption] = useState<'none' | 'transparent' | 'cloudinary_white'>(bgOption);
   const [isProcessingAI, setIsProcessingAI] = useState(false);
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadMutation = useUpload();
@@ -48,6 +57,11 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
     setPreviewUrl(null);
     setProgress(0);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleSelectFromLibrary = (url: string) => {
+    onChange?.(url);
+    setIsMediaPickerOpen(false);
   };
 
   const handleConfirmUpload = async () => {
@@ -119,11 +133,16 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
       }
     }, {
       onSuccess: (res) => {
-        const url = res?.url || (res as any)?.data?.url;
-        if (url) {
+        let url = res?.url || (res as any)?.data?.url || (res as any)?.secure_url || (res as any)?.data?.secure_url;
+        if (typeof res === 'string') {
+          url = res;
+        }
+        
+        if (url && typeof url === 'string') {
            onChange?.(url);
         } else {
-           onChange?.(res as any);
+           console.error("Upload failed: Could not extract URL from response", res);
+           toast.error(null, 'Lỗi: Không nhận được đường dẫn ảnh từ server.');
         }
         cancelPending();
       },
@@ -192,15 +211,27 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
             <div className="flex flex-col gap-3 rounded-lg bg-gray-50 p-4 border border-gray-200">
               <div>
                 <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Xử lý nền ảnh (AI)</label>
-                <select
-                  value={localBgOption}
-                  onChange={(e) => setLocalBgOption(e.target.value as any)}
-                  className="w-full h-9 px-3 rounded-md bg-white border border-gray-300 text-sm font-medium text-black focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all shadow-sm"
-                >
-                  <option value="none">Giữ nguyên bản gốc</option>
-                  <option value="transparent">Xóa nền (Tách nền trong suốt)</option>
-                  <option value="cloudinary_white">Xóa nền & Chuyển thành nền trắng</option>
-                </select>
+                <Select value={localBgOption} onValueChange={(val: any) => setLocalBgOption(val)}>
+                  <SelectTrigger className="w-full h-10">
+                    <div className="flex items-center gap-2">
+                      {(() => {
+                        const SelectedIcon = aiOptions.find(o => o.value === localBgOption)?.icon || ImageIcon;
+                        return <SelectedIcon className="h-4 w-4 text-gray-500" />;
+                      })()}
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {aiOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        <div className="flex items-center gap-2">
+                          <opt.icon className="h-4 w-4 text-gray-500" />
+                          <span className="font-medium text-black">{opt.label}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex items-center gap-2 mt-2">
                 <button type="button" onClick={handleConfirmUpload} className="flex-1 h-9 bg-black text-white rounded-md text-sm font-bold hover:bg-gray-800 transition-colors shadow-sm">
@@ -244,33 +275,59 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
 
       {/* Khu vực kéo thả */}
       {!value && !pendingFile && (
-        <div
-          className="flex flex-col justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8 transition-colors hover:border-black bg-gray-50"
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={handleDrop}
-        >
-          <div className="text-center">
-            <ImagePlus aria-hidden={true} className="mx-auto h-10 w-10 text-gray-400" />
-            <div className="mt-4 flex justify-center text-sm font-medium text-gray-600">
-              <p>Kéo thả ảnh vào đây hoặc</p>
-              <label
-                className="relative cursor-pointer rounded-sm pl-1 font-bold text-black hover:underline focus-within:outline-none"
-                htmlFor="file-upload"
-              >
-                <span>chọn file</span>
-                <input
-                  accept="image/jpeg, image/png, image/webp, image/gif"
-                  className="sr-only"
-                  id="file-upload"
-                  name="file-upload"
-                  onChange={handleFileChange}
-                  ref={fileInputRef}
-                  type="file"
-                />
-              </label>
+        <div className="flex flex-col gap-3">
+          <div
+            className="flex flex-col justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8 transition-colors hover:border-black bg-gray-50"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleDrop}
+          >
+            <div className="text-center">
+              <ImagePlus aria-hidden={true} className="mx-auto h-10 w-10 text-gray-400" />
+              <div className="mt-4 flex justify-center text-sm font-medium text-gray-600">
+                <p>Kéo thả ảnh vào đây hoặc</p>
+                <label
+                  className="relative cursor-pointer rounded-sm pl-1 font-bold text-black hover:underline focus-within:outline-none"
+                  htmlFor="file-upload"
+                >
+                  <span>chọn file</span>
+                  <input
+                    accept="image/jpeg, image/png, image/webp, image/gif"
+                    className="sr-only"
+                    id="file-upload"
+                    name="file-upload"
+                    onChange={handleFileChange}
+                    ref={fileInputRef}
+                    type="file"
+                  />
+                </label>
+              </div>
+              <p className="mt-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">PNG, JPG, WEBP TỐI ĐA 10MB</p>
             </div>
-            <p className="mt-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">PNG, JPG, WEBP TỐI ĐA 10MB</p>
           </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-white px-2 text-[10px] font-bold uppercase text-gray-400">hoặc</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsMediaPickerOpen(true)}
+            className="flex items-center justify-center gap-2 h-10 w-full rounded-md border border-gray-300 bg-white text-sm font-bold text-black hover:bg-gray-50 transition-colors shadow-sm"
+          >
+            <FolderSearch className="h-4 w-4 text-gray-500" />
+            CHỌN TỪ THƯ VIỆN
+          </button>
+
+          <MediaPickerModal 
+            isOpen={isMediaPickerOpen} 
+            onOpenChange={setIsMediaPickerOpen} 
+            onSelect={handleSelectFromLibrary} 
+          />
         </div>
       )}
     </div>

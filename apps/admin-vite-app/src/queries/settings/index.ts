@@ -39,9 +39,9 @@ export const useUpdateSystemSetting = () => {
 export const useBanners = (params?: Record<string, any>) => {
   const client = axiosInstance;
   return useQuery({
-    queryKey: settingKeys.banners(), // Assuming banners don't have complex list params in admin
+    queryKey: settingKeys.banners(),
     queryFn: async () => {
-      const response = await client.get<any, { data: { items: Banner[]; meta: PageMeta } }>(
+      const response = await client.get<any, { data: Banner[] }>(
         API_ENDPOINTS.SETTINGS.BANNERS,
         { params }
       );
@@ -50,5 +50,79 @@ export const useBanners = (params?: Record<string, any>) => {
     placeholderData: keepPreviousData,
   });
 };
+
+export const useCreateBanner = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Partial<Banner>) => {
+      const response = await client.post<any, { data: Banner }>(API_ENDPOINTS.SETTINGS.BANNERS, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Thêm banner thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.banners() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+export const useUpdateBanner = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Banner> }) => {
+      const response = await client.patch<any, { data: Banner }>(`${API_ENDPOINTS.SETTINGS.BANNERS}/${id}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Cập nhật banner thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.banners() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+export const useUpdateBannerOrders = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (banners: { id: string; orderIndex: number }[]) => {
+      const response = await client.patch<any, { data: Banner[] }>(`${API_ENDPOINTS.SETTINGS.BANNERS}/order`, { banners });
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Cập nhật thứ tự banner thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.banners() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+export const useDeleteBanner = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await client.delete<any, { data: Banner }>(`${API_ENDPOINTS.SETTINGS.BANNERS}/${id}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Xóa banner thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.banners() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+
 
 // ... Similar hooks can be added here for Timelines, Slogans when needed

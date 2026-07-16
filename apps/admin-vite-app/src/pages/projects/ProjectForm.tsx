@@ -8,6 +8,7 @@ import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { useCreateProject, useUpdateProject, useProjectDetail } from '@/queries/projects';
 import { useProducts } from '@/queries/products';
 import { CreateProjectSchema, CreateProjectInput } from 'shared-api';
+import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 
 const inputCls = "w-full h-9 px-3 rounded-md bg-white border border-gray-300 text-sm font-medium text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all shadow-sm";
 const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2";
@@ -35,13 +36,15 @@ export default function ProjectForm() {
   const updateMutation = useUpdateProject();
   const { data: projectData, isLoading: isLoadingDetail } = useProjectDetail(id || '');
 
-  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<CreateProjectInput>({
+  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm<CreateProjectInput>({
     resolver: zodResolver(CreateProjectSchema) as any,
     defaultValues: {
       name: '', description: '', coverImage: '', status: true,
       contentDetail: '', productIds: [], categoryIds: [],
     } as Partial<CreateProjectInput> as CreateProjectInput,
   });
+
+  const { UnsavedChangesModal, markSaved } = useLeaveConfirm(isDirty);
 
   const statusValue = watch('status');
   const selectedProductIds = watch('productIds') || [];
@@ -62,7 +65,7 @@ export default function ProjectForm() {
 
   const toggleProduct = (pid: string) => {
     const current = selectedProductIds as string[];
-    setValue('productIds' as any, current.includes(pid) ? current.filter(x => x !== pid) : [...current, pid]);
+    setValue('productIds' as any, current.includes(pid) ? current.filter(x => x !== pid) : [...current, pid], { shouldDirty: true });
   };
 
   const selectedProducts = allProducts.filter(p => (selectedProductIds as string[]).includes(p.id));
@@ -70,9 +73,9 @@ export default function ProjectForm() {
 
   const onSubmit = (data: CreateProjectInput) => {
     if (isEdit && id) {
-      updateMutation.mutate({ id, data }, { onSuccess: () => navigate('/projects') });
+      updateMutation.mutate({ id, data }, { onSuccess: () => { markSaved(); navigate('/projects'); } });
     } else {
-      createMutation.mutate(data, { onSuccess: () => navigate('/projects') });
+      createMutation.mutate(data, { onSuccess: () => { markSaved(); navigate('/projects'); } });
     }
   };
 
@@ -81,7 +84,8 @@ export default function ProjectForm() {
   }
 
   return (
-    <div className="space-y-5 max-w-5xl pb-12">
+    <div className="space-y-6 max-w-5xl pb-12">
+      <UnsavedChangesModal />
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => navigate('/projects')}
           className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-gray-500 hover:text-black hover:bg-gray-50 transition-all shadow-sm">
@@ -196,12 +200,12 @@ export default function ProjectForm() {
                   <p className="text-sm font-bold text-black">Hiển thị dự án</p>
                   <p className="text-xs font-medium text-gray-500">Hiện trên website</p>
                 </div>
-                <Toggle checked={!!statusValue} onToggle={() => setValue('status' as any, !statusValue)} />
+                <Toggle checked={!!statusValue} onToggle={() => setValue('status' as any, !statusValue, { shouldDirty: true })} />
               </div>
             </div>
 
             <div className="flex flex-col gap-2.5">
-              <button type="submit" disabled={isSaving}
+              <button type="submit" disabled={isSaving || !isDirty}
                 className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
                 {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
                 {isEdit ? 'CẬP NHẬT' : 'TẠO DỰ ÁN'}
