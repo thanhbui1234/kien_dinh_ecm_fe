@@ -132,7 +132,7 @@ export default function ProductForm() {
                 </div>
                 <div>
                   <label className={labelCls}>Giá bán (VNĐ)</label>
-                  <input {...register('price', { valueAsNumber: true })} type="number" placeholder="Để trống nếu liên hệ" className={inputCls} />
+                  <input {...register('price', { setValueAs: (v) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })} type="number" placeholder="Để trống nếu liên hệ" className={inputCls} />
                   {errors.price && <p className="text-xs font-medium text-red-500 mt-1.5">{errors.price?.message as any}</p>}
                 </div>
               </div>
