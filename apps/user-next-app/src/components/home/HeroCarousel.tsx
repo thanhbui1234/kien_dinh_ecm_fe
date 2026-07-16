@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -29,10 +29,10 @@ const slides: Slide[] = [
   {
     type: "fullscreen",
     image: "/images/hero/go-green.jpg",
-    title: "Đổi mới vì Trái Đất:",
+    title: "Đổi mới vì Trái Đất",
     subtitle: "Ý tưởng toàn cầu, tác động cục bộ",
     description:
-      'Chúng tôi sẽ đóng góp vào một xã hội bền vững bằng cách cân bằng giữa "sản xuất thân thiện với con người" và "sản xuất thân thiện với môi trường".',
+      "Chúng tôi đóng góp vào một xã hội bền vững bằng cách cân bằng giữa sản xuất thân thiện với con người và với môi trường.",
     link: "/about-us/environment/",
     linkText: "Đọc thêm",
     darkText: true,
@@ -40,19 +40,19 @@ const slides: Slide[] = [
   {
     type: "fullscreen",
     image: "/images/hero/automation.jpg",
-    title: "Giải pháp tổng thể cho",
-    subtitle: "hệ thống tự động hóa",
+    title: "Giải pháp tổng thể",
+    subtitle: "cho hệ thống tự động hóa",
     description:
-      "Chúng tôi cung cấp giải pháp trọn gói mọi thiết bị cần thiết cho tự động hóa, từ việc lựa chọn máy công cụ đến công nghệ gia công, đồ gá, phần mềm và thiết bị đo lường.",
+      "Giải pháp trọn gói mọi thiết bị cần thiết cho tự động hóa: máy công cụ, công nghệ gia công, đồ gá, phần mềm và thiết bị đo lường.",
     link: "/products/automation-machining/",
-    linkText: "Hệ thống tự động hóa cho các trung tâm gia công",
+    linkText: "Xem hệ thống tự động hóa",
   },
   {
     type: "product",
     image: "/images/hero/qte-series.jpg",
     title: "QTE series",
     description:
-      "Trung tâm tiện CNC tốc độ cao, độ chính xác cao, tiết kiệm không gian",
+      "Trung tâm tiện CNC tốc độ cao, độ chính xác cao, tiết kiệm không gian.",
     link: "/products/qte/",
     linkText: "Đọc thêm",
     darkText: true,
@@ -61,19 +61,22 @@ const slides: Slide[] = [
     type: "product",
     image: "/images/hero/qt-primos.jpg",
     title: "QT PRIMOS",
-    description: "Trung tâm tiện CNC 2 trục nhỏ gọn, hiệu suất cao",
+    description: "Trung tâm tiện CNC 2 trục nhỏ gọn, hiệu suất cao.",
     link: "/products/qt-primos/",
     linkText: "Đọc thêm",
     darkText: true,
   },
 ];
 
+const AUTO_ADVANCE_MS = 6500;
+const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+
 const HexagonBg = () => (
   <div
     style={{
       position: "absolute",
       inset: 0,
-      backgroundColor: "#f0f0f0",
+      backgroundColor: "#f2f2f2",
       overflow: "hidden",
     }}
   >
@@ -92,24 +95,9 @@ const HexagonBg = () => (
           height="104"
           patternUnits="userSpaceOnUse"
         >
-          <polygon
-            points="60,2 112,32 112,72 60,102 8,72 8,32"
-            fill="none"
-            stroke="#d8d8d8"
-            strokeWidth="1"
-          />
-          <polygon
-            points="0,54 -52,84 -52,124 0,154 52,124 52,84"
-            fill="none"
-            stroke="#d8d8d8"
-            strokeWidth="1"
-          />
-          <polygon
-            points="120,54 68,84 68,124 120,154 172,124 172,84"
-            fill="none"
-            stroke="#d8d8d8"
-            strokeWidth="1"
-          />
+          <polygon points="60,2 112,32 112,72 60,102 8,72 8,32" fill="none" stroke="#dadada" strokeWidth="1" />
+          <polygon points="0,54 -52,84 -52,124 0,154 52,124 52,84" fill="none" stroke="#dadada" strokeWidth="1" />
+          <polygon points="120,54 68,84 68,124 120,154 172,124 172,84" fill="none" stroke="#dadada" strokeWidth="1" />
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill="url(#hexPattern)" />
@@ -117,112 +105,232 @@ const HexagonBg = () => (
   </div>
 );
 
+const ArrowLeft = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const ArrowRight = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const ReadMoreArrow = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M2 7H12M12 7L7.5 2.5M12 7L7.5 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 export default function HeroCarousel() {
   const [current, setCurrent] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [contentKey, setContentKey] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const goTo = useCallback(
-    (index: number) => {
-      if (isAnimating || index === current) return;
-      setIsAnimating(true);
-      setTimeout(() => {
-        setCurrent(index);
-        setContentKey((k) => k + 1);
-        setIsAnimating(false);
-        // Signal header to adapt text color for light/dark slides
-        const slide = slides[index];
+  const goTo = useCallback((index: number) => {
+    setCurrent((c) => {
+      if (index === c) return c;
+      const slide = slides[index];
+      document.dispatchEvent(
+        new CustomEvent("hero-slide-change", { detail: { darkText: !!slide.darkText } })
+      );
+      return index;
+    });
+  }, []);
+
+  const goNext = useCallback(() => goTo((current + 1) % slides.length), [current, goTo]);
+  const goPrev = useCallback(() => goTo((current - 1 + slides.length) % slides.length), [current, goTo]);
+
+  const startTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setCurrent((c) => {
+        const next = (c + 1) % slides.length;
+        const slide = slides[next];
         document.dispatchEvent(
-          new CustomEvent('hero-slide-change', { detail: { darkText: !!slide.darkText } })
+          new CustomEvent("hero-slide-change", { detail: { darkText: !!slide.darkText } })
         );
-      }, 500);
-    },
-    [isAnimating, current]
-  );
-
-  const goNext = useCallback(() => {
-    goTo((current + 1) % slides.length);
-  }, [current, goTo]);
-
-  const goPrev = useCallback(() => {
-    goTo((current - 1 + slides.length) % slides.length);
-  }, [current, goTo]);
+        return next;
+      });
+    }, AUTO_ADVANCE_MS);
+  }, []);
 
   useEffect(() => {
-    const timer = setInterval(goNext, 5000);
-    return () => clearInterval(timer);
-  }, [goNext]);
+    startTimer();
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [startTimer, current]);
+
+  const activeSlide = slides[current];
+  const isDark = !!activeSlide.darkText;
+  const ink = isDark ? "#0a0a0a" : "#ffffff";
+  const inkMuted = isDark ? "rgba(10,10,10,0.72)" : "rgba(255,255,255,0.85)";
+  const dashInactive = isDark ? "rgba(10,10,10,0.18)" : "rgba(255,255,255,0.28)";
 
   return (
     <>
       <style>{`
-        @keyframes contentFadeIn2 {
-          0% { opacity: 0.2; }
-          100% { opacity: 1; }
+        @keyframes hero-fade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes hero-rise {
+          0% { opacity: 0; transform: translate3d(0, 20px, 0); }
+          100% { opacity: 1; transform: translate3d(0, 0, 0); }
         }
-        .hero-content-enter {
-          animation: contentFadeIn2 0.4s ease-in forwards;
+        @keyframes hero-underline {
+          0% { transform: scaleX(0); }
+          100% { transform: scaleX(1); }
         }
+        @keyframes hero-progress {
+          0% { transform: scaleX(0); }
+          100% { transform: scaleX(1); }
+        }
+
+        .hero-slide {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          transition: opacity 0.8s ${EASE};
+          will-change: opacity;
+          pointer-events: none;
+        }
+        .hero-slide[data-active="true"] {
+          opacity: 1;
+          pointer-events: auto;
+        }
+
+        .hero-content-item {
+          opacity: 0;
+          transform: translate3d(0, 20px, 0);
+          animation: hero-rise 0.75s ${EASE} forwards;
+          will-change: opacity, transform;
+        }
+        .hero-content-item-1 { animation-delay: 0.12s; }
+        .hero-content-item-2 { animation-delay: 0.24s; }
+        .hero-content-item-3 { animation-delay: 0.36s; }
+        .hero-content-item-4 { animation-delay: 0.48s; }
+
+        .hero-underline {
+          transform-origin: left center;
+          transform: scaleX(0);
+          animation: hero-underline 0.65s 0.24s ${EASE} forwards;
+        }
+
+        /* Nav buttons — solid orange, single committed style (no glass, no border+shadow combo) */
         .hero-nav-btn {
-          width: 40px;
-          height: 40px;
+          width: 56px;
+          height: 56px;
           border-radius: 50%;
           border: none;
-          background: rgba(255, 89, 1, 0.75);
+          background: #ff5901;
+          color: #ffffff;
           cursor: pointer;
-          display: flex;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
-          transition: background 0.2s ease;
+          transition: background 0.35s ${EASE},
+                      transform 0.35s ${EASE};
           flex-shrink: 0;
         }
         .hero-nav-btn:hover {
-          background: rgba(255, 89, 1, 1);
+          background: #e04d00;
+          transform: translateY(-2px);
         }
-        .hero-nav-btn-next {
-          background: rgba(255, 89, 1, 0.75) !important;
+        .hero-nav-btn:active { transform: translateY(0) scale(0.96); }
+        .hero-nav-btn:focus-visible {
+          outline: 2px solid #ff5901;
+          outline-offset: 3px;
         }
-        .hero-nav-btn-next:hover {
-          background: rgba(255, 89, 1, 1) !important;
+
+        /* Dash — solid track, functional progress fill on active */
+        .hero-dash {
+          position: relative;
+          width: 64px;
+          height: 2px;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          overflow: hidden;
+          transition: height 0.25s ${EASE};
         }
+        .hero-dash:hover { height: 3px; }
+        .hero-dash-track {
+          position: absolute;
+          inset: 0;
+        }
+        .hero-dash-fill {
+          position: absolute;
+          inset: 0;
+          background: #ff5901;
+          transform-origin: left center;
+          transform: scaleX(0);
+        }
+        .hero-dash-fill[data-active="true"] {
+          animation: hero-progress ${AUTO_ADVANCE_MS}ms linear forwards;
+        }
+
+        .hero-counter {
+          font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+          font-size: 13px;
+          letter-spacing: 0.08em;
+          font-variant-numeric: tabular-nums;
+          user-select: none;
+        }
+
         .hero-readmore {
-          display: flex;
+          display: inline-flex;
           align-items: center;
-          gap: 8px;
-          font-size: 14px;
+          gap: 10px;
+          font-size: 15px;
+          font-weight: 500;
           text-decoration: none;
-          margin-top: 20px;
-          transition: opacity 0.2s;
+          padding-bottom: 4px;
+          border-bottom: 1px solid currentColor;
+          transition: gap 0.35s ${EASE};
+          margin-top: 32px;
         }
-        .hero-readmore:hover {
-          opacity: 0.7;
+        .hero-readmore:hover { gap: 16px; }
+
+        @media (max-width: 900px) {
+          .hero-nav-btn { width: 48px; height: 48px; }
+          .hero-dash { width: 40px !important; }
+          .hero-controls-inner { gap: 16px !important; }
+          .hero-content-wrap { padding: 0 24px !important; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hero-slide { transition: opacity 0.15s linear; }
+          .hero-content-item {
+            animation: hero-fade 0.2s ease forwards;
+            transform: none;
+          }
+          .hero-underline {
+            animation: hero-fade 0.2s ease forwards;
+            transform: scaleX(1);
+          }
+          .hero-dash-fill[data-active="true"] {
+            animation: none;
+            transform: scaleX(1);
+          }
+          .hero-nav-btn:hover { transform: none; }
         }
       `}</style>
+
       <section
+        aria-label="Hero carousel"
         style={{
           position: "relative",
           width: "100%",
-          height: "720px",
+          height: "100vh",
+          minHeight: "720px",
+          maxHeight: "1080px",
           overflow: "hidden",
+          backgroundColor: "#0a0a0a",
         }}
       >
-        {/* Slides */}
         {slides.map((s, i) => {
           const active = i === current;
-          const sTextColor = s.darkText ? "#000" : "#fff";
-          const sIconColor = s.darkText ? "#000000" : "#ffffff";
-
           return (
-            <div
-              key={s.image}
-              style={{
-                position: "absolute",
-                inset: 0,
-                opacity: active && !isAnimating ? 1 : 0,
-                transition: "opacity 0.5s ease",
-                pointerEvents: active ? "auto" : "none",
-              }}
-            >
+            <div key={s.image} className="hero-slide" data-active={active} aria-hidden={!active}>
               {/* Background layer */}
               {s.type === "fullscreen" ? (
                 <>
@@ -234,16 +342,17 @@ export default function HeroCarousel() {
                     style={{ objectFit: "cover" }}
                     sizes="100vw"
                   />
-                  {!s.darkText && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        background:
-                          "linear-gradient(to right, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)",
-                      }}
-                    />
-                  )}
+                  {/* Committed dark→transparent overlay for text legibility */}
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: s.darkText
+                        ? "linear-gradient(90deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.35) 45%, rgba(255,255,255,0) 75%)"
+                        : "linear-gradient(90deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 80%)",
+                    }}
+                  />
                 </>
               ) : (
                 <>
@@ -253,7 +362,7 @@ export default function HeroCarousel() {
                       position: "absolute",
                       right: 0,
                       top: 0,
-                      width: "55%",
+                      width: "58%",
                       height: "100%",
                     }}
                   >
@@ -261,191 +370,179 @@ export default function HeroCarousel() {
                       src={s.image}
                       alt={s.title}
                       fill
-                      style={{
-                        objectFit: "contain",
-                        objectPosition: "center right",
-                      }}
-                      sizes="55vw"
+                      style={{ objectFit: "contain", objectPosition: "center right" }}
+                      sizes="60vw"
                     />
                   </div>
                 </>
               )}
 
-              {/* Text content — only rendered for active slide, key forces re-animation */}
+              {/* Content — only rendered for active slide so stagger animation replays cleanly */}
               {active && (
                 <div
-                  key={contentKey}
-                  className="hero-content-enter"
+                  className="hero-content-wrap"
                   style={{
                     position: "absolute",
-                    top: "360px",
-                    left: "20px",
-                    width: "calc(100% - 40px)",
-                    maxWidth: "1280px",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "0 clamp(24px, 5vw, 72px)",
+                    maxWidth: "1440px",
+                    margin: "0 auto",
                     zIndex: 10,
-                    color: sTextColor,
                   }}
                 >
-                  {/* Title — 40px/400/52px line-height, 560px wide */}
-                  <h2
-                    style={{
-                      fontSize: "40px",
-                      fontWeight: 400,
-                      lineHeight: "52px",
-                      margin: 0,
-                      width: "560px",
-                      maxWidth: "100%",
-                      color: "inherit",
-                    }}
-                  >
-                    {s.title}
-                    {s.subtitle && (
-                      <>
-                        <br />
-                        {s.subtitle}
-                      </>
-                    )}
-                  </h2>
-
-                  {/* Orange underline — 64px × 4px */}
-                  <div
-                    style={{
-                      width: "64px",
-                      height: "4px",
-                      backgroundColor: "#ff5901",
-                      marginTop: "8px",
-                      marginBottom: "20px",
-                    }}
-                  />
-
-                  {/* Description — 16px/300/27.2px */}
-                  <p
-                    style={{
-                      fontSize: "16px",
-                      fontWeight: 300,
-                      lineHeight: "27.2px",
-                      width: "540px",
-                      maxWidth: "100%",
-                      margin: 0,
-                      color: "inherit",
-                    }}
-                  >
-                    {s.description}
-                  </p>
-
-                  {/* "Đọc thêm" link with circle arrow SVG */}
-                  <Link
-                    href={s.link}
-                    className="hero-readmore"
-                    style={{ color: sTextColor }}
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
+                  <div style={{ width: "min(640px, 100%)" }}>
+                    <h2
+                      className="hero-content-item hero-content-item-1"
+                      style={{
+                        fontSize: "clamp(28px, 3.4vw, 46px)",
+                        fontWeight: 500,
+                        lineHeight: 1.15,
+                        letterSpacing: "-0.02em",
+                        margin: 0,
+                        color: ink,
+                        textWrap: "balance",
+                      }}
                     >
-                      <circle
-                        cx="8"
-                        cy="8"
-                        r="7"
-                        stroke={sIconColor}
-                        strokeWidth="1.5"
+                      {s.title}
+                      {s.subtitle && (
+                        <span
+                          style={{
+                            display: "block",
+                            marginTop: "6px",
+                            fontSize: "clamp(22px, 2.5vw, 34px)",
+                            fontWeight: 400,
+                            lineHeight: 1.2,
+                            opacity: 0.92,
+                          }}
+                        >
+                          {s.subtitle}
+                        </span>
+                      )}
+                    </h2>
+
+                    <div
+                      className="hero-content-item hero-content-item-2"
+                      style={{
+                        width: "64px",
+                        height: "2px",
+                        marginTop: "24px",
+                        marginBottom: "22px",
+                        overflow: "hidden",
+                        position: "relative",
+                      }}
+                    >
+                      <div
+                        className="hero-underline"
+                        style={{ position: "absolute", inset: 0, backgroundColor: "#ff5901" }}
                       />
-                      <path
-                        d="M6.5 5L9.5 8L6.5 11"
-                        stroke={sIconColor}
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    {s.linkText}
-                  </Link>
+                    </div>
+
+                    <p
+                      className="hero-content-item hero-content-item-3"
+                      style={{
+                        fontSize: "15px",
+                        fontWeight: 400,
+                        lineHeight: 1.65,
+                        maxWidth: "56ch",
+                        margin: 0,
+                        color: inkMuted,
+                        textWrap: "pretty",
+                      }}
+                    >
+                      {s.description}
+                    </p>
+
+                    <div className="hero-content-item hero-content-item-4">
+                      <Link href={s.link} className="hero-readmore" style={{ color: ink }}>
+                        <span>{s.linkText}</span>
+                        <ReadMoreArrow />
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
           );
         })}
 
-        {/* Bottom navigation — prev/dashes/next at bottom-left */}
+        {/* Controls — buttons + progressive dashes (left), slide counter (right) */}
         <div
           style={{
             position: "absolute",
-            bottom: "32px",
-            left: "20px",
-            zIndex: 10,
-            display: "flex",
-            alignItems: "center",
-            gap: "16px",
+            bottom: "clamp(40px, 6vh, 80px)",
+            left: 0,
+            right: 0,
+            zIndex: 20,
+            padding: "0 clamp(24px, 5vw, 72px)",
+            maxWidth: "1440px",
+            margin: "0 auto",
           }}
         >
-          <button
-            onClick={goPrev}
-            aria-label="Previous slide"
-            className="hero-nav-btn"
+          <div
+            className="hero-controls-inner"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "24px",
+            }}
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M10 3L5 8L10 13"
-                stroke="#fff"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <button
+                  onClick={goPrev}
+                  aria-label="Slide trước"
+                  className="hero-nav-btn"
+                >
+                  <ArrowLeft />
+                </button>
+                <button
+                  onClick={goNext}
+                  aria-label="Slide kế tiếp"
+                  className="hero-nav-btn"
+                >
+                  <ArrowRight />
+                </button>
+              </div>
 
-          {/* Dash indicators */}
-          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => goTo(i)}
-                aria-label={`Go to slide ${i + 1}`}
-                style={{
-                  width: "40px",
-                  height: "4px",
-                  border: "none",
-                  borderRadius: "2px",
-                  backgroundColor:
-                    i === current ? "#ff5901" : "rgba(255,255,255,0.5)",
-                  cursor: "pointer",
-                  padding: 0,
-                  transition: "background-color 0.3s ease",
-                }}
-              />
-            ))}
+              <div
+                role="tablist"
+                aria-label="Slide indicators"
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goTo(i)}
+                    role="tab"
+                    aria-selected={i === current}
+                    aria-label={`Slide ${i + 1}`}
+                    className="hero-dash"
+                  >
+                    <span
+                      className="hero-dash-track"
+                      style={{ backgroundColor: dashInactive }}
+                    />
+                    <span
+                      key={`fill-${i}-${current}`}
+                      className="hero-dash-fill"
+                      data-active={i === current}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="hero-counter" style={{ color: inkMuted }} aria-live="polite">
+              <span style={{ color: ink, fontWeight: 500 }}>
+                {String(current + 1).padStart(2, "0")}
+              </span>
+              <span style={{ margin: "0 6px", opacity: 0.5 }}>/</span>
+              <span>{String(slides.length).padStart(2, "0")}</span>
+            </div>
           </div>
-
-          <button
-            onClick={goNext}
-            aria-label="Next slide"
-            className="hero-nav-btn hero-nav-btn-next"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M6 3L11 8L6 13"
-                stroke="#fff"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
         </div>
       </section>
     </>
