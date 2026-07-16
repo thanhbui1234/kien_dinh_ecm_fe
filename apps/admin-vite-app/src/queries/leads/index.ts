@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { toast } from '@/utils/toast';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { leadKeys } from 'shared-api';
@@ -27,6 +28,12 @@ export const useUpdateLeadStatus = () => {
       const response = await client.patch<any, { data: Lead }>(API_ENDPOINTS.LEADS.STATUS(id), data);
       return response.data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: leadKeys.lists() }),
+    onSuccess: () => {
+      toast.success("Cập nhật trạng thái thành công");
+      queryClient.invalidateQueries({ queryKey: leadKeys.lists() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
   });
 };

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { toast } from '@/utils/toast';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { jobKeys } from 'shared-api';
@@ -39,7 +40,13 @@ export const useCreateJob = () => {
       const response = await client.post<any, { data: Job }>(API_ENDPOINTS.JOBS.BASE, data);
       return response.data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: jobKeys.lists() }),
+    onSuccess: () => {
+      toast.success("Thêm bài đăng thành công");
+      queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
   });
 };
 
@@ -52,9 +59,13 @@ export const useUpdateJob = () => {
       return response.data;
     },
     onSuccess: (_, variables) => {
+      toast.success("Cập nhật bài đăng thành công");
       queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
       queryClient.invalidateQueries({ queryKey: jobKeys.detail(variables.id) });
     },
+    onError: (error: any) => {
+      toast.error(error);
+    }
   });
 };
 
@@ -66,6 +77,12 @@ export const useDeleteJob = () => {
       const response = await client.delete<any, { data: Job }>(API_ENDPOINTS.JOBS.DETAIL_ID(id));
       return response.data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: jobKeys.lists() }),
+    onSuccess: () => {
+      toast.success("Xóa bài đăng thành công");
+      queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
   });
 };

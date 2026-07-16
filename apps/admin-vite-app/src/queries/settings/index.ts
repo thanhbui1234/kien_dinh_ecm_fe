@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { toast } from '@/utils/toast';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { settingKeys } from 'shared-api';
@@ -24,7 +25,13 @@ export const useUpdateSystemSetting = () => {
       const response = await client.patch<any, { data: SystemSetting }>(API_ENDPOINTS.SETTINGS.SYSTEM_KEY(key), data);
       return response.data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: settingKeys.system() }),
+    onSuccess: () => {
+      toast.success("Cập nhật cài đặt thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.system() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
   });
 };
 
