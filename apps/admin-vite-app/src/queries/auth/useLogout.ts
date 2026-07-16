@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
+import { TokenService } from '@/utils/token';
 
 export const useLogout = () => {
   const client = axiosInstance;
@@ -13,6 +14,14 @@ export const useLogout = () => {
     },
     onSuccess: () => {
       queryClient.clear();
+      TokenService.clearTokens();
+      window.location.href = '/login';
     },
+    onError: () => {
+      // Dù lỗi hay không cũng nên clear token và đá về login cho an toàn
+      queryClient.clear();
+      TokenService.clearTokens();
+      window.location.href = '/login';
+    }
   });
 };

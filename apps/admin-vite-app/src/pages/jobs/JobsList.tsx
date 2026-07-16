@@ -1,16 +1,31 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import { useJobs, useDeleteJob } from '@/queries/jobs';
+import { useSearchParams } from 'react-router-dom';
+import { useJobs, useDeleteJob, useUpdateJob } from '@/queries/jobs';
 import { DataTable, ColumnDef } from '@/components/common/DataTable';
+import { DataFilter, FilterField } from '@/components/common/DataFilter';
+import { StatusSwitch } from '@/components/common/StatusSwitch';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { Job } from 'shared-api';
 import { Link } from 'react-router-dom';
 
 export default function JobsList() {
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const { data, isLoading } = useJobs({ page, limit: 10 });
+
+  const page = Number(searchParams.get('page')) || 1;
+  const search = searchParams.get('search') || undefined;
+  const statusParam = searchParams.get('status');
+  const status = statusParam === 'true' ? true : statusParam === 'false' ? false : undefined;
+
+  const { data, isLoading } = useJobs({ page, limit: 10, search, status });
   const deleteMutation = useDeleteJob();
+  const updateMutation = useUpdateJob();
+
+  const filterFields: FilterField[] = [
+    { key: 'search', type: 'search', placeholder: 'Tìm vị trí tuyển dụng...' },
+    { key: 'status', type: 'select', placeholder: 'Tất cả trạng thái', options: [{ label: 'Đang tuyển', value: 'true' }, { label: 'Đã đóng', value: 'false' }] },
+  ];
 
   const handleDelete = () => {
     if (deleteId) deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
@@ -32,12 +47,16 @@ export default function JobsList() {
     {
       key: 'status', header: 'Trạng thái',
       cell: (row) => (
-        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${
-          row.status ? 'bg-white border-black text-black' : 'bg-gray-100 border-gray-300 text-gray-500'
-        }`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${row.status ? 'bg-black' : 'bg-gray-400'}`} />
-          {row.status ? 'Đang tuyển' : 'Đã đóng'}
-        </span>
+        <div className="flex items-center gap-2">
+          <StatusSwitch 
+            checked={row.status} 
+            isLoading={updateMutation.isPending && updateMutation.variables?.id === row.id}
+            onChange={(checked) => updateMutation.mutate({ id: row.id, data: { status: checked } })} 
+          />
+          <span className={`text-xs font-semibold ${row.status ? 'text-black' : 'text-gray-500'}`}>
+            {row.status ? 'Đang tuyển' : 'Đã đóng'}
+          </span>
+        </div>
       ),
     },
     {
@@ -70,7 +89,19 @@ export default function JobsList() {
         </Link>
       </div>
 
-      <DataTable columns={columns} data={data?.items || []} isLoading={isLoading} pageMeta={data?.meta} onPageChange={setPage} />
+      <DataFilter fields={filterFields} />
+
+      <DataTable 
+        columns={columns} 
+        data={data?.items || []} 
+        isLoading={isLoading} 
+        pageMeta={data?.meta} 
+        onPageChange={(newPage) => {
+          const newParams = new URLSearchParams(searchParams);
+          newParams.set('page', newPage.toString());
+          setSearchParams(newParams);
+        }} 
+      />
 
       <ConfirmModal isOpen={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}
         title="Xóa tin tuyển dụng" description="Bạn có chắc muốn xóa tin tuyển dụng này? Hành động này không thể hoàn tác."

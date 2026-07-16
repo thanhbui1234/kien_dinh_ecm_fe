@@ -1,16 +1,47 @@
 import { useState } from 'react';
-import { Plus, Edit, Trash2, Eye } from 'lucide-react';
-import { useProducts, useDeleteProduct } from '@/queries/products';
+import { Plus, Edit, Trash2, Eye, Copy, Loader2 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { useProducts, useDeleteProduct, useCopyProduct, useUpdateProduct } from '@/queries/products';
+import { useCategories } from '@/queries/categories';
 import { DataTable, ColumnDef } from '@/components/common/DataTable';
+import { DataFilter, FilterField } from '@/components/common/DataFilter';
+import { StatusSwitch } from '@/components/common/StatusSwitch';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { Product } from 'shared-api';
 import { Link } from 'react-router-dom';
 
 export default function ProductsList() {
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const { data, isLoading } = useProducts({ page, limit: 10 });
+  
+  // Extract all relevant params from URL
+  const page = Number(searchParams.get('page')) || 1;
+  const search = searchParams.get('search') || undefined;
+  const categoryId = searchParams.get('categoryId') || undefined;
+  const statusParam = searchParams.get('status');
+  const status = statusParam === 'true' ? true : statusParam === 'false' ? false : undefined;
+  const isFeaturedParam = searchParams.get('isFeatured');
+  const isFeatured = isFeaturedParam === 'true' ? true : isFeaturedParam === 'false' ? false : undefined;
+  const sortBy = searchParams.get('sortBy') || undefined;
+
+  const { data, isLoading } = useProducts({ page, limit: 10, search, categoryId, status, isFeatured, sortBy });
   const deleteMutation = useDeleteProduct();
+  const copyMutation = useCopyProduct();
+  const updateMutation = useUpdateProduct();
+  const { data: categoriesData } = useCategories();
+
+  const filterFields: FilterField[] = [
+    { key: 'search', type: 'search', placeholder: 'Tìm tên sản phẩm, mã...' },
+    { key: 'categoryId', type: 'select', placeholder: 'Tất cả danh mục', options: (categoriesData || []).map((c: any) => ({ label: c.name, value: c.id })) },
+    { key: 'status', type: 'select', placeholder: 'Tất cả trạng thái', options: [{ label: 'Hiển thị', value: 'true' }, { label: 'Đã ẩn', value: 'false' }] },
+    { key: 'isFeatured', type: 'select', placeholder: 'Nổi bật?', options: [{ label: 'Có', value: 'true' }, { label: 'Không', value: 'false' }] },
+    { key: 'sortBy', type: 'select', placeholder: 'Sắp xếp theo', options: [
+      { label: 'Mới nhất', value: 'createdAt' },
+      { label: 'Cũ nhất', value: 'createdAt_asc' },
+      { label: 'Giá tăng dần', value: 'price_asc' },
+      { label: 'Giá giảm dần', value: 'price_desc' }
+    ] },
+  ];
 
   const handleDelete = () => {
     if (deleteId) deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
@@ -51,12 +82,16 @@ export default function ProductsList() {
     {
       key: 'status', header: 'Trạng thái',
       cell: (row) => (
-        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${
-          row.status ? 'bg-white border-black text-black' : 'bg-gray-100 border-gray-300 text-gray-500'
-        }`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${row.status ? 'bg-black' : 'bg-gray-400'}`} />
-          {row.status ? 'Hiển thị' : 'Đã ẩn'}
-        </span>
+        <div className="flex items-center gap-2">
+          <StatusSwitch 
+            checked={row.status} 
+            isLoading={updateMutation.isPending && updateMutation.variables?.id === row.id}
+            onChange={(checked) => updateMutation.mutate({ id: row.id, data: { status: checked } })} 
+          />
+          <span className={`text-xs font-semibold ${row.status ? 'text-black' : 'text-gray-500'}`}>
+            {row.status ? 'Hiển thị' : 'Đã ẩn'}
+          </span>
+        </div>
       ),
     },
     {
@@ -67,6 +102,12 @@ export default function ProductsList() {
             className="flex items-center justify-center w-7 h-7 rounded-md border border-transparent text-gray-400 hover:text-black hover:border-gray-300 hover:bg-gray-50 transition-all">
             <Eye className="h-3.5 w-3.5" />
           </Link>
+          <button 
+            onClick={() => copyMutation.mutate(row.id)}
+            disabled={copyMutation.isPending}
+            className="flex items-center justify-center w-7 h-7 rounded-md border border-transparent text-gray-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition-all disabled:opacity-50">
+            {copyMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Copy className="h-3.5 w-3.5" />}
+          </button>
           <Link to={`/products/${row.id}/edit`}
             className="flex items-center justify-center w-7 h-7 rounded-md border border-transparent text-gray-400 hover:text-black hover:border-gray-300 hover:bg-gray-50 transition-all">
             <Edit className="h-3.5 w-3.5" />
@@ -92,7 +133,21 @@ export default function ProductsList() {
           <Plus className="h-3.5 w-3.5" /> Thêm mới
         </Link>
       </div>
-      <DataTable columns={columns} data={data?.items || []} isLoading={isLoading} pageMeta={data?.meta} onPageChange={setPage} />
+
+      <DataFilter fields={filterFields} />
+
+      <DataTable 
+        columns={columns} 
+        data={data?.items || []} 
+        isLoading={isLoading} 
+        pageMeta={data?.meta} 
+        onPageChange={(newPage) => {
+          const newParams = new URLSearchParams(searchParams);
+          newParams.set('page', newPage.toString());
+          // Sử dụng setSearchParams từ hook để router bắt được thay đổi
+          setSearchParams(newParams);
+        }} 
+      />
       <ConfirmModal isOpen={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}
         title="Xóa sản phẩm" description="Bạn có chắc chắn muốn xóa sản phẩm này? Hành động này không thể hoàn tác."
         onConfirm={handleDelete} isLoading={deleteMutation.isPending} />

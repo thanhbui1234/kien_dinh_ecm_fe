@@ -56,17 +56,17 @@ export default function Dashboard() {
           </div>
           <div className="space-y-4">
             {(products?.items || []).slice(0, 5).map(p => (
-              <div key={p.id} className="flex items-center gap-3">
+              <Link to={`/products/${p.id}`} key={p.id} className="flex items-center gap-3 hover:bg-gray-50 p-2 -mx-2 rounded transition-colors group">
                 <img src={p.thumbnailUrl || 'https://placehold.co/32x32/f9fafb/6b7280?text=...'} alt={p.name}
                   className="w-10 h-10 rounded border border-gray-200 object-cover shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-black truncate">{p.name}</p>
+                  <p className="text-sm font-semibold text-black truncate group-hover:text-blue-600 transition-colors">{p.name}</p>
                   <p className="text-xs font-medium text-gray-500 mt-0.5">{p.price ? `${p.price.toLocaleString('vi-VN')} ₫` : 'Liên hệ'}</p>
                 </div>
                 <span className={`text-[10px] font-bold px-2 py-1 rounded border ${
                   p.status ? 'border-gray-200 text-black' : 'border-gray-200 text-gray-400 bg-gray-50'
                 }`}>{p.status ? 'HIỆN' : 'ẨN'}</span>
-              </div>
+              </Link>
             ))}
             {(products?.items || []).length === 0 && <p className="text-xs text-gray-500 text-center py-4">Chưa có sản phẩm</p>}
           </div>
