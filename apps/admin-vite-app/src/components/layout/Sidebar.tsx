@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Settings, Package, FolderTree,
-  Briefcase, Phone, Presentation, Hexagon, LogOut, Image
+  Briefcase, Phone, Presentation, Hexagon, LogOut, Image, Building2
 } from 'lucide-react';
 import { useLogout } from '@/queries/auth/useLogout';
 import { TokenService } from '@/utils/token';
@@ -12,6 +12,7 @@ const mainNav = [
   { name: 'Danh mục', path: '/categories', icon: FolderTree },
   { name: 'Dự án', path: '/projects', icon: Presentation },
   { name: 'Tuyển dụng', path: '/jobs', icon: Briefcase },
+  { name: 'Về doanh nghiệp', path: '/about-us', icon: Building2 },
 ];
 const systemNav = [
   { name: 'Liên hệ', path: '/leads', icon: Phone },

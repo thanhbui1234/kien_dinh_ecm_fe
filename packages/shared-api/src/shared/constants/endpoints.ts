@@ -45,4 +45,11 @@ export const API_ENDPOINTS = {
     BANNERS: '/api/v1/settings/banners',
     BANNERS_DETAIL: (id: string) => `/api/v1/settings/banners/${id}`,
   },
+  // TODO: cập nhật paths khi BE cung cấp API
+  ABOUT: {
+    COMPANY_INFO: '/api/v1/about/company-info',
+    COMPANY_INFO_DETAIL: (id: string) => `/api/v1/about/company-info/${id}`,
+    FACILITIES: '/api/v1/about/facilities',
+    FACILITY_DETAIL: (id: string) => `/api/v1/about/facilities/${id}`,
+  },
 } as const;

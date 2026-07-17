@@ -19,6 +19,7 @@ const JobForm = lazy(() => import('@/pages/jobs/JobForm'));
 const LeadsList = lazy(() => import('@/pages/leads/LeadsList'));
 const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage'));
 const MediaGallery = lazy(() => import('@/pages/media/MediaGallery'));
+const AboutPage = lazy(() => import('@/pages/about/AboutPage'));
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -59,6 +60,7 @@ export const router = createBrowserRouter([
       { path: 'jobs/:id/edit', element: withSuspense(JobForm) },
       { path: 'leads', element: withSuspense(LeadsList) },
       { path: 'media', element: withSuspense(MediaGallery) },
+      { path: 'about-us', element: withSuspense(AboutPage) },
           { path: 'settings', element: withSuspense(SettingsPage) },
         ],
       }
