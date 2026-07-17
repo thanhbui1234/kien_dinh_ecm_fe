@@ -4,9 +4,10 @@ import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { Trash2, RefreshCw, Plus, ImageIcon } from 'lucide-react';
+import { Trash2, RefreshCw, Plus, ImageIcon, Eye } from 'lucide-react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
+import { ImageLightbox } from '@/components/common/ImageLightbox';
 
 export default function MediaGallery() {
   const { data, isLoading, refetch } = useGetFiles();
@@ -15,6 +16,8 @@ export default function MediaGallery() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [replaceId, setReplaceId] = useState<string | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const handleDelete = () => {
     if (deleteId) {
@@ -70,7 +73,11 @@ export default function MediaGallery() {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {data.resources.map((file: any) => (
             <div key={file.public_id} className="group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
-              <div className="aspect-square w-full overflow-hidden bg-gray-50 flex items-center justify-center p-2 relative">
+              <button
+                type="button"
+                onClick={() => { const idx = (data.resources || []).findIndex((f: any) => f.public_id === file.public_id); setLightboxIndex(idx >= 0 ? idx : 0); setLightboxOpen(true); }}
+                className="aspect-square w-full overflow-hidden bg-gray-50 flex items-center justify-center p-2 relative cursor-zoom-in"
+              >
                 <img
                   src={file.secure_url}
                   alt={file.public_id}
@@ -79,9 +86,24 @@ export default function MediaGallery() {
                 />
                 
                 {/* Hover Actions */}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
                   <button
-                    onClick={() => {
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const idx = (data.resources || []).findIndex((f: any) => f.public_id === file.public_id);
+                      setLightboxIndex(idx >= 0 ? idx : 0);
+                      setLightboxOpen(true);
+                    }}
+                    className="p-2 bg-white text-black rounded-full hover:bg-gray-200 transition-colors"
+                    title="Xem ảnh lớn"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setReplaceId(file.public_id);
                       setIsUploadModalOpen(true);
                     }}
@@ -91,14 +113,18 @@ export default function MediaGallery() {
                     <RefreshCw className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => setDeleteId(file.public_id)}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteId(file.public_id);
+                    }}
                     className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
                     title="Xóa ảnh"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
-              </div>
+              </button>
               
               <div className="flex flex-1 flex-col p-3">
                 <p className="truncate text-xs font-bold text-gray-900" title={file.public_id}>
@@ -149,6 +175,14 @@ export default function MediaGallery() {
           </DialogPrimitive.Content>
         </DialogPrimitive.Portal>
       </DialogPrimitive.Root>
+
+      <ImageLightbox
+        open={lightboxOpen}
+        index={lightboxIndex}
+        slides={(data?.resources || []).map((f: any) => ({ src: f.secure_url }))}
+        onClose={() => setLightboxOpen(false)}
+        onIndexChange={(i) => setLightboxIndex(i)}
+      />
     </div>
   );
 }

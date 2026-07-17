@@ -6,4 +6,7 @@ import { createListResource, createDetailResource } from './resource-factory';
 export const createProductsApi = (client: FetchClient) => ({
   getProducts: createListResource<Product>(client, API_ENDPOINTS.PRODUCTS.BASE),
   getProductDetail: createDetailResource<Product>(client, API_ENDPOINTS.PRODUCTS.DETAIL),
+  getRelatedProducts: async (id: string): Promise<Product[] | null> => {
+    return await client.safeGet<Product[]>(API_ENDPOINTS.PRODUCTS.RELATED(id));
+  },
 });

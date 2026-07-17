@@ -5,14 +5,19 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
-import { NAV_ITEMS } from '@/constants/navigation';
+import { NAV_ITEMS, NavItem } from '@/constants/navigation';
 import { UtilityBar } from './header/UtilityBar';
 import { DesktopNav } from './header/DesktopNav';
 import { HamburgerButton } from './header/HamburgerButton';
 import { MegaMenu } from './header/MegaMenu';
 import { MobileMenu } from './header/MobileMenu';
+import type { Category } from 'shared-api';
 
-export default function Header() {
+interface HeaderProps {
+  categories?: Category[];
+}
+
+export default function Header({ categories = [] }: HeaderProps) {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
   const [scrolled, setScrolled] = useState(false);
@@ -98,7 +103,20 @@ export default function Header() {
   const headerShadowClass =
     isTransparent && !heroSlideLight ? 'shadow-none' : 'shadow-[0_2px_8px_rgba(0,0,0,0.1)]';
 
-  const activeNavItem = NAV_ITEMS.find((item) => item.label === activeDropdown);
+  const navItems: NavItem[] = NAV_ITEMS.map((item) => {
+    if (item.label === 'Các sản phẩm' && categories.length > 0) {
+      return {
+        ...item,
+        children: categories.map((cat) => ({
+          label: cat.name,
+          href: `/products/?category=${cat.slug}`,
+        })),
+      };
+    }
+    return item;
+  });
+
+  const activeNavItem = navItems.find((item) => item.label === activeDropdown);
 
   return (
     <>
@@ -107,7 +125,6 @@ export default function Header() {
         className={`fixed top-0 left-0 right-0 z-[1000] transition-[background-color,box-shadow] duration-300 ease-in-out ${headerBgClass} ${headerShadowClass}`}
       >
         {/* Utility bar — only visible when header is transparent (homepage at top) */}
-        {isTransparent && <UtilityBar utilityTextClass={utilityTextClass} />}
 
         {/* Main nav row */}
         <div className="max-w-[1400px] mx-auto px-6 h-[80px] flex items-center justify-between">
@@ -129,6 +146,7 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <DesktopNav
+            navItems={navItems}
             activeDropdown={activeDropdown}
             navTextClass={navTextClass}
             handleNavClick={handleNavClick}
@@ -150,7 +168,7 @@ export default function Header() {
       </header>
 
       {/* Mobile Menu */}
-      {mobileOpen && <MobileMenu closeMenu={closeMenu} />}
+      {mobileOpen && <MobileMenu navItems={navItems} closeMenu={closeMenu} />}
 
       <style>{`
         @keyframes megaFadeIn {

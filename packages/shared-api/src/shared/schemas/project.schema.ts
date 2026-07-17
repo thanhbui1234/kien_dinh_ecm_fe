@@ -10,6 +10,7 @@ export const CreateProjectSchema = z.object({
   contentDetail: z.string().optional(),
   productIds: z.array(z.string()).optional(),
   categoryIds: z.array(z.string()).optional(),
+  isFeatured: z.boolean().optional(),
 });
 
 export const UpdateProjectSchema = CreateProjectSchema.partial();
@@ -17,3 +18,4 @@ export const UpdateProjectSchema = CreateProjectSchema.partial();
 export type Project = ProjectResponseDto;
 export type CreateProjectInput = CreateProjectDto;
 export type UpdateProjectInput = UpdateProjectDto;
+

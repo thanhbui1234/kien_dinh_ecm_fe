@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, useRouteError } from 'react-router-dom';
 import AdminLayout from '@/layouts/AdminLayout';
 import AuthLayout from '@/layouts/AuthLayout';
 import { PrivateRoute } from '@/components/layout/PrivateRoute';
@@ -35,10 +35,37 @@ const withSuspense = (Component: React.ComponentType) => (
   </Suspense>
 );
 
+const RootErrorBoundary = () => {
+  const error = useRouteError() as Error;
+  
+  // If it's a dynamic import error (chunk load failed due to new deployment), force a reload
+  if (
+    error?.message?.includes('Failed to fetch dynamically imported module') ||
+    error?.message?.includes('Importing a module script failed')
+  ) {
+    window.location.reload();
+    return <PageLoader />;
+  }
+
+  return (
+    <div className="flex h-screen flex-col items-center justify-center p-4 text-center bg-white dark:bg-zinc-950">
+      <h1 className="mb-4 text-2xl font-bold text-red-600">Đã xảy ra lỗi</h1>
+      <p className="mb-4 text-zinc-600 dark:text-zinc-400">{error?.message || 'Lỗi không xác định'}</p>
+      <button 
+        onClick={() => window.location.reload()}
+        className="rounded bg-zinc-900 px-4 py-2 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900"
+      >
+        Tải lại trang
+      </button>
+    </div>
+  );
+};
+
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <PrivateRoute />,
+    errorElement: <RootErrorBoundary />,
     children: [
       {
         path: '/',

@@ -28,7 +28,7 @@ export default function JobForm() {
   const { data: jobData, isLoading: isLoadingDetail } = useJobDetail(id || '');
 
   const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm<CreateJobInput>({
-    resolver: zodResolver(CreateJobSchema) as any,
+    resolver: zodResolver(CreateJobSchema as any),
     defaultValues: { title: '', salary: '', status: true, sections: [{ title: 'Mô tả công việc', content: '' }] as any },
   });
 

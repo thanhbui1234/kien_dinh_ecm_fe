@@ -41,6 +41,7 @@
     "shared-ui": "workspace:*",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
+    "yet-another-react-lightbox": "^3.32.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {

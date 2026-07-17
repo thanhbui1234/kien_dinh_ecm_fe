@@ -1,17 +1,18 @@
 import React from 'react';
 import Link from 'next/link';
-import { NAV_ITEMS } from '@/constants/navigation';
+import { NavItem } from '@/constants/navigation';
 
 interface DesktopNavProps {
+  navItems: NavItem[];
   activeDropdown: string | null;
   navTextClass: string;
   handleNavClick: (label: string) => void;
 }
 
-export const DesktopNav = ({ activeDropdown, navTextClass, handleNavClick }: DesktopNavProps) => {
+export const DesktopNav = ({ navItems, activeDropdown, navTextClass, handleNavClick }: DesktopNavProps) => {
   return (
     <nav className="hidden lg:flex items-center gap-0">
-      {NAV_ITEMS.map((item) => {
+      {navItems.map((item) => {
         const isActive = activeDropdown === item.label;
         const textClass = isActive ? 'text-[#ff5901]' : navTextClass;
         const borderClass = isActive ? 'border-[#ff5901]' : 'border-transparent';

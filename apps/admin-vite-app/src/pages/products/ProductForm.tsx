@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft, Loader2, Plus, Trash2, Sparkles } from 'lucide-react';
+import { ChevronLeft, Loader2, Plus, Trash2, Sparkles, ZoomIn } from 'lucide-react';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { AIGenerator } from '@/components/common/AIGenerator';
@@ -11,6 +11,7 @@ import { useCreateProduct, useUpdateProduct, useProductDetail } from '@/queries/
 import { useCategories } from '@/queries/categories';
 import { CreateProductSchema, CreateProductInput } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
+import { ImageLightbox } from '@/components/common/ImageLightbox';
 
 const inputCls = "w-full h-9 px-3 rounded-md bg-white border border-gray-300 text-sm font-medium text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all shadow-sm";
 const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2";
@@ -39,7 +40,7 @@ export default function ProductForm() {
   const { data: productData, isLoading: isLoadingDetail } = useProductDetail(id || '');
 
   const { register, handleSubmit, control, reset, formState: { errors, isSubmitting, isDirty }, watch, setValue } = useForm<FormValues>({
-    resolver: zodResolver(CreateProductSchema) as any,
+    resolver: zodResolver(CreateProductSchema as any),
     defaultValues: { 
       name: '', price: undefined, thumbnailUrl: '', isFeatured: false, status: true, categoryId: '', contentDetail: '',
       specList: [{ key: '', value: '' }],
@@ -70,6 +71,8 @@ export default function ProductForm() {
   const featureListValue = watch('featureList');
 
   const [showAI, setShowAI] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const handleAIGenerateSuccess = (result: any) => {
     if (result.name) setValue('name', result.name, { shouldDirty: true });
@@ -290,9 +293,18 @@ export default function ProductForm() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {imageFields.map((field, index) => (
                     <div key={field.id} className="relative aspect-square rounded-md border border-gray-200 overflow-hidden group bg-gray-50">
-                      <img src={field.imageUrl} alt={`Ảnh ${index + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => { setLightboxIndex(index); setLightboxOpen(true); }}
+                        className="w-full h-full cursor-zoom-in"
+                      >
+                        <img src={field.imageUrl} alt={`Ảnh ${index + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                          <ZoomIn className="w-5 h-5 text-white" />
+                        </div>
+                      </button>
                       <button type="button" onClick={() => removeImage(index)}
-                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-50">
+                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-50 z-10">
                         <Trash2 className="h-4 w-4" />
                       </button>
                       <div className="absolute bottom-0 left-0 right-0 bg-black/50 py-1 px-2">
@@ -360,6 +372,14 @@ export default function ProductForm() {
           </div>
         </div>
       </form>
+
+      <ImageLightbox
+        open={lightboxOpen}
+        index={lightboxIndex}
+        slides={imageFields.map((f) => ({ src: f.imageUrl }))}
+        onClose={() => setLightboxOpen(false)}
+        onIndexChange={(i) => setLightboxIndex(i)}
+      />
     </div>
   );
 }

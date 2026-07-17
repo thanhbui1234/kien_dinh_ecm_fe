@@ -26,18 +26,6 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    label: 'Công nghệ & Giải pháp',
-    href: '/technology/',
-    children: [
-      { label: 'Hệ thống CNC', href: '/technology/mazatrol-cnc/' },
-      { label: 'Hỗ trợ lập trình và thiết lập', href: '/technology/productivity/' },
-      { label: 'Công nghệ gia công', href: '/technology/machining-technology/' },
-      { label: 'Sự chính xác', href: '/technology/accuracy/' },
-      { label: 'Giám sát & Phân tích', href: '/technology/monitoring-analysis/' },
-      { label: 'Nhà máy thông minh', href: '/technology/ismart-factory/' },
-    ],
-  },
-  {
     label: 'Phương tiện truyền thông tin tức',
     href: '/news-media/',
     children: [

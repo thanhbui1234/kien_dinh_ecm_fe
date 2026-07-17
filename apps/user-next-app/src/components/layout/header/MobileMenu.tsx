@@ -1,15 +1,16 @@
 import React from 'react';
 import Link from 'next/link';
-import { NAV_ITEMS } from '@/constants/navigation';
+import { NavItem } from '@/constants/navigation';
 
 interface MobileMenuProps {
+  navItems: NavItem[];
   closeMenu: () => void;
 }
 
-export const MobileMenu = ({ closeMenu }: MobileMenuProps) => {
+export const MobileMenu = ({ navItems, closeMenu }: MobileMenuProps) => {
   return (
     <div className="fixed top-[100px] left-0 right-0 bottom-0 bg-white z-[999] overflow-y-auto py-5">
-      {NAV_ITEMS.map((item) => (
+      {navItems.map((item) => (
         <div key={item.label} className="border-b border-[#f0f0f0]">
           <Link
             href={item.href}

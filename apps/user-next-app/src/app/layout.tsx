@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { api } from "@/lib/api";
 
 export const metadata: Metadata = {
   title: "MAZAK VIETNAM",
@@ -14,15 +15,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const categoriesResponse = await api.categories.getCategories().catch(() => []);
+  const categories = (categoriesResponse || []).filter((c) => !c.parentId);
+
   return (
     <html lang="vi" suppressHydrationWarning>
       <body>
-        <Header />
+        <Header categories={categories} />
         {children}
         <Footer />
       </body>

@@ -1,4 +1,4 @@
-import { type ChangeEvent, type DragEvent, useRef, useState, useEffect } from 'react';
+import { type ChangeEvent, type DragEvent, useRef, useState, useEffect, useId } from 'react';
 import { ImagePlus, X, Image as ImageIcon, Loader2, FolderSearch, Scissors, Square } from 'lucide-react';
 import { useUpload } from '@/queries/upload/useUpload';
 import { toast } from '@/utils/toast';
@@ -31,6 +31,7 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadMutation = useUpload();
+  const inputId = useId();
 
   const validFileTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
@@ -274,34 +275,34 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
       )}
 
       {/* Khu vực kéo thả */}
-      {!value && !pendingFile && (
-        <div className="flex flex-col gap-3">
+      {!pendingFile && !isUploading && (
+        <div className={`flex flex-col gap-3 ${value ? 'mt-4' : ''}`}>
           <div
-            className="flex flex-col justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8 transition-colors hover:border-black bg-gray-50"
+            className="flex flex-col justify-center rounded-lg border-2 border-dashed border-gray-300 px-3 py-6 transition-colors hover:border-black bg-gray-50"
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
           >
             <div className="text-center">
-              <ImagePlus aria-hidden={true} className="mx-auto h-10 w-10 text-gray-400" />
-              <div className="mt-4 flex justify-center text-sm font-medium text-gray-600">
-                <p>Kéo thả ảnh vào đây hoặc</p>
+              <ImagePlus aria-hidden={true} className="mx-auto h-8 w-8 text-gray-400" />
+              <div className="mt-3 text-xs font-medium text-gray-600 leading-normal text-balance">
+                Kéo thả ảnh vào đây hoặc{' '}
                 <label
-                  className="relative cursor-pointer rounded-sm pl-1 font-bold text-black hover:underline focus-within:outline-none"
-                  htmlFor="file-upload"
+                  className="relative cursor-pointer rounded-sm font-bold text-black hover:underline focus-within:outline-none"
+                  htmlFor={inputId}
                 >
-                  <span>chọn file</span>
+                  chọn file
                   <input
                     accept="image/jpeg, image/png, image/webp, image/gif"
                     className="sr-only"
-                    id="file-upload"
-                    name="file-upload"
+                    id={inputId}
+                    name={inputId}
                     onChange={handleFileChange}
                     ref={fileInputRef}
                     type="file"
                   />
                 </label>
               </div>
-              <p className="mt-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">PNG, JPG, WEBP TỐI ĐA 10MB</p>
+              <p className="mt-1.5 text-[9px] font-bold text-gray-400 uppercase tracking-wider text-balance">PNG, JPG, WEBP (TỐI ĐA 10MB)</p>
             </div>
           </div>
 
@@ -329,6 +330,15 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
             onSelect={handleSelectFromLibrary} 
           />
         </div>
+      )}
+      
+      {/* Render modal outside conditional blocks to prevent unmounting issues */}
+      {value && (
+        <MediaPickerModal 
+          isOpen={isMediaPickerOpen} 
+          onOpenChange={setIsMediaPickerOpen} 
+          onSelect={handleSelectFromLibrary} 
+        />
       )}
     </div>
   );
