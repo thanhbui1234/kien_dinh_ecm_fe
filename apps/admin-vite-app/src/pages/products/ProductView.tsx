@@ -1,11 +1,26 @@
+import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ChevronLeft, Edit, Loader2, Tag, DollarSign, Eye, Calendar, Package } from 'lucide-react';
+import { ChevronLeft, Edit, Loader2, Tag, DollarSign, Eye, Calendar, Package, ZoomIn } from 'lucide-react';
+import { ImageLightbox } from '@/components/common/ImageLightbox';
 import { useProductDetail } from '@/queries/products';
 
 export default function ProductView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: product, isLoading } = useProductDetail(id || '');
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  // Build slide list: thumbnail first, then additional images
+  const galleryImages: string[] = [];
+  if (product?.thumbnailUrl) galleryImages.push(product.thumbnailUrl);
+  if (product?.images && product.images.length > 0) {
+    product.images.forEach((img: any) => {
+      const url = img.imageUrl || img.url || img;
+      if (url && url !== product.thumbnailUrl) galleryImages.push(url);
+    });
+  }
+  const slides = galleryImages.map((src) => ({ src }));
 
   if (isLoading) {
     return (
@@ -49,9 +64,12 @@ export default function ProductView() {
       <div className="grid grid-cols-3 gap-5">
         {/* Left - Thumbnail */}
         <div className="col-span-1 space-y-5">
-          <div className="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden aspect-square flex items-center justify-center shadow-sm">
+          <div
+            className="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden aspect-square flex items-center justify-center shadow-sm cursor-zoom-in group"
+            onClick={() => { if (galleryImages.length) { setLightboxIndex(0); setLightboxOpen(true); } }}
+          >
             {product.thumbnailUrl ? (
-              <img src={product.thumbnailUrl} alt={product.name} className="w-full h-full object-cover" />
+              <img src={product.thumbnailUrl} alt={product.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
             ) : (
               <Package className="w-12 h-12 text-gray-300" />
             )}
@@ -110,10 +128,24 @@ export default function ProductView() {
             <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-4">
               <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">THƯ VIỆN ẢNH</h2>
               <div className="grid grid-cols-4 gap-3">
-                {product.images.map((img, i) => (
-                  <img key={i} src={(img as any).imageUrl || (img as any).url || img} alt={`Gallery ${i + 1}`}
-                    className="aspect-square w-full object-cover rounded border border-gray-200" />
-                ))}
+                {product.images.map((img, i) => {
+                  const url = (img as any).imageUrl || (img as any).url || img;
+                  // Find index in galleryImages for correct lightbox position
+                  const lbIndex = galleryImages.indexOf(url);
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => { setLightboxIndex(lbIndex >= 0 ? lbIndex : 0); setLightboxOpen(true); }}
+                      className="relative aspect-square w-full rounded border border-gray-200 overflow-hidden cursor-zoom-in group bg-gray-50"
+                    >
+                      <img src={url} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <ZoomIn className="w-5 h-5 text-white" />
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -159,6 +191,14 @@ export default function ProductView() {
           )}
         </div>
       </div>
+
+      <ImageLightbox
+        open={lightboxOpen}
+        index={lightboxIndex}
+        slides={slides}
+        onClose={() => setLightboxOpen(false)}
+        onIndexChange={(i) => setLightboxIndex(i)}
+      />
     </div>
   );
 }

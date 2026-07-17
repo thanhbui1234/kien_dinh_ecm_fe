@@ -31,7 +31,7 @@ export default function CategoryForm() {
   const parentOptions = (categoriesResponse || []).filter(c => c.id !== id);
 
   const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm<CreateCategoryInput>({
-    resolver: zodResolver(CreateCategorySchema) as any,
+    resolver: zodResolver(CreateCategorySchema as any),
     defaultValues: { name: '', slug: '', imageUrl: '', orderIndex: 0, status: true, parentId: '' },
   });
 
@@ -66,7 +66,7 @@ export default function CategoryForm() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl pb-12">
+    <div className="space-y-6 max-w-5xl pb-12">
       <UnsavedChangesModal />
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => navigate('/categories')}

@@ -68,14 +68,38 @@ export const createFetchClient = (config: FetchClientConfig) => {
     return data as T;
   };
 
+  // Safe wrapper: bắt lỗi tự động, trả về null thay vì throw.
+  // Dùng cho các GET API đọc dữ liệu — page không cần try-catch.
+  const safeRequest = async <T = any>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T | null> => {
+    try {
+      return await request<T>(endpoint, options);
+    } catch (error) {
+      const method = options.method || 'GET';
+      console.error(`[API ${method}] ${endpoint} failed:`, error instanceof FetchError
+        ? `${error.response.status} ${error.response.statusText}`
+        : error
+      );
+      return null;
+    }
+  };
+
   return {
+    // Throwing methods — dùng cho mutations (POST/PUT/DELETE) cần biết lỗi
     get: <T = any>(endpoint: string, options?: RequestInit) => request<T>(endpoint, { ...options, method: 'GET' }),
     post: <T = any>(endpoint: string, body: any, options?: RequestInit) => request<T>(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) }),
     patch: <T = any>(endpoint: string, body: any, options?: RequestInit) => request<T>(endpoint, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
     put: <T = any>(endpoint: string, body: any, options?: RequestInit) => request<T>(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) }),
     delete: <T = any>(endpoint: string, options?: RequestInit) => request<T>(endpoint, { ...options, method: 'DELETE' }),
+
+    // Safe methods — dùng cho queries (GET) đọc dữ liệu, tự log lỗi + trả null
+    safeGet: <T = any>(endpoint: string, options?: RequestInit) => safeRequest<T>(endpoint, { ...options, method: 'GET' }),
+
     request,
   };
 };
 
 export type FetchClient = ReturnType<typeof createFetchClient>;
+

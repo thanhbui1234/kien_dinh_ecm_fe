@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Sparkles } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useProjects, useDeleteProject, useUpdateProject } from '@/queries/projects';
 import { DataTable, ColumnDef } from '@/components/common/DataTable';
@@ -43,7 +43,14 @@ export default function ProjectsList() {
       key: 'name', header: 'Tên dự án',
       cell: (row) => (
         <div>
-          <div className="font-semibold text-black">{row.name}</div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-black">{row.name}</span>
+            {(row as any).isFeatured && (
+              <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                <Sparkles className="w-2.5 h-2.5" /> Nổi bật
+              </span>
+            )}
+          </div>
           <div className="text-xs font-medium text-gray-500 mt-0.5 line-clamp-1 max-w-xs">{row.description}</div>
         </div>
       ),

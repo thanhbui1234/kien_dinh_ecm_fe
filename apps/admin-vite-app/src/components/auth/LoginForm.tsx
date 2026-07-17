@@ -9,7 +9,7 @@ export function LoginForm() {
   const loginMutation = useLogin();
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginInput>({
-    resolver: zodResolver(LoginSchema),
+    resolver: zodResolver(LoginSchema as any),
   });
 
   const onSubmit = (data: LoginInput) => {

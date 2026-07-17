@@ -39,9 +39,9 @@ export default function ProjectForm() {
   const { data: projectData, isLoading: isLoadingDetail } = useProjectDetail(id || '');
 
   const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm<CreateProjectInput>({
-    resolver: zodResolver(CreateProjectSchema) as any,
+    resolver: zodResolver(CreateProjectSchema as any),
     defaultValues: {
-      name: '', description: '', coverImage: '', status: true,
+      name: '', description: '', coverImage: '', status: true, isFeatured: false,
       contentDetail: '', productIds: [], categoryIds: [],
     } as Partial<CreateProjectInput> as CreateProjectInput,
   });
@@ -57,6 +57,7 @@ export default function ProjectForm() {
   };
 
   const statusValue = watch('status');
+  const isFeaturedValue = watch('isFeatured' as any);
   const selectedProductIds = watch('productIds') || [];
 
   useEffect(() => {
@@ -66,6 +67,7 @@ export default function ProjectForm() {
         description: projectData.description,
         coverImage: projectData.coverImage,
         status: projectData.status,
+        isFeatured: (projectData as any).isFeatured || false,
         contentDetail: (projectData as any).detail?.contentDetail || '',
         productIds: (projectData as any).productIds || [],
         categoryIds: (projectData as any).categoryIds || [],
@@ -229,6 +231,13 @@ export default function ProjectForm() {
                   <p className="text-xs font-medium text-gray-500">Hiện trên website</p>
                 </div>
                 <Toggle checked={!!statusValue} onToggle={() => setValue('status' as any, !statusValue, { shouldDirty: true })} />
+              </div>
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                <div>
+                  <p className="text-sm font-bold text-black">Nổi bật</p>
+                  <p className="text-xs font-medium text-gray-500">Hiển ở trang chủ</p>
+                </div>
+                <Toggle checked={!!isFeaturedValue} onToggle={() => setValue('isFeatured' as any, !isFeaturedValue, { shouldDirty: true })} />
               </div>
             </div>
 

@@ -232,6 +232,8 @@ export interface ProductDetailResponseDto {
   contentDetail: string;
   /** Thông số kỹ thuật JSON */
   specifications: object;
+  /** Chức năng nổi bật JSON */
+  features?: object;
   /** Cấu hình SEO */
   seoMeta?: object;
 }
@@ -393,6 +395,8 @@ export interface ProjectResponseDto {
   productIds?: string[];
   /** Danh sách ID danh mục */
   categoryIds?: string[];
+  /** Dự án nổi bật */
+  isFeatured?: boolean;
 }
 
 export interface CreateProjectDto {
@@ -415,6 +419,8 @@ export interface CreateProjectDto {
   productIds?: string[];
   /** Danh sách ID danh mục liên quan */
   categoryIds?: string[];
+  /** Dự án nổi bật */
+  isFeatured?: boolean;
 }
 
 export interface UpdateProjectDto {
@@ -437,6 +443,8 @@ export interface UpdateProjectDto {
   productIds?: string[];
   /** Danh sách ID danh mục liên quan */
   categoryIds?: string[];
+  /** Dự án nổi bật */
+  isFeatured?: boolean;
 }
 
 export interface JobDetailResponseDto {
