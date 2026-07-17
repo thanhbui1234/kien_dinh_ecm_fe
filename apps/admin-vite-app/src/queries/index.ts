@@ -5,3 +5,4 @@ export * from './projects';
 export * from './jobs';
 export * from './leads';
 export * from './settings';
+export * from './dashboard';

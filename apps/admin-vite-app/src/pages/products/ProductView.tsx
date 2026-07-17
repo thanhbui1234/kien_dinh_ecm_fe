@@ -132,6 +132,20 @@ export default function ProductView() {
             </div>
           )}
 
+          {product.detail?.features && Object.keys(product.detail.features).length > 0 && (
+            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-4">
+              <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">TÍNH NĂNG NỔI BẬT</h2>
+              <div className="space-y-0 text-sm">
+                {Object.entries(product.detail.features).map(([key, val], idx) => (
+                  <div key={idx} className="flex border-b border-gray-100 last:border-0">
+                    <div className="w-1/3 py-2 font-bold text-gray-600 bg-gray-50 px-3">{key}</div>
+                    <div className="w-2/3 py-2 font-medium text-black px-3">{String(val)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {product.detail?.contentDetail && (
             <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-4">
               <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">NỘI DUNG CHI TIẾT</h2>

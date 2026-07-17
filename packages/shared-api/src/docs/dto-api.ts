@@ -321,6 +321,8 @@ export interface CreateProductDto {
   contentDetail?: string;
   /** Thông số kỹ thuật dạng JSON linh hoạt */
   specifications?: object;
+  /** Chức năng nổi bật dạng JSON động */
+  features?: object;
   /** Dữ liệu tối ưu SEO (Title, Description, Keywords) */
   seoMeta?: object;
   /** Danh sách hình ảnh */
@@ -354,6 +356,8 @@ export interface UpdateProductDto {
   contentDetail?: string;
   /** Thông số kỹ thuật dạng JSON linh hoạt */
   specifications?: object;
+  /** Chức năng nổi bật dạng JSON động */
+  features?: object;
   /** Dữ liệu tối ưu SEO (Title, Description, Keywords) */
   seoMeta?: object;
   /** Danh sách hình ảnh */
@@ -394,8 +398,8 @@ export interface ProjectResponseDto {
 export interface CreateProjectDto {
   /** Tên dự án */
   name: string;
-  /** Slug định danh */
-  slug: string;
+  /** Slug định danh (để trống sẽ tự tạo từ tên dự án) */
+  slug?: string;
   /** Mô tả ngắn gọn */
   description: string;
   /** Ảnh bìa dự án */
@@ -416,7 +420,7 @@ export interface CreateProjectDto {
 export interface UpdateProjectDto {
   /** Tên dự án */
   name?: string;
-  /** Slug định danh */
+  /** Slug định danh (để trống sẽ tự tạo từ tên dự án) */
   slug?: string;
   /** Mô tả ngắn gọn */
   description?: string;
@@ -463,8 +467,8 @@ export interface JobResponseDto {
 export interface CreateJobDto {
   /** Tiêu đề tuyển dụng */
   title: string;
-  /** Slug định danh */
-  slug: string;
+  /** Slug định danh (để trống sẽ tự tạo từ tiêu đề) */
+  slug?: string;
   /**
    * Mức lương
    * @default "Cạnh tranh"
@@ -482,7 +486,7 @@ export interface CreateJobDto {
 export interface UpdateJobDto {
   /** Tiêu đề tuyển dụng */
   title?: string;
-  /** Slug định danh */
+  /** Slug định danh (để trống sẽ tự tạo từ tiêu đề) */
   slug?: string;
   /**
    * Mức lương
@@ -545,6 +549,8 @@ export interface UpdateLeadStatusDto {
   status: "PENDING" | "CONTACTED" | "SPAM";
   /** Ghi chú của admin */
   adminNote?: string;
+  /** Mức độ ưu tiên (HIGH, MEDIUM, LOW) */
+  priority?: "HIGH" | "MEDIUM" | "LOW";
 }
 
 export interface SettingResponseDto {

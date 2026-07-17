@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft, Loader2, Search, X, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Loader2, Search, X, CheckCircle2, Sparkles } from 'lucide-react';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
+import { AIGenerator } from '@/components/common/AIGenerator';
+import { generateProjectContent } from '@/utils/ai';
 import { useCreateProject, useUpdateProject, useProjectDetail } from '@/queries/projects';
 import { useProducts } from '@/queries/products';
 import { CreateProjectSchema, CreateProjectInput } from 'shared-api';
@@ -46,6 +48,14 @@ export default function ProjectForm() {
 
   const { UnsavedChangesModal, markSaved } = useLeaveConfirm(isDirty);
 
+  const [showAI, setShowAI] = useState(false);
+
+  const handleAIGenerateSuccess = (result: any) => {
+    if (result.name) setValue('name', result.name, { shouldDirty: true });
+    if (result.description) setValue('description', result.description, { shouldDirty: true });
+    if (result.contentDetail) setValue('contentDetail' as any, result.contentDetail, { shouldDirty: true });
+  };
+
   const statusValue = watch('status');
   const selectedProductIds = watch('productIds') || [];
 
@@ -86,16 +96,35 @@ export default function ProjectForm() {
   return (
     <div className="space-y-6 max-w-5xl pb-12">
       <UnsavedChangesModal />
-      <div className="flex items-center gap-3">
-        <button type="button" onClick={() => navigate('/projects')}
-          className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-gray-500 hover:text-black hover:bg-gray-50 transition-all shadow-sm">
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <div>
-          <h1 className="text-xl font-bold text-black">{isEdit ? 'Chỉnh sửa dự án' : 'Thêm dự án mới'}</h1>
-          <p className="text-xs font-medium text-gray-500 mt-0.5">{isEdit ? 'Cập nhật thông tin dự án' : 'Điền thông tin để tạo dự án mới'}</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button type="button" onClick={() => navigate('/projects')}
+            className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-gray-500 hover:text-black hover:bg-gray-50 transition-all shadow-sm">
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold text-black">{isEdit ? 'Chỉnh sửa dự án' : 'Thêm dự án mới'}</h1>
+            <p className="text-xs font-medium text-gray-500 mt-0.5">{isEdit ? 'Cập nhật thông tin dự án' : 'Điền thông tin để tạo dự án mới'}</p>
+          </div>
         </div>
+
+        {!isEdit && (
+          <button type="button" onClick={() => setShowAI(!showAI)} className="flex items-center gap-1.5 h-9 px-3 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors border border-indigo-200 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5" /> Tạo tự động bằng AI
+          </button>
+        )}
       </div>
+
+      {showAI && !isEdit && (
+      <AIGenerator
+        title="Sinh nội dung dự án tự động bằng AI"
+        description="Nhập yêu cầu chi tiết để AI phân tích và tự điền Tên dự án, Mô tả ngắn và Nội dung chi tiết."
+        placeholder="Ví dụ: Tạo nội dung cho dự án 'Lắp đặt máy CNC tại xưởng A', bối cảnh là xưởng cần tăng năng suất, mục tiêu hoàn thành trong 1 tháng..."
+        generateContent={generateProjectContent}
+        onGenerateSuccess={handleAIGenerateSuccess}
+        onClose={() => setShowAI(false)}
+      />
+      )}
 
       <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-5">
         <div className="grid grid-cols-3 gap-5">
@@ -153,9 +182,8 @@ export default function ProjectForm() {
                   const isSelected = (selectedProductIds as string[]).includes(p.id);
                   return (
                     <button key={p.id} type="button" onClick={() => toggleProduct(p.id)}
-                      className={`flex items-center gap-3 p-2.5 rounded-md border text-left transition-all ${
-                        isSelected ? 'border-black bg-gray-50' : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
-                      }`}>
+                      className={`flex items-center gap-3 p-2.5 rounded-md border text-left transition-all ${isSelected ? 'border-black bg-gray-50' : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                        }`}>
                       <div className="shrink-0 relative">
                         <img src={p.thumbnailUrl || 'https://placehold.co/32x32/f9fafb/6b7280?text=...'} alt={p.name}
                           className="w-8 h-8 rounded-sm object-cover border border-gray-200" />
