@@ -37,3 +37,21 @@ export const useUpdateLeadStatus = () => {
     }
   });
 };
+
+export const useUpdateLead = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Lead> }) => {
+      const response = await client.patch<any, { data: Lead }>(API_ENDPOINTS.LEADS.DETAIL(id), data);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Cập nhật liên hệ thành công");
+      queryClient.invalidateQueries({ queryKey: leadKeys.lists() });
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};

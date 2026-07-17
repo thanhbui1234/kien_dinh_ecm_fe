@@ -29,7 +29,11 @@ export const API_ENDPOINTS = {
   },
   LEADS: {
     BASE: '/api/v1/leads',
+    DETAIL: (id: string) => `/api/v1/leads/${id}`,
     STATUS: (id: string) => `/api/v1/leads/${id}/status`,
+  },
+  DASHBOARD: {
+    STATS: '/api/v1/dashboard/stats',
   },
   SETTINGS: {
     SYSTEM: '/api/v1/settings/system',

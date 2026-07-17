@@ -12,6 +12,7 @@ export const ProductDetailSchema = z.object({
   contentDetail: z.string(),
   specifications: z.record(z.string(), z.any()),
   seoMeta: z.record(z.string(), z.any()).optional(),
+  features: z.record(z.string(), z.any()).optional(),
 });
 
 export const ProductSchema = z.object({
@@ -47,6 +48,7 @@ export const CreateProductSchema = z.object({
   parentId: z.string().optional(),
   contentDetail: z.string().optional(),
   specifications: z.record(z.string(), z.any()).optional(),
+  features: z.record(z.string(), z.any()).optional(),
   seoMeta: z.record(z.string(), z.any()).optional(),
   images: z.array(CreateProductImageSchema).optional(),
 });
