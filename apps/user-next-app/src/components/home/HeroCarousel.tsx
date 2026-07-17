@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Banner } from "shared-api";
 
 interface Slide {
   type: "fullscreen" | "product";
@@ -15,7 +16,7 @@ interface Slide {
   darkText?: boolean;
 }
 
-const slides: Slide[] = [
+const defaultSlides: Slide[] = [
   {
     type: "fullscreen",
     image: "/images/hero/integrex-i-neo.jpg",
@@ -123,37 +124,51 @@ const ReadMoreArrow = () => (
   </svg>
 );
 
-export default function HeroCarousel() {
+export default function HeroCarousel({ banners }: { banners?: Banner[] | null }) {
   const [current, setCurrent] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const displaySlides: Slide[] = useMemo(() => {
+    return banners && banners.length > 0
+      ? banners.map((b) => ({
+          type: "fullscreen",
+          image: b.imageUrl,
+          title: b.title || "",
+          description: b.description || "",
+          link: b.link || "#",
+          linkText: "Đọc thêm",
+          darkText: false,
+        }))
+      : defaultSlides;
+  }, [banners]);
 
   const goTo = useCallback((index: number) => {
     setCurrent((c) => {
       if (index === c) return c;
-      const slide = slides[index];
+      const slide = displaySlides[index];
       document.dispatchEvent(
         new CustomEvent("hero-slide-change", { detail: { darkText: !!slide.darkText } })
       );
       return index;
     });
-  }, []);
+  }, [displaySlides]);
 
-  const goNext = useCallback(() => goTo((current + 1) % slides.length), [current, goTo]);
-  const goPrev = useCallback(() => goTo((current - 1 + slides.length) % slides.length), [current, goTo]);
+  const goNext = useCallback(() => goTo((current + 1) % displaySlides.length), [current, goTo, displaySlides]);
+  const goPrev = useCallback(() => goTo((current - 1 + displaySlides.length) % displaySlides.length), [current, goTo, displaySlides]);
 
   const startTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       setCurrent((c) => {
-        const next = (c + 1) % slides.length;
-        const slide = slides[next];
+        const next = (c + 1) % displaySlides.length;
+        const slide = displaySlides[next];
         document.dispatchEvent(
           new CustomEvent("hero-slide-change", { detail: { darkText: !!slide.darkText } })
         );
         return next;
       });
     }, AUTO_ADVANCE_MS);
-  }, []);
+  }, [displaySlides]);
 
   useEffect(() => {
     startTimer();
@@ -162,7 +177,7 @@ export default function HeroCarousel() {
     };
   }, [startTimer, current]);
 
-  const activeSlide = slides[current];
+  const activeSlide = displaySlides[current] || displaySlides[0];
   const isDark = !!activeSlide.darkText;
   const ink = isDark ? "#0a0a0a" : "#ffffff";
   const inkMuted = isDark ? "rgba(10,10,10,0.72)" : "rgba(255,255,255,0.85)";
@@ -327,7 +342,7 @@ export default function HeroCarousel() {
           backgroundColor: "#0a0a0a",
         }}
       >
-        {slides.map((s, i) => {
+        {displaySlides.map((s, i) => {
           const active = i === current;
           return (
             <div key={s.image} className="hero-slide" data-active={active} aria-hidden={!active}>
@@ -512,7 +527,7 @@ export default function HeroCarousel() {
                 aria-label="Slide indicators"
                 style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
-                {slides.map((_, i) => (
+                {displaySlides.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => goTo(i)}
@@ -540,7 +555,7 @@ export default function HeroCarousel() {
                 {String(current + 1).padStart(2, "0")}
               </span>
               <span style={{ margin: "0 6px", opacity: 0.5 }}>/</span>
-              <span>{String(slides.length).padStart(2, "0")}</span>
+              <span>{String(displaySlides.length).padStart(2, "0")}</span>
             </div>
           </div>
         </div>
