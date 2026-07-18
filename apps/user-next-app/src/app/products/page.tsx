@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { api } from '@/lib/api';
-import CategorySidebar from './CategorySidebar';
+import FilterDrawer from './FilterDrawer';
 
 interface SearchParams {
   category?: string;
@@ -9,7 +9,7 @@ interface SearchParams {
   search?: string;
 }
 
-function ProductRow({
+function ProductCard({
   product,
   categoryName,
 }: {
@@ -19,21 +19,21 @@ function ProductRow({
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group flex gap-6 md:gap-10 py-6 border-b border-gray-100 no-underline hover:bg-[#fafafa] -mx-4 px-4 rounded-xl transition-colors duration-200"
+      className="group flex flex-col bg-white border border-gray-100 no-underline hover:shadow-xl hover:border-gray-200 rounded-2xl transition-all duration-300 overflow-hidden"
     >
       {/* Image */}
-      <div className="relative shrink-0 w-[160px] h-[120px] sm:w-[220px] sm:h-[160px] md:w-[280px] md:h-[200px] bg-[#f5f5f5] rounded-xl overflow-hidden">
+      <div className="relative w-full aspect-[4/3] bg-[#f8f8f8] overflow-hidden">
         {product.thumbnailUrl ? (
           <Image
             src={product.thumbnailUrl}
             alt={product.name}
             fill
-            className="object-contain p-4 transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-            sizes="(max-width: 640px) 160px, (max-width: 768px) 220px, 280px"
+            className="object-contain p-6 transition-transform duration-500 ease-out group-hover:scale-110 mix-blend-multiply"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-gray-300">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
               <rect x="2" y="3" width="20" height="14" rx="2" />
               <path d="M8 21h8M12 17v4" />
             </svg>
@@ -42,21 +42,23 @@ function ProductRow({
       </div>
 
       {/* Info */}
-      <div className="flex flex-col justify-center gap-2 min-w-0 py-1">
+      <div className="flex flex-col p-5 sm:p-6 grow">
         {categoryName && (
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ff5901] m-0">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ff5901] m-0 mb-2">
             {categoryName}
           </p>
         )}
-        <h3 className="text-[16px] sm:text-[18px] md:text-[20px] font-light text-[#111] leading-snug m-0 group-hover:text-[#ff5901] transition-colors duration-200">
+        <h3 className="text-[15px] sm:text-[16px] font-medium text-[#111] leading-snug m-0 group-hover:text-[#ff5901] transition-colors duration-200 line-clamp-2">
           {product.name}
         </h3>
-        <span className="inline-flex items-center gap-1.5 text-[13px] text-gray-400 group-hover:text-[#ff5901] transition-colors duration-200 mt-1 w-fit">
-          Xem chi tiết
-          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" className="transition-transform duration-200 group-hover:translate-x-0.5">
-            <path d="M2.33 7H11.67M11.67 7L7.58 3M11.67 7L7.58 11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </span>
+        <div className="mt-auto pt-4">
+          <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-gray-400 group-hover:text-[#ff5901] transition-colors duration-200 w-fit">
+            Xem chi tiết
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="transition-transform duration-300 group-hover:translate-x-1">
+              <path d="M2.33 7H11.67M11.67 7L7.58 3M11.67 7L7.58 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+        </div>
       </div>
     </Link>
   );
@@ -110,7 +112,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
   const [categoriesResponse, productsResponse] = await Promise.all([
     api.categories.getCategories(),
-    api.products.getProducts({ page: String(page), limit: '20', ...(search ? { search } : {}) }),
+    api.products.getProducts({ page: String(page), limit: '12', ...(search ? { search } : {}) }),
   ]);
 
   const categories = (categoriesResponse ?? []).filter((c) => !c.parentId);
@@ -126,7 +128,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const filteredProducts = activeCategoryId
     ? await api.products.getProducts({
         page: String(page),
-        limit: '20',
+        limit: '12',
         categoryId: activeCategoryId,
         ...(search ? { search } : {}),
       })
@@ -163,21 +165,23 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         </div>
       </div>
 
-      <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-10 flex gap-12">
-        {/* Sidebar — desktop only, client component handles collapse */}
-        <CategorySidebar
-          categories={categories}
-          activeSlug={categorySlug}
-        />
+      <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-8">
+        {/* Toolbar with FilterDrawer */}
+        <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
+          <p className="text-gray-500 text-[14px] m-0">
+            Hiển thị <strong className="text-[#111] font-medium">{items.length}</strong> sản phẩm
+          </p>
+          <FilterDrawer categories={categories} activeSlug={categorySlug} />
+        </div>
 
         {/* Product list */}
-        <main className="flex-1 min-w-0">
+        <main className="w-full">
           {items.length === 0 ? (
             <EmptyState />
           ) : (
-            <div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {items.map((product) => (
-                <ProductRow
+                <ProductCard
                   key={product.id}
                   product={product}
                   categoryName={categoryMap[product.categoryId]}

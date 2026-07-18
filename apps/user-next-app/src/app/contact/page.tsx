@@ -1,141 +1,115 @@
 import Link from 'next/link';
-import { PageWrapper, PageBreadcrumb, PageContent, PageTitle } from 'shared-ui';
-import { Card, CardContent } from 'shared-ui';
+import ContactForm from './ContactForm';
+import { api } from '@/lib/api';
 
-interface OfficeInfo {
-  label: string;
-  value: string;
-  isPhone?: boolean;
-}
+export const metadata = {
+  title: 'Liên hệ | KIEN DINH ECM',
+  description: 'Liên hệ với KIEN DINH ECM để được tư vấn và báo giá sản phẩm, dịch vụ.',
+};
 
-interface Office {
-  title: string;
-  info: OfficeInfo[];
-}
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ productId?: string }>;
+}) {
+  const params = await searchParams;
+  const productId = params.productId;
+  
+  let productName = undefined;
+  if (productId) {
+    try {
+      const product = await api.products.getProductDetail(productId);
+      if (product) {
+        productName = product.name;
+      }
+    } catch (e) {
+      console.error('Failed to fetch product for contact page', e);
+    }
+  }
 
-const offices: Office[] = [
-  {
-    title: 'CÔNG TY TNHH YAMAZAKI MAZAK VIỆT NAM',
-    info: [
-      {
-        label: 'ĐỊA CHỈ',
-        value: 'Số 5B/4B Đường Đại Lộ Bình Dương, Tổ 5B, Khu Phố Bình Đức 2, Phường Bình Hòa, Thành phố Hồ Chí Minh, Việt Nam',
-      },
-      { label: 'MST', value: '0312373825' },
-      { label: 'GIỜ LÀM VIỆC', value: 'Từ thứ hai đến thứ sáu, 8h30 sáng – 5h30 chiều' },
-      { label: 'ĐIỆN THOẠI', value: '(+84) 274 246 1639', isPhone: true },
-    ],
-  },
-  {
-    title: 'VĂN PHÒNG ĐẠI DIỆN TẠI HÀ NỘI',
-    info: [
-      {
-        label: 'ĐỊA CHỈ',
-        value: 'Số 19 ngõ 17 phố Nghĩa Đô, phường Nghĩa Đô, Quận Cầu Giấy, Thành phố Hà Nội, Việt Nam',
-      },
-      { label: 'GIỜ LÀM VIỆC', value: 'Từ thứ hai đến thứ sáu, 8h30 sáng – 5h30 chiều' },
-      { label: 'ĐIỆN THOẠI', value: '(+84) 24 2223 2211', isPhone: true },
-    ],
-  },
-];
-
-const breadcrumbs = [
-  { label: 'Trang chủ', href: '/' },
-  { label: 'Liên hệ chúng tôi' },
-];
-
-export default function ContactPage() {
   return (
-    <PageWrapper>
-      <PageBreadcrumb items={breadcrumbs} LinkComponent={Link} />
-      <PageContent>
-        <PageTitle>Liên hệ chúng tôi</PageTitle>
+    <div className="min-h-screen bg-[#fafafa] pt-[80px]">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-12 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16">
+          
+          {/* Left Column: Contact Info */}
+          <div className="lg:col-span-2 flex flex-col gap-8">
+            <div>
+              <h1 className="text-[32px] md:text-[40px] font-light text-[#111] leading-tight m-0 mb-4">
+                Liên hệ với<br />
+                <span className="font-medium text-[#ff5901]">chúng tôi</span>
+              </h1>
+              <p className="text-gray-500 text-[15px] leading-relaxed">
+                Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn về sản phẩm và dịch vụ. Hãy để lại thông tin, đội ngũ tư vấn sẽ liên hệ với bạn trong thời gian sớm nhất.
+              </p>
+            </div>
 
-        <div style={{ maxWidth: '800px', marginBottom: '48px' }}>
-          <p style={{ fontSize: '16px', lineHeight: 1.8, color: '#333', marginBottom: '16px', marginTop: 0 }}>
-            Trong những trường hợp cần thiết, kỹ sư của Công ty Mazak sẽ đến tận nhà máy của Quý Khách hàng để xem xét tình
-            trạng máy. Đội ngũ kỹ sư chuyên môn của chúng tôi sẽ nhanh chóng xác định lịch sử của máy cũng như cập nhật những
-            thông tin kỹ thuật mới nhất và báo cáo dịch vụ của máy.
-          </p>
-          <p style={{ fontSize: '16px', lineHeight: 1.8, color: '#333', marginBottom: '16px', marginTop: 0 }}>
-            Công ty Mazak Việt nam luôn cam kết với Quý khách hàng về sự hỗ trợ sau bán hàng nhanh chóng và hiệu quả. Quý
-            Khách hàng sẽ luôn nhận được sự hỗ trợ từ chúng tôi chỉ qua một cuộc điện thoại đơn giản.
-          </p>
-          <p style={{ fontSize: '16px', lineHeight: 1.8, color: '#333', margin: 0 }}>
-            Trong giờ hành chính, xin vui lòng liên hệ qua số điện thoại:{' '}
-            <span style={{ fontSize: '18px', fontWeight: 600, color: '#ff5901' }}>(+84) 274 246 1639</span>
-          </p>
-          <p style={{ fontSize: '16px', lineHeight: 1.8, color: '#333', margin: 0 }}>
-            Hỗ trợ dịch vụ Khu vực miền Trung và miền Nam
-          </p>
-          <p style={{ fontSize: '16px', lineHeight: 1.8, color: '#333', margin: 0 }}>
-            (Tiếng Việt và Tiếng Anh)
-          </p>
-        </div>
+            <div className="flex flex-col gap-6 p-8 bg-white rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+              {/* Hotline */}
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-[#ff5901]/10 rounded-2xl flex items-center justify-center shrink-0">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff5901" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </div>
+                <div className="pt-1">
+                  <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Hotline tư vấn</p>
+                  <a href="tel:0374864110" className="text-[20px] font-semibold text-[#111] hover:text-[#ff5901] transition-colors no-underline">
+                    0374 864 110
+                  </a>
+                </div>
+              </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '32px',
-          }}
-        >
-          {offices.map((office) => (
-            <Card key={office.title} style={{ background: '#fafafa', borderRadius: 0 }}>
-              <CardContent style={{ padding: '32px' }}>
-                <h2
-                  style={{
-                    fontSize: '15px',
-                    fontWeight: 700,
-                    color: '#000',
-                    marginBottom: '16px',
-                    marginTop: 0,
-                    textTransform: 'uppercase',
-                    lineHeight: 1.4,
-                  }}
-                >
-                  {office.title}
-                </h2>
-                {office.info.map((item) => (
-                  <div key={item.label} style={{ marginBottom: '12px' }}>
-                    <div
-                      style={{
-                        fontSize: '11px',
-                        color: '#ff5901',
-                        textTransform: 'uppercase',
-                        letterSpacing: '1px',
-                        fontWeight: 600,
-                        marginBottom: '4px',
-                      }}
-                    >
-                      {item.label}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: item.isPhone ? '16px' : '14px',
-                        fontWeight: item.isPhone ? 600 : 400,
-                        color: item.isPhone ? '#000' : '#333',
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      {item.isPhone ? (
-                        <a
-                          href={`tel:${item.value.replace(/\s/g, '')}`}
-                          style={{ color: '#000', textDecoration: 'none', fontWeight: 600 }}
-                        >
-                          {item.value}
-                        </a>
-                      ) : (
-                        item.value
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          ))}
+              <div className="w-full h-px bg-gray-100" />
+
+              {/* Zalo */}
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-[#0068FF]/10 rounded-2xl flex items-center justify-center shrink-0">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0068FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                  </svg>
+                </div>
+                <div className="pt-1">
+                  <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Chat Zalo</p>
+                  <a href="https://zalo.me/0374864110" target="_blank" rel="noopener noreferrer" className="text-[16px] font-medium text-[#111] hover:text-[#0068FF] transition-colors no-underline">
+                    Zalo: 0374 864 110
+                  </a>
+                </div>
+              </div>
+
+              <div className="w-full h-px bg-gray-100" />
+
+              {/* Email */}
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center shrink-0">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                  </svg>
+                </div>
+                <div className="pt-1">
+                  <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Email</p>
+                  <a href="mailto:info@kiendinhecm.com" className="text-[16px] font-medium text-[#111] hover:text-[#ff5901] transition-colors no-underline">
+                    info@kiendinhecm.com
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Right Column: Form */}
+          <div className="lg:col-span-3">
+            <div className="bg-white p-8 md:p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+              <h2 className="text-[24px] font-semibold text-[#111] mb-8">
+                Gửi yêu cầu báo giá / Tư vấn
+              </h2>
+              <ContactForm productId={productId} productName={productName} />
+            </div>
+          </div>
+
         </div>
-      </PageContent>
-    </PageWrapper>
+      </div>
+    </div>
   );
 }
