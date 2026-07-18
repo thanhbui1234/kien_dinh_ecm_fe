@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import type { Product, Category } from 'shared-api';
+import ProductViewTracker from './ProductViewTracker';
+import StickyContactBar from './StickyContactBar';
 
 interface Props {
   product: Product;
@@ -162,8 +164,18 @@ function FeaturesSection({ features }: { features: object }) {
 }
 
 export default function ProductDetailClient({ product, category, relatedProducts = [] }: Props) {
+  const bottomSectionRef = useRef<HTMLDivElement>(null);
+  const hasPrice = product.price != null;
+
   return (
     <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-12">
+      <ProductViewTracker productId={product.id} />
+      <StickyContactBar
+        productId={product.id}
+        productName={product.name}
+        hasPrice={hasPrice}
+        bottomSectionRef={bottomSectionRef}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
         <ImageGallery images={product.images} thumbnail={product.thumbnailUrl} name={product.name} />
 
@@ -181,26 +193,21 @@ export default function ProductDetailClient({ product, category, relatedProducts
             {product.name}
           </h1>
 
-          {product.price != null && (
+          {product.price != null ? (
             <p className="text-[20px] font-semibold text-[#ff5901] m-0">
               {product.price.toLocaleString('vi-VN')} ₫
             </p>
+          ) : (
+            <Link
+              href={`/contact/?productId=${product.id}`}
+              className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#ff5901] bg-[#fff3ed] border border-[#ff5901]/20 px-4 py-2 rounded-full hover:bg-[#ffe8d8] hover:border-[#ff5901]/40 transition-colors no-underline w-fit"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+              Giá: Liên hệ báo giá
+            </Link>
           )}
-
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <Link
-              href="/contact/"
-              className="inline-flex items-center justify-center gap-2 bg-[#ff5901] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#e04f00] transition-colors no-underline"
-            >
-              Liên hệ tư vấn
-            </Link>
-            <Link
-              href="/products/"
-              className="inline-flex items-center justify-center gap-2 border border-gray-200 text-[#111] text-[14px] font-medium px-8 py-3.5 rounded-full hover:border-[#ff5901] hover:text-[#ff5901] transition-colors no-underline"
-            >
-              Xem thêm sản phẩm
-            </Link>
-          </div>
 
           {product.detail?.specifications &&
             Object.keys(product.detail.specifications).length > 0 && (
@@ -266,7 +273,7 @@ export default function ProductDetailClient({ product, category, relatedProducts
         </div>
       )}
 
-      <div className="mt-16 bg-[#111] rounded-2xl px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div ref={bottomSectionRef} className="mt-16 bg-[#111] rounded-2xl px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
           <p className="text-[#ff5901] text-[11px] font-semibold uppercase tracking-[0.22em] mb-2 m-0">
             Liên hệ với chúng tôi
@@ -275,12 +282,22 @@ export default function ProductDetailClient({ product, category, relatedProducts
             Cần tư vấn về <span className="font-semibold">{product.name}</span>?
           </p>
         </div>
-        <Link
-          href="/contact/"
-          className="shrink-0 inline-flex items-center gap-2 bg-[#ff5901] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#e04f00] transition-colors no-underline"
-        >
-          Liên hệ ngay
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+          <Link
+            href={`/contact/?productId=${product.id}`}
+            className="inline-flex items-center justify-center gap-2 bg-[#ff5901] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#e04f00] transition-colors no-underline"
+          >
+            {product.price != null ? 'Liên hệ tư vấn' : 'Báo giá ngay'}
+          </Link>
+          <a
+            href="https://zalo.me/0374864110"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 bg-[#0068FF] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:opacity-90 transition-opacity no-underline"
+          >
+            Chat Zalo
+          </a>
+        </div>
       </div>
     </div>
   );

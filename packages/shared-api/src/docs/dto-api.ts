@@ -188,8 +188,8 @@ export interface CategoryResponseDto {
 export interface CreateCategoryDto {
   /** Tên danh mục */
   name: string;
-  /** Slug định danh trên URL (duy nhất) */
-  slug: string;
+  /** Slug định danh trên URL. Nếu để trống, BE sẽ tự tạo từ tên */
+  slug?: string;
   /** Đường dẫn ảnh đại diện của danh mục */
   imageUrl?: string;
   /**
@@ -209,7 +209,7 @@ export interface CreateCategoryDto {
 export interface UpdateCategoryDto {
   /** Tên danh mục */
   name?: string;
-  /** Slug định danh trên URL (duy nhất) */
+  /** Slug định danh trên URL. Nếu để trống, BE sẽ tự tạo từ tên */
   slug?: string;
   /** Đường dẫn ảnh đại diện của danh mục */
   imageUrl?: string;
@@ -232,8 +232,6 @@ export interface ProductDetailResponseDto {
   contentDetail: string;
   /** Thông số kỹ thuật JSON */
   specifications: object;
-  /** Chức năng nổi bật JSON */
-  features?: object;
   /** Cấu hình SEO */
   seoMeta?: object;
 }
@@ -384,6 +382,8 @@ export interface ProjectResponseDto {
   coverImage: string;
   /** Trạng thái hiển thị */
   status: boolean;
+  /** Dự án nổi bật */
+  isFeatured: boolean;
   /**
    * Ngày tạo
    * @format date-time
@@ -395,8 +395,6 @@ export interface ProjectResponseDto {
   productIds?: string[];
   /** Danh sách ID danh mục */
   categoryIds?: string[];
-  /** Dự án nổi bật */
-  isFeatured?: boolean;
 }
 
 export interface CreateProjectDto {
@@ -413,14 +411,17 @@ export interface CreateProjectDto {
    * @default true
    */
   status?: boolean;
+  /**
+   * Dự án nổi bật
+   * @default false
+   */
+  isFeatured?: boolean;
   /** Nội dung chi tiết (HTML) */
   contentDetail?: string;
   /** Danh sách ID sản phẩm liên quan */
   productIds?: string[];
   /** Danh sách ID danh mục liên quan */
   categoryIds?: string[];
-  /** Dự án nổi bật */
-  isFeatured?: boolean;
 }
 
 export interface UpdateProjectDto {
@@ -437,14 +438,17 @@ export interface UpdateProjectDto {
    * @default true
    */
   status?: boolean;
+  /**
+   * Dự án nổi bật
+   * @default false
+   */
+  isFeatured?: boolean;
   /** Nội dung chi tiết (HTML) */
   contentDetail?: string;
   /** Danh sách ID sản phẩm liên quan */
   productIds?: string[];
   /** Danh sách ID danh mục liên quan */
   categoryIds?: string[];
-  /** Dự án nổi bật */
-  isFeatured?: boolean;
 }
 
 export interface JobDetailResponseDto {
@@ -603,6 +607,18 @@ export interface SloganDto {
   orderIndex?: number;
 }
 
+export interface UpdateSloganOrderDto {
+  /** ID của slogan */
+  id: string;
+  /** Thứ tự mới */
+  orderIndex: number;
+}
+
+export interface UpdateSloganOrdersDto {
+  /** Danh sách slogan với thứ tự mới */
+  slogans: UpdateSloganOrderDto[];
+}
+
 export interface UpdateSloganDto {
   /** Tiêu đề slogan */
   title?: string;
@@ -615,18 +631,6 @@ export interface UpdateSloganDto {
    * @default 0
    */
   orderIndex?: number;
-}
-
-export interface UpdateSloganOrderDto {
-  /** ID của slogan */
-  id: string;
-  /** Thứ tự mới */
-  orderIndex: number;
-}
-
-export interface UpdateSloganOrdersDto {
-  /** Danh sách slogan với thứ tự mới */
-  slogans: UpdateSloganOrderDto[];
 }
 
 export interface TimelineResponseDto {
@@ -659,6 +663,18 @@ export interface TimelineDto {
   orderIndex?: number;
 }
 
+export interface UpdateTimelineOrderDto {
+  /** ID của timeline */
+  id: string;
+  /** Thứ tự mới */
+  orderIndex: number;
+}
+
+export interface UpdateTimelineOrdersDto {
+  /** Danh sách timeline với thứ tự mới */
+  timelines: UpdateTimelineOrderDto[];
+}
+
 export interface UpdateTimelineDto {
   /** Năm */
   year?: string;
@@ -671,18 +687,6 @@ export interface UpdateTimelineDto {
    * @default 0
    */
   orderIndex?: number;
-}
-
-export interface UpdateTimelineOrderDto {
-  /** ID của timeline */
-  id: string;
-  /** Thứ tự mới */
-  orderIndex: number;
-}
-
-export interface UpdateTimelineOrdersDto {
-  /** Danh sách timeline với thứ tự mới */
-  timelines: UpdateTimelineOrderDto[];
 }
 
 export interface BannerResponseDto {
@@ -749,4 +753,167 @@ export interface UpdateBannerOrderDto {
 export interface UpdateBannerOrdersDto {
   /** Danh sách banner với thứ tự mới */
   banners: UpdateBannerOrderDto[];
+}
+
+export interface CompanyInfoResponseDto {
+  /**
+   * Nhãn hiển thị
+   * @example "Thành lập"
+   */
+  label: string;
+  /**
+   * Giá trị
+   * @example "1919"
+   */
+  value: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+  /** ID */
+  id: string;
+}
+
+export interface CreateCompanyInfoDto {
+  /**
+   * Nhãn hiển thị
+   * @example "Thành lập"
+   */
+  label: string;
+  /**
+   * Giá trị
+   * @example "1919"
+   */
+  value: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+}
+
+export interface UpdateCompanyInfoDto {
+  /**
+   * Nhãn hiển thị
+   * @example "Thành lập"
+   */
+  label?: string;
+  /**
+   * Giá trị
+   * @example "1919"
+   */
+  value?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+}
+
+export interface FacilityResponseDto {
+  /**
+   * Khu vực / vùng lãnh thổ
+   * @example "Đông Nam Á"
+   */
+  region: string;
+  /**
+   * Quốc gia
+   * @example "Việt Nam"
+   */
+  country: string;
+  /**
+   * Tên cơ sở
+   * @example "Nhà máy Hà Nội"
+   */
+  name: string;
+  /**
+   * Địa chỉ
+   * @example "KCN Bắc Thăng Long, Hà Nội"
+   */
+  address: string;
+  /**
+   * Số điện thoại
+   * @example "024 1234 5678"
+   */
+  phone: string;
+  /** URL hình ảnh cơ sở */
+  imageUrl?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+  /** ID */
+  id: string;
+}
+
+export interface CreateFacilityDto {
+  /**
+   * Khu vực / vùng lãnh thổ
+   * @example "Đông Nam Á"
+   */
+  region: string;
+  /**
+   * Quốc gia
+   * @example "Việt Nam"
+   */
+  country: string;
+  /**
+   * Tên cơ sở
+   * @example "Nhà máy Hà Nội"
+   */
+  name: string;
+  /**
+   * Địa chỉ
+   * @example "KCN Bắc Thăng Long, Hà Nội"
+   */
+  address: string;
+  /**
+   * Số điện thoại
+   * @example "024 1234 5678"
+   */
+  phone: string;
+  /** URL hình ảnh cơ sở */
+  imageUrl?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+}
+
+export interface UpdateFacilityDto {
+  /**
+   * Khu vực / vùng lãnh thổ
+   * @example "Đông Nam Á"
+   */
+  region?: string;
+  /**
+   * Quốc gia
+   * @example "Việt Nam"
+   */
+  country?: string;
+  /**
+   * Tên cơ sở
+   * @example "Nhà máy Hà Nội"
+   */
+  name?: string;
+  /**
+   * Địa chỉ
+   * @example "KCN Bắc Thăng Long, Hà Nội"
+   */
+  address?: string;
+  /**
+   * Số điện thoại
+   * @example "024 1234 5678"
+   */
+  phone?: string;
+  /** URL hình ảnh cơ sở */
+  imageUrl?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
 }

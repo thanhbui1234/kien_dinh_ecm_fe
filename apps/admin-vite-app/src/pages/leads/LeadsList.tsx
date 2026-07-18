@@ -66,7 +66,14 @@ export default function LeadsList() {
       cell: (row) => (
         <div className="max-w-xs lg:max-w-md">
           <p className="text-sm font-medium text-gray-700 line-clamp-3">{row.message}</p>
-          {row.targetProductId && <span className="text-xs font-bold text-indigo-600 mt-2 block">→ Sản phẩm quan tâm: ID {row.targetProductId}</span>}
+          {row.targetProductId && (
+            <a
+              href={`/products/${row.targetProductId}`}
+              className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 mt-2 hover:text-indigo-800 hover:underline transition-colors"
+            >
+              → Sản phẩm quan tâm
+            </a>
+          )}
         </div>
       ),
     },

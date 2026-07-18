@@ -9,4 +9,11 @@ export const createProductsApi = (client: FetchClient) => ({
   getRelatedProducts: async (id: string): Promise<Product[] | null> => {
     return await client.safeGet<Product[]>(API_ENDPOINTS.PRODUCTS.RELATED(id));
   },
+  incrementViewCount: async (id: string): Promise<Product | null> => {
+    try {
+      return await client.patch<Product>(API_ENDPOINTS.PRODUCTS.VIEW(id), {});
+    } catch {
+      return null;
+    }
+  },
 });
