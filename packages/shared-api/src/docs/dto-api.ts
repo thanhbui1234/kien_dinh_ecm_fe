@@ -852,6 +852,21 @@ export interface FacilityResponseDto {
   id: string;
 }
 
+export interface CompanyHistoryEventResponseDto {
+  /** ID */
+  id: string;
+  /** Giai đoạn lịch sử, ví dụ "1919 - 1950" */
+  period: string;
+  /** Năm cụ thể, ví dụ "1919" */
+  year: string;
+  /** Nội dung sự kiện */
+  text: string;
+  /** URL hình ảnh minh họa */
+  imageUrl?: string;
+  /** Thứ tự hiển thị */
+  orderIndex?: number;
+}
+
 export interface CreateFacilityDto {
   /**
    * Khu vực / vùng lãnh thổ
