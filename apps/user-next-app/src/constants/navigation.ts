@@ -26,6 +26,10 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
+    label: 'Dự án',
+    href: '/projects/',
+  },
+  {
     label: 'Phương tiện truyền thông tin tức',
     href: '/news-media/',
     children: [

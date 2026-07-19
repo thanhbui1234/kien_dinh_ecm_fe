@@ -43,13 +43,6 @@ export default function FeaturedProjectsSection({ projects = [] }: FeaturedProje
           transition={{ duration: 0.6, ease: EASE_EXPO }}
         >
           <SectionHeading>Dự án nổi bật</SectionHeading>
-          <Link
-            href="/projects/"
-            className="group hidden md:flex items-center gap-2 text-gray-500 text-sm font-medium transition-colors hover:text-black"
-          >
-            Tất cả dự án
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </Link>
         </motion.div>
 
         {/* Bento Grid */}
@@ -96,16 +89,21 @@ export default function FeaturedProjectsSection({ projects = [] }: FeaturedProje
           )}
         </motion.div>
 
-        {/* Mobile CTA */}
-        <div className="mt-8 flex justify-center md:hidden">
+        {/* CTA button — all screens */}
+        <motion.div
+          className="mt-10 flex justify-center"
+          initial={{ opacity: 0, y: 16 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.55, ease: EASE_EXPO, delay: 0.45 }}
+        >
           <Link
             href="/projects/"
-            className="group flex items-center gap-2 text-gray-500 text-sm font-medium transition-colors hover:text-black"
+            className="group inline-flex items-center gap-2.5 border border-[#111]/20 text-[#111] text-[13px] font-semibold px-7 py-3 rounded-full hover:bg-[#111] hover:text-white hover:border-[#111] active:scale-[0.98] transition-all no-underline"
           >
-            Tất cả dự án
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            Xem tất cả dự án
+            <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

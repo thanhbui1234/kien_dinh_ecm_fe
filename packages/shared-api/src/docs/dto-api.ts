@@ -391,10 +391,14 @@ export interface ProjectResponseDto {
   createdAt: string;
   /** Chi tiết bài viết */
   detail?: ProjectDetailResponseDto;
+  /** Danh sách URL ảnh gallery */
+  images?: string[];
   /** Danh sách ID sản phẩm */
   productIds?: string[];
   /** Danh sách ID danh mục */
   categoryIds?: string[];
+  /** Sản phẩm liên quan (dùng cho user FE) */
+  relatedProducts?: ProductResponseDto[];
 }
 
 export interface CreateProjectDto {
