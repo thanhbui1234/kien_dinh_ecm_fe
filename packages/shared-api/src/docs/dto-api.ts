@@ -391,10 +391,14 @@ export interface ProjectResponseDto {
   createdAt: string;
   /** Chi tiết bài viết */
   detail?: ProjectDetailResponseDto;
+  /** Danh sách URL ảnh gallery */
+  images?: string[];
   /** Danh sách ID sản phẩm */
   productIds?: string[];
   /** Danh sách ID danh mục */
   categoryIds?: string[];
+  /** Sản phẩm liên quan (dùng cho user FE) */
+  relatedProducts?: ProductResponseDto[];
 }
 
 export interface CreateProjectDto {
@@ -846,6 +850,21 @@ export interface FacilityResponseDto {
   orderIndex?: number;
   /** ID */
   id: string;
+}
+
+export interface CompanyHistoryEventResponseDto {
+  /** ID */
+  id: string;
+  /** Giai đoạn lịch sử, ví dụ "1919 - 1950" */
+  period: string;
+  /** Năm cụ thể, ví dụ "1919" */
+  year: string;
+  /** Nội dung sự kiện */
+  text: string;
+  /** URL hình ảnh minh họa */
+  imageUrl?: string;
+  /** Thứ tự hiển thị */
+  orderIndex?: number;
 }
 
 export interface CreateFacilityDto {

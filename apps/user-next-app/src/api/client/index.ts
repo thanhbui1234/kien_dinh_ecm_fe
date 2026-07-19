@@ -6,6 +6,7 @@ import { createProjectsApi } from './api/projects.client';
 import { createJobsApi } from './api/jobs.client';
 import { createLeadsApi } from './api/leads.client';
 import { createSettingsApi } from './api/settings.client';
+import { createAboutApi } from './api/about.client';
 
 export * from './api/auth.client';
 export * from './api/products.client';
@@ -14,6 +15,7 @@ export * from './api/projects.client';
 export * from './api/jobs.client';
 export * from './api/leads.client';
 export * from './api/settings.client';
+export * from './api/about.client';
 
 export const createApiClient = (client: FetchClient) => ({
   auth: createAuthApi(client),
@@ -23,4 +25,5 @@ export const createApiClient = (client: FetchClient) => ({
   jobs: createJobsApi(client),
   leads: createLeadsApi(client),
   settings: createSettingsApi(client),
+  about: createAboutApi(client),
 });

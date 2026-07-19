@@ -6,3 +6,4 @@ export * from './project.schema';
 export * from './job.schema';
 export * from './lead.schema';
 export * from './setting.schema';
+export * from './about.schema';

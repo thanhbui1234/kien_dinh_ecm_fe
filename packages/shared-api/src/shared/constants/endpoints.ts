@@ -51,5 +51,7 @@ export const API_ENDPOINTS = {
     COMPANY_INFO_DETAIL: (id: string) => `/api/v1/about/company-info/${id}`,
     FACILITIES: '/api/v1/about/facilities',
     FACILITY_DETAIL: (id: string) => `/api/v1/about/facilities/${id}`,
+    HISTORY_EVENTS: '/api/v1/about/history-events',
+    HISTORY_EVENT_DETAIL: (id: string) => `/api/v1/about/history-events/${id}`,
   },
 } as const;
