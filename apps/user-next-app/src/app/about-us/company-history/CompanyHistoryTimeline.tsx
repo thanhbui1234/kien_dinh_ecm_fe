@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import {
-  motion,
+  m,
   useInView,
   useScroll,
   useTransform,
@@ -29,7 +29,7 @@ function VerticalLine({ containerRef }: { containerRef: React.RefObject<HTMLDivE
       aria-hidden="true"
     >
       <div className="absolute inset-0 bg-gray-200" />
-      <motion.div className="absolute inset-0 origin-top bg-[#ff5901]" style={{ scaleY }} />
+      <m.div className="absolute inset-0 origin-top bg-[#ff5901]" style={{ scaleY }} />
     </div>
   );
 }
@@ -47,7 +47,7 @@ function MobileVerticalLine({ containerRef }: { containerRef: React.RefObject<HT
       aria-hidden="true"
     >
       <div className="absolute inset-0 bg-gray-200" />
-      <motion.div className="absolute inset-0 origin-top bg-[#ff5901]" style={{ scaleY }} />
+      <m.div className="absolute inset-0 origin-top bg-[#ff5901]" style={{ scaleY }} />
     </div>
   );
 }
@@ -70,7 +70,7 @@ function ContentBlock({
       onMouseLeave={() => setHovered(false)}
     >
       {/* Floating image — absolute above text, no layout shift */}
-      <motion.div
+      <m.div
         className={`absolute -top-4 z-20 w-full rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.18)] pointer-events-none`}
         style={{
           transformOrigin: align === "right" ? "bottom right" : "bottom left",
@@ -94,22 +94,22 @@ function ContentBlock({
           <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff5901]" />
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Year */}
       <div style={{ overflow: "hidden" }}>
-        <motion.span
+        <m.span
           className="block text-[#ff5901] font-black tabular-nums text-[42px] md:text-[52px] leading-none tracking-tight"
           initial={{ y: "110%" }}
           animate={{ y: inView ? "0%" : "110%" }}
           transition={{ duration: 0.6, ease: EXPO }}
         >
           {item.year}
-        </motion.span>
+        </m.span>
       </div>
 
       {/* Title */}
-      <motion.h3
+      <m.h3
         className="m-0 mt-3 mb-3 text-[#111] font-semibold leading-tight text-[18px] md:text-[22px]"
         style={{ letterSpacing: "-0.01em" }}
         initial={{ clipPath: align === "right" ? "inset(0 0 0 100%)" : "inset(0 100% 0 0)" }}
@@ -117,24 +117,24 @@ function ContentBlock({
           clipPath: inView
             ? "inset(0 0% 0 0)"
             : align === "right"
-            ? "inset(0 0 0 100%)"
-            : "inset(0 100% 0 0)",
+              ? "inset(0 0 0 100%)"
+              : "inset(0 100% 0 0)",
         }}
         transition={{ duration: 0.65, ease: EXPO, delay: 0.1 }}
       >
         {item.text}
-      </motion.h3>
+      </m.h3>
 
       {/* Description — period as subtitle */}
       {item.period && (
-        <motion.p
+        <m.p
           className="m-0 text-[13.5px] text-gray-500 leading-relaxed"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 8 }}
           transition={{ duration: 0.5, ease: EXPO, delay: 0.25 }}
         >
           {item.period}
-        </motion.p>
+        </m.p>
       )}
     </div>
   );
@@ -154,20 +154,20 @@ function Milestone({ item, index }: { item: CompanyHistoryEvent; index: number }
 
       {/* Center dot — absolute on the line, perfectly centered */}
       <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-8 z-10">
-        <motion.div
+        <m.div
           className="relative w-4 h-4 rounded-full bg-[#ff5901] ring-4 ring-[#f9f9f9] shadow-md"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: inView ? 1 : 0, opacity: inView ? 1 : 0 }}
           transition={{ duration: 0.3, ease: EXPO }}
         >
-          <motion.span
+          <m.span
             aria-hidden="true"
             className="absolute inset-0 rounded-full border-2 border-[#ff5901]"
             initial={{ scale: 1, opacity: 0 }}
             animate={inView ? { scale: 3.5, opacity: [0.6, 0] } : { scale: 1, opacity: 0 }}
             transition={{ duration: 1.2, ease: "easeOut", delay: 0.15 }}
           />
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Right slot */}
@@ -178,7 +178,7 @@ function Milestone({ item, index }: { item: CompanyHistoryEvent; index: number }
       {/* Mobile layout */}
       <div className="md:hidden pl-14 pb-12">
         <div className="absolute left-5 top-2 -translate-x-1/2 z-10">
-          <motion.div
+          <m.div
             className="relative w-4 h-4 rounded-full bg-[#ff5901] ring-4 ring-white shadow-md"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: inView ? 1 : 0, opacity: inView ? 1 : 0 }}

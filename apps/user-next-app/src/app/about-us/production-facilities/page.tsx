@@ -5,6 +5,8 @@ import type { Facility } from 'shared-api';
 import type { Metadata } from 'next';
 import { FacilityCard } from './FacilityCard';
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: 'Cơ sở sản xuất | Kiến Đỉnh',
 };

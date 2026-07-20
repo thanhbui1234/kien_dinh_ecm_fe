@@ -4,6 +4,13 @@ import ProjectDetailClient from './ProjectDetailClient';
 import { api } from '@/lib/api';
 import type { Metadata } from 'next';
 
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const res = await api.projects.getProjects({ limit: '200' }).catch(() => null);
+  return (res?.items ?? []).map((p) => ({ slug: p.slug }));
+}
+
 interface Props {
   params: Promise<{ slug: string }>;
 }

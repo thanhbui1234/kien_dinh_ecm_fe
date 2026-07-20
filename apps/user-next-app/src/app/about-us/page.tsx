@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
 import type { Facility } from 'shared-api';
@@ -56,11 +57,14 @@ export default async function AboutUsPage() {
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="relative w-full h-[55vh] min-h-[420px] md:h-[72vh] md:min-h-[560px] overflow-hidden bg-[#111]">
         {aboutThumbnail && (
-          <img
+          <Image
             src={aboutThumbnail}
             alt=""
             aria-hidden="true"
-            className="absolute inset-0 w-full h-full object-cover"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
           />
         )}
         {/* Gradient overlays — same as ProjectHero */}

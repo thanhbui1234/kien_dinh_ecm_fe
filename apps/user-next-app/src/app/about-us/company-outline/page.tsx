@@ -3,6 +3,8 @@ import { PageWrapper, PageBreadcrumb, PageTitle } from 'shared-ui';
 import { api } from '@/lib/api';
 import type { Metadata } from 'next';
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: 'Sơ lược về công ty | Kiến Đỉnh',
 };

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { api } from '@/lib/api';
+import { getCachedCategories } from '@/lib/cached-api';
 import FilterDrawer from './FilterDrawer';
 
 interface SearchParams {
@@ -111,7 +112,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const search = params.search;
 
   const [categoriesResponse, productsResponse] = await Promise.all([
-    api.categories.getCategories(),
+    getCachedCategories(),
     api.products.getProducts({ page: String(page), limit: '12', ...(search ? { search } : {}) }),
   ]);
 
