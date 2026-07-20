@@ -11,6 +11,10 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   {
+    label: 'Trang chủ',
+    href: '/',
+  },
+  {
     label: 'Các sản phẩm',
     href: '/products/',
     children: [
@@ -30,32 +34,8 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/projects/',
   },
   {
-    label: 'Phương tiện truyền thông tin tức',
-    href: '/news-media/',
-    children: [
-      { label: 'Tin tức', href: '/news-media/news/' },
-      { label: 'Sự kiện sắp tới', href: '/news-media/upcoming-events/' },
-      { label: 'CYBER WORLD', href: '/news-media/cyberworld-dl/' },
-      { label: 'Báo cáo khách hàng', href: '/news-media/customer-report/' },
-    ],
-  },
-  {
-    label: 'Dịch vụ & Hỗ trợ',
-    href: '/service-support/',
-    children: [
-      { label: 'Trung tâm phụ tùng', href: '/service-support/parts-supply/' },
-      { label: 'Hỗ trợ khách hàng', href: '/service-support/customer-support/' },
-      { label: 'Chương trình đào tạo', href: '/service-support/training/' },
-    ],
-  },
-  {
     label: 'Về chúng tôi',
     href: '/about-us/',
-    children: [
-      { label: 'Sơ lược về công ty', href: '/about-us/company-outline/' },
-      { label: 'Lịch sử công ty', href: '/about-us/company-history/' },
-      { label: 'Cơ sở sản xuất', href: '/about-us/production-facilities/' },
-    ],
   },
   {
     label: 'Liên hệ chúng tôi',

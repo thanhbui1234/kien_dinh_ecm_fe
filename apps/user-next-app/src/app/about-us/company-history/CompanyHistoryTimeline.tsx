@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import Image from "next/image";
 import {
   motion,
   useInView,
@@ -8,150 +9,199 @@ import {
   useTransform,
   MotionConfig,
 } from "framer-motion";
-import type { Timeline } from "shared-api";
+import type { CompanyHistoryEvent } from "shared-api";
 
 const EXPO = [0.16, 1, 0.3, 1] as const;
 
-/* ─────────────────────────────────────────
-   Year tag: slides up out of a clipped box
-───────────────────────────────────────── */
-function YearTag({ year, inView }: { year: string; inView: boolean }) {
+// TODO: remove fallback once BE adds imageUrl to TimelineResponseDto
+const PLACEHOLDER_IMAGE = "https://placehold.co/480x300/111111/ff5901?text=Kiến+Đỉnh";
+
+function VerticalLine({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) {
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start 0.85", "end 0.3"],
+  });
+  const scaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
+
   return (
-    <div style={{ overflow: "hidden", lineHeight: 1 }}>
-      <motion.span
-        className="block text-[#ff5901] font-bold tabular-nums"
-        style={{
-          fontSize: "12px",
-          letterSpacing: "0.15em",
-          textTransform: "uppercase",
-          fontFamily: "'Geomanist', 'Noto Sans', sans-serif",
-        }}
-        initial={{ y: "110%" }}
-        animate={{ y: inView ? "0%" : "110%" }}
-        transition={{ duration: 0.55, ease: EXPO }}
-      >
-        {year}
-      </motion.span>
+    <div
+      className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-[2px] pointer-events-none hidden md:block"
+      aria-hidden="true"
+    >
+      <div className="absolute inset-0 bg-gray-200" />
+      <motion.div className="absolute inset-0 origin-top bg-[#ff5901]" style={{ scaleY }} />
     </div>
   );
 }
 
-/* ─────────────────────────────────────────
-   Single milestone row
-───────────────────────────────────────── */
-function Milestone({ item }: { item: Timeline }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-50px 0px" });
+function MobileVerticalLine({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) {
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start 0.85", "end 0.3"],
+  });
+  const scaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
-    <div ref={ref} className="relative pl-10 md:pl-16 pb-16 md:pb-24 last:pb-10">
+    <div
+      className="absolute left-5 top-0 bottom-0 w-[2px] pointer-events-none md:hidden"
+      aria-hidden="true"
+    >
+      <div className="absolute inset-0 bg-gray-200" />
+      <motion.div className="absolute inset-0 origin-top bg-[#ff5901]" style={{ scaleY }} />
+    </div>
+  );
+}
 
-      {/* Dot — centered on the vertical line */}
-      <div className="absolute left-0 top-[6px] z-10 -translate-x-1/2">
-        <motion.div
-          className="relative w-3 h-3 rounded-full bg-[#ff5901]"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: inView ? 1 : 0, opacity: inView ? 1 : 0 }}
-          transition={{ duration: 0.28, ease: EXPO }}
-        >
-          {/* Expanding ring — fires once */}
-          <motion.span
-            aria-hidden="true"
-            className="absolute inset-0 rounded-full border border-[#ff5901]/60"
-            initial={{ scale: 1, opacity: 0 }}
-            animate={
-              inView
-                ? { scale: 4, opacity: [0.8, 0] }
-                : { scale: 1, opacity: 0 }
-            }
-            transition={{ duration: 1.1, ease: "easeOut", delay: 0.2 }}
+function ContentBlock({
+  item,
+  inView,
+  align,
+}: {
+  item: CompanyHistoryEvent;
+  inView: boolean;
+  align: "left" | "right";
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      className={`relative pb-16 max-w-[440px] w-full ${align === "right" ? "text-right" : "text-left"}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Floating image — absolute above text, no layout shift */}
+      <motion.div
+        className={`absolute -top-4 z-20 w-full rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.18)] pointer-events-none`}
+        style={{
+          transformOrigin: align === "right" ? "bottom right" : "bottom left",
+        }}
+        initial={{ opacity: 0, clipPath: "inset(100% 0 0 0 round 12px)" }}
+        animate={
+          hovered
+            ? { opacity: 1, clipPath: "inset(0% 0 0 0 round 12px)" }
+            : { opacity: 0, clipPath: "inset(100% 0 0 0 round 12px)" }
+        }
+        transition={{ duration: 0.45, ease: EXPO }}
+      >
+        <div className="relative aspect-16/10">
+          <Image
+            src={item.imageUrl || PLACEHOLDER_IMAGE}
+            alt={item.year}
+            fill
+            className="object-cover"
+            sizes="440px"
           />
-        </motion.div>
+          <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff5901]" />
+        </div>
+      </motion.div>
+
+      {/* Year */}
+      <div style={{ overflow: "hidden" }}>
+        <motion.span
+          className="block text-[#ff5901] font-black tabular-nums text-[42px] md:text-[52px] leading-none tracking-tight"
+          initial={{ y: "110%" }}
+          animate={{ y: inView ? "0%" : "110%" }}
+          transition={{ duration: 0.6, ease: EXPO }}
+        >
+          {item.year}
+        </motion.span>
       </div>
 
-      {/* Year label — slide up reveal */}
-      <YearTag year={item.year} inView={inView} />
-
-      {/* Title — clip-path horizontal wipe */}
+      {/* Title */}
       <motion.h3
-        className="m-0 mt-3 mb-3 text-white font-light leading-tight"
-        style={{
-          fontSize: "clamp(22px, 3vw, 30px)",
-          letterSpacing: "-0.02em",
-          textWrap: "balance",
-        } as React.CSSProperties}
-        initial={{ clipPath: "inset(0 100% 0 0)" }}
-        animate={{ clipPath: inView ? "inset(0 0% 0 0)" : "inset(0 100% 0 0)" }}
-        transition={{ duration: 0.7, ease: EXPO, delay: 0.1 }}
+        className="m-0 mt-3 mb-3 text-[#111] font-semibold leading-tight text-[18px] md:text-[22px]"
+        style={{ letterSpacing: "-0.01em" }}
+        initial={{ clipPath: align === "right" ? "inset(0 0 0 100%)" : "inset(0 100% 0 0)" }}
+        animate={{
+          clipPath: inView
+            ? "inset(0 0% 0 0)"
+            : align === "right"
+            ? "inset(0 0 0 100%)"
+            : "inset(0 100% 0 0)",
+        }}
+        transition={{ duration: 0.65, ease: EXPO, delay: 0.1 }}
       >
-        {item.title}
+        {item.text}
       </motion.h3>
 
-      {/* Description — fade + rise */}
-      {item.description && (
+      {/* Description — period as subtitle */}
+      {item.period && (
         <motion.p
-          className="m-0 leading-relaxed"
-          style={{
-            fontSize: "13.5px",
-            color: "#888",
-            maxWidth: "52ch",
-          }}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 10 }}
-          transition={{ duration: 0.5, ease: EXPO, delay: 0.28 }}
+          className="m-0 text-[13.5px] text-gray-500 leading-relaxed"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 8 }}
+          transition={{ duration: 0.5, ease: EXPO, delay: 0.25 }}
         >
-          {item.description}
+          {item.period}
         </motion.p>
       )}
     </div>
   );
 }
 
-/* ─────────────────────────────────────────
-   Scroll-driven vertical line
-───────────────────────────────────────── */
-function VerticalLine({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) {
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start 0.88", "end 0.2"],
-  });
-  const scaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
+function Milestone({ item, index }: { item: CompanyHistoryEvent; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px 0px" });
+  const isLeft = index % 2 === 0;
 
   return (
-    <div
-      className="absolute left-0 top-0 bottom-0 w-px pointer-events-none"
-      aria-hidden="true"
-    >
-      <div className="absolute inset-0" style={{ background: "rgba(255,89,1,0.15)" }} />
-      <motion.div
-        className="absolute inset-0 origin-top"
-        style={{ background: "#ff5901", scaleY }}
-      />
+    <div ref={ref} className="relative grid grid-cols-1 md:grid-cols-2 mb-0">
+      {/* Left slot */}
+      <div className={`hidden md:flex ${isLeft ? "justify-end pr-12" : "justify-start pl-12"}`}>
+        {isLeft && <ContentBlock item={item} inView={inView} align="right" />}
+      </div>
+
+      {/* Center dot — absolute on the line, perfectly centered */}
+      <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-8 z-10">
+        <motion.div
+          className="relative w-4 h-4 rounded-full bg-[#ff5901] ring-4 ring-[#f9f9f9] shadow-md"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: inView ? 1 : 0, opacity: inView ? 1 : 0 }}
+          transition={{ duration: 0.3, ease: EXPO }}
+        >
+          <motion.span
+            aria-hidden="true"
+            className="absolute inset-0 rounded-full border-2 border-[#ff5901]"
+            initial={{ scale: 1, opacity: 0 }}
+            animate={inView ? { scale: 3.5, opacity: [0.6, 0] } : { scale: 1, opacity: 0 }}
+            transition={{ duration: 1.2, ease: "easeOut", delay: 0.15 }}
+          />
+        </motion.div>
+      </div>
+
+      {/* Right slot */}
+      <div className={`hidden md:flex ${!isLeft ? "justify-start pl-12" : "justify-end pr-12"}`}>
+        {!isLeft && <ContentBlock item={item} inView={inView} align="left" />}
+      </div>
+
+      {/* Mobile layout */}
+      <div className="md:hidden pl-14 pb-12">
+        <div className="absolute left-5 top-2 -translate-x-1/2 z-10">
+          <motion.div
+            className="relative w-4 h-4 rounded-full bg-[#ff5901] ring-4 ring-white shadow-md"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: inView ? 1 : 0, opacity: inView ? 1 : 0 }}
+            transition={{ duration: 0.3, ease: EXPO }}
+          />
+        </div>
+        <ContentBlock item={item} inView={inView} align="left" />
+      </div>
     </div>
   );
 }
 
-/* ─────────────────────────────────────────
-   Exported component
-───────────────────────────────────────── */
-export function CompanyHistoryTimeline({ items }: { items: Timeline[] }) {
+export function CompanyHistoryTimeline({ items }: { items: CompanyHistoryEvent[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (
     <MotionConfig reducedMotion="user">
-      {/* Full-width dark section */}
-      <section
-        style={{ background: "#0d0d0d" }}
-        className="py-20 md:py-28"
-      >
-        <div
-          ref={containerRef}
-          className="relative max-w-[1266px] mx-auto px-5 md:px-10"
-        >
+      <section className="py-10 md:py-16">
+        <div ref={containerRef} className="relative max-w-[1100px] mx-auto px-6 md:px-10">
           <VerticalLine containerRef={containerRef} />
-
-          {items.map((item) => (
-            <Milestone key={item.id} item={item} />
+          <MobileVerticalLine containerRef={containerRef} />
+          {items.map((item, i) => (
+            <Milestone key={item.id} item={item} index={i} />
           ))}
         </div>
       </section>

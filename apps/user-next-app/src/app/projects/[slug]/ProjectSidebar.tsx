@@ -80,30 +80,6 @@ export default function ProjectSidebar({ project, formattedDate, relatedProducts
             </div>
           </motion.div>
         )}
-
-        {/* CTA buttons */}
-        <motion.div
-          className="pt-5 flex flex-col gap-2.5"
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.45, ease: E, delay: 0.42 }}
-        >
-          <Link
-            href="/contact/"
-            className="inline-flex items-center justify-center bg-[#ff5901] text-white text-[13px] font-semibold px-5 py-3 rounded-full hover:bg-[#e04f00] active:scale-[0.98] transition-all no-underline w-full"
-          >
-            Yêu cầu tư vấn
-          </Link>
-          <a
-            href="https://zalo.me/0374864110"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center border border-[#0068FF]/25 text-[#0068FF] text-[13px] font-semibold px-5 py-3 rounded-full hover:bg-[#0068FF] hover:text-white hover:border-[#0068FF] active:scale-[0.98] transition-all no-underline w-full"
-          >
-            Chat Zalo
-          </a>
-        </motion.div>
       </div>
     </motion.aside>
   );
