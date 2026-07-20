@@ -18,7 +18,7 @@ export default function ProjectsList() {
   const statusParam = searchParams.get('status');
   const status = statusParam === 'true' ? true : statusParam === 'false' ? false : undefined;
 
-  const { data, isLoading } = useProjects({ page, limit: 10, search, status });
+  const { data, isLoading } = useProjects({ page, limit: 9, search, status });
   const deleteMutation = useDeleteProject();
   const updateMutation = useUpdateProject();
 
