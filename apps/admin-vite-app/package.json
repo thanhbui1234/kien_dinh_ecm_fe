@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "analyze": "ANALYZE=true tsc -b && ANALYZE=true vite build",
     "preview": "vite preview",
     "lint": "eslint ."
   },
@@ -49,6 +50,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.5.2",
+    "rollup-plugin-visualizer": "^7.0.1",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
     "vite": "^6.3.5"

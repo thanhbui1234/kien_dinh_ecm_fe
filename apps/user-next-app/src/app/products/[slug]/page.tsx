@@ -1,8 +1,16 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { getCachedCategories } from '@/lib/cached-api';
 import ProductDetailClient from './ProductDetailClient';
 import type { Metadata } from 'next';
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const res = await api.products.getProducts({ limit: '200' }).catch(() => null);
+  return (res?.items ?? []).map((p) => ({ slug: p.slug }));
+}
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -34,7 +42,7 @@ export default async function ProductDetailPage({ params }: Props) {
   // If product came from list (no detail field), fetch full detail by ID
   const [fullProduct, categoriesResponse, relatedResponse] = await Promise.all([
     product.detail ? Promise.resolve(product) : api.products.getProductDetail(product.id).then((d) => d ?? product),
-    api.categories.getCategories(),
+    getCachedCategories(),
     api.products.getRelatedProducts(product.id),
   ]);
 

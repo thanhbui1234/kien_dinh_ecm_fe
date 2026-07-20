@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { api } from "@/lib/api";
+import { getCachedCategories } from "@/lib/cached-api";
+import { notoSans, notoSansJP } from "@/lib/fonts";
+import MotionProvider from "@/components/ui/MotionProvider";
 
 export const metadata: Metadata = {
   title: "MAZAK VIETNAM",
@@ -20,15 +22,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const categoriesResponse = await api.categories.getCategories().catch(() => []);
+  const categoriesResponse = await getCachedCategories();
   const categories = (categoriesResponse || []).filter((c) => !c.parentId);
 
   return (
-    <html lang="vi" suppressHydrationWarning>
+    <html lang="vi" suppressHydrationWarning className={`${notoSans.variable} ${notoSansJP.variable}`}>
       <body>
-        <Header categories={categories} />
-        {children}
-        <Footer />
+        <MotionProvider>
+          <Header categories={categories} />
+          <main className="min-h-screen">{children}</main>
+          <Footer />
+        </MotionProvider>
       </body>
     </html>
   );

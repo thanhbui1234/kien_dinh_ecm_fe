@@ -2,9 +2,11 @@
 
 import { useRef, useState } from 'react';
 import Image from 'next/image';
-import { motion, useInView } from 'framer-motion';
-import Lightbox from 'yet-another-react-lightbox';
+import dynamic from 'next/dynamic';
+import { m, useInView } from 'framer-motion';
 import 'yet-another-react-lightbox/styles.css';
+
+const Lightbox = dynamic(() => import('yet-another-react-lightbox'), { ssr: false });
 
 const EASE_EXPO = [0.16, 1, 0.3, 1] as const;
 
@@ -24,7 +26,7 @@ interface GalleryCellProps {
 
 function GalleryCell({ src, index, isInView, onClick, className = '', sizes, badge }: GalleryCellProps) {
   return (
-    <motion.button
+    <m.button
       onClick={onClick}
       aria-label={`Xem ảnh ${index + 1}`}
       className={`group relative overflow-hidden bg-[#111] cursor-zoom-in rounded-lg ${className}`}
@@ -52,7 +54,7 @@ function GalleryCell({ src, index, isInView, onClick, className = '', sizes, bad
           </span>
         </div>
       )}
-    </motion.button>
+    </m.button>
   );
 }
 

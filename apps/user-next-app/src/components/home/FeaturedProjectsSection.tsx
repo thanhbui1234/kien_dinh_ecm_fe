@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Project } from "shared-api";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "shared-ui";
-import { motion, useInView } from "framer-motion";
+import { m, useInView } from "framer-motion";
 
 const EASE_EXPO = [0.16, 1, 0.3, 1] as const;
 
@@ -36,17 +36,17 @@ export default function FeaturedProjectsSection({ projects = [] }: FeaturedProje
     <section ref={sectionRef} className="bg-white py-20">
       <div className="max-w-[1300px] mx-auto px-6 md:px-10">
         {/* Header */}
-        <motion.div
+        <m.div
           className="mb-10 flex items-end justify-between"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, ease: EASE_EXPO }}
         >
           <SectionHeading>Dự án nổi bật</SectionHeading>
-        </motion.div>
+        </m.div>
 
         {/* Bento Grid */}
-        <motion.div
+        <m.div
           className="grid grid-cols-1 md:grid-cols-3 gap-3"
           variants={container}
           initial="hidden"
@@ -54,43 +54,43 @@ export default function FeaturedProjectsSection({ projects = [] }: FeaturedProje
         >
           {/* Hero card — col span 2, row span 2 */}
           {displayed[0] && (
-            <motion.div variants={item} className="md:col-span-2 md:row-span-2">
+            <m.div variants={item} className="md:col-span-2 md:row-span-2">
               <BentoCard project={displayed[0]} hero />
-            </motion.div>
+            </m.div>
           )}
 
           {/* Side cards */}
           {displayed[1] && (
-            <motion.div variants={item}>
+            <m.div variants={item}>
               <BentoCard project={displayed[1]} />
-            </motion.div>
+            </m.div>
           )}
           {displayed[2] && (
-            <motion.div variants={item}>
+            <m.div variants={item}>
               <BentoCard project={displayed[2]} />
-            </motion.div>
+            </m.div>
           )}
 
           {/* Bottom row */}
           {displayed[3] && (
-            <motion.div variants={item}>
+            <m.div variants={item}>
               <BentoCard project={displayed[3]} />
-            </motion.div>
+            </m.div>
           )}
           {displayed[4] && (
-            <motion.div variants={item}>
+            <m.div variants={item}>
               <BentoCard project={displayed[4]} />
-            </motion.div>
+            </m.div>
           )}
           {displayed[5] && (
-            <motion.div variants={item}>
+            <m.div variants={item}>
               <BentoCard project={displayed[5]} />
-            </motion.div>
+            </m.div>
           )}
-        </motion.div>
+        </m.div>
 
         {/* CTA button — all screens */}
-        <motion.div
+        <m.div
           className="mt-10 flex justify-center"
           initial={{ opacity: 0, y: 16 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -103,7 +103,7 @@ export default function FeaturedProjectsSection({ projects = [] }: FeaturedProje
             Xem tất cả dự án
             <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );
@@ -143,7 +143,7 @@ const ctaVariants = {
 
 function BentoCard({ project, hero = false }: { project: Project; hero?: boolean }) {
   return (
-    <motion.div
+    <m.div
       className={`relative overflow-hidden rounded-lg bg-gray-100 cursor-pointer ${hero ? "h-[460px] md:h-full min-h-[460px]" : "h-[220px]"}`}
       variants={cardVariants}
       initial="rest"
@@ -154,7 +154,7 @@ function BentoCard({ project, hero = false }: { project: Project; hero?: boolean
 
       {/* Image */}
       {project.coverImage ? (
-        <motion.div className="absolute inset-0" variants={imageVariants}>
+        <m.div className="absolute inset-0" variants={imageVariants}>
           <Image
             src={project.coverImage}
             alt={project.name}
@@ -162,7 +162,7 @@ function BentoCard({ project, hero = false }: { project: Project; hero?: boolean
             sizes={hero ? "(max-width: 768px) 100vw, 66vw" : "(max-width: 768px) 100vw, 33vw"}
             className="object-cover"
           />
-        </motion.div>
+        </m.div>
       ) : (
         <div className="absolute inset-0 bg-gray-200" />
       )}
@@ -171,7 +171,7 @@ function BentoCard({ project, hero = false }: { project: Project; hero?: boolean
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
       {/* Hover overlay tối thêm — đủ contrast cho description */}
-      <motion.div
+      <m.div
         className="absolute inset-0 bg-black/40"
         variants={overlayVariants}
       />
@@ -185,31 +185,31 @@ function BentoCard({ project, hero = false }: { project: Project; hero?: boolean
         )}
 
         {/* Title luôn visible */}
-        <motion.h3
+        <m.h3
           className={`text-white font-semibold leading-snug line-clamp-2 ${hero ? "text-xl md:text-2xl" : "text-sm"}`}
           variants={titleVariants}
         >
           {project.name}
-        </motion.h3>
+        </m.h3>
 
         {/* Description — hidden at rest */}
         {project.description && (
-          <motion.p
+          <m.p
             className={`text-white/70 mt-2 line-clamp-3 ${hero ? "text-sm" : "text-xs"}`}
             variants={descVariants}
           >
             {project.description}
-          </motion.p>
+          </m.p>
         )}
 
         {/* CTA — hidden at rest */}
-        <motion.div
+        <m.div
           className="flex items-center gap-1.5 mt-3 text-[#ff5901] text-xs font-semibold uppercase tracking-wider"
           variants={ctaVariants}
         >
           Xem dự án <ArrowRight className="w-3 h-3" />
-        </motion.div>
+        </m.div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

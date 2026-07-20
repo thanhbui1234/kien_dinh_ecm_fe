@@ -3,11 +3,13 @@
 import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Lightbox from 'yet-another-react-lightbox';
+import dynamic from 'next/dynamic';
 import 'yet-another-react-lightbox/styles.css';
 import type { Product, Category } from 'shared-api';
 import ProductViewTracker from './ProductViewTracker';
 import StickyContactBar from './StickyContactBar';
+
+const Lightbox = dynamic(() => import('yet-another-react-lightbox'), { ssr: false });
 
 interface Props {
   product: Product;
