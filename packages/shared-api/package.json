@@ -8,9 +8,6 @@
     "download-spec": "node -e \"const fs = require('fs'); fs.mkdirSync('./src/docs', { recursive: true });\" && curl -s https://kien-dinh-ecm-be.onrender.com/api/docs-json -o ./src/docs/swagger-spec.json"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.75.0",
-    "@tanstack/react-query-devtools": "^5.75.0",
-    "axios": "^1.13.6",
     "zod": "^4.4.3"
   },
   "devDependencies": {
