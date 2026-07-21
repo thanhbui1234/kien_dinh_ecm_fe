@@ -29,7 +29,7 @@ export default function ProjectBottomCTA({ ctaRef }: Props) {
             Quan tâm đến dự án tương tự?
           </p>
           <p className="text-white/50 text-[14px] mt-3 m-0 leading-relaxed">
-            Đội ngũ kỹ sư Kiến Đỉnh sẵn sàng tư vấn, lên phương án và báo giá miễn phí.
+            Đội ngũ kỹ sư Thanh Bằng sẵn sàng tư vấn, lên phương án và báo giá miễn phí.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 shrink-0">

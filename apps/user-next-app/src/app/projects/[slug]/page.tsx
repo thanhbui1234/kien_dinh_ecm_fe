@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ProjectDetailClient from './ProjectDetailClient';
 import { api } from '@/lib/api';
 import type { Metadata } from 'next';
+import { buildProjectMetadata } from '@/lib/seo';
 
 export const revalidate = 3600;
 
@@ -25,13 +26,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: 'Dự án không tồn tại' };
   }
 
-  return {
-    title: `${project.name} | Kiến Đỉnh`,
+  return buildProjectMetadata({
+    name: project.name,
     description: project.description,
-    openGraph: project.coverImage
-      ? { images: [{ url: project.coverImage }] }
-      : undefined,
-  };
+    slug,
+    coverImage: project.coverImage,
+  });
 }
 
 export default async function ProjectDetailPage({ params }: Props) {
