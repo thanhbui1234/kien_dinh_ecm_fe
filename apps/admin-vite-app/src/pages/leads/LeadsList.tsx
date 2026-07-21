@@ -3,6 +3,7 @@ import { Mail, Phone, Calendar, Filter, ArrowDownUp } from 'lucide-react';
 import { useLeads, useUpdateLeadStatus, useUpdateLead } from '@/queries/leads';
 import { DataTable, ColumnDef } from '@/components/common/DataTable';
 import { Lead } from 'shared-api';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const statusConfig = {
   PENDING: { label: 'MỚI', bg: 'bg-black', text: 'text-white', border: 'border-black' },
@@ -74,6 +75,13 @@ export default function LeadsList() {
               → Sản phẩm quan tâm
             </a>
           )}
+          {(row as any).targetJobId && (
+            <div
+              className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 mt-2"
+            >
+              → Vị trí ứng tuyển: {(row as any).job?.title || (row as any).targetJobId}
+            </div>
+          )}
         </div>
       ),
     },
@@ -87,16 +95,20 @@ export default function LeadsList() {
         const priority = (row as any).priority || 'MEDIUM';
         const cfg = priorityConfig[priority as keyof typeof priorityConfig] || priorityConfig.MEDIUM;
         return (
-          <select
-            className={`h-8 rounded-md border px-2 text-xs font-bold focus:outline-none cursor-pointer transition-all shadow-sm ${cfg.color}`}
+          <Select
             value={priority}
-            onChange={(e) => handlePriorityChange(row.id, e.target.value)}
+            onValueChange={(val) => handlePriorityChange(row.id, val)}
             disabled={updateLeadMutation.isPending}
           >
-            <option value="HIGH">Cao (High)</option>
-            <option value="MEDIUM">Vừa (Medium)</option>
-            <option value="LOW">Thấp (Low)</option>
-          </select>
+            <SelectTrigger className={`h-8 w-[130px] text-xs font-bold border ${cfg.color}`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="HIGH">Cao (High)</SelectItem>
+              <SelectItem value="MEDIUM">Vừa (Medium)</SelectItem>
+              <SelectItem value="LOW">Thấp (Low)</SelectItem>
+            </SelectContent>
+          </Select>
         );
       },
     },
@@ -114,16 +126,20 @@ export default function LeadsList() {
     {
       key: 'actions', header: 'Xử lý',
       cell: (row) => (
-        <select
-          className="h-8 rounded-md border border-gray-300 bg-white px-2 text-xs font-semibold text-black focus:outline-none focus:ring-1 focus:ring-black focus:border-black cursor-pointer transition-all shadow-sm"
+        <Select
           value={row.status}
-          onChange={(e) => handleStatusChange(row.id, e.target.value as any)}
+          onValueChange={(val) => handleStatusChange(row.id, val as 'PENDING' | 'CONTACTED' | 'SPAM')}
           disabled={updateStatusMutation.isPending}
         >
-          <option value="PENDING">Đánh dấu MỚI</option>
-          <option value="CONTACTED">Đã liên hệ</option>
-          <option value="SPAM">Đánh dấu Spam</option>
-        </select>
+          <SelectTrigger className="h-8 w-[140px] text-xs font-semibold">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="PENDING">Đánh dấu MỚI</SelectItem>
+            <SelectItem value="CONTACTED">Đã liên hệ</SelectItem>
+            <SelectItem value="SPAM">Đánh dấu Spam</SelectItem>
+          </SelectContent>
+        </Select>
       ),
     },
   ];
@@ -170,29 +186,31 @@ export default function LeadsList() {
         </div>
         <div className="space-y-1.5 flex-1 min-w-[150px]">
           <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5"><Filter className="w-3.5 h-3.5" /> Độ ưu tiên</label>
-          <select
-            className="w-full h-9 rounded-md border border-gray-300 px-3 text-sm focus:border-black focus:ring-1 focus:ring-black outline-none bg-white"
-            value={filters.priority}
-            onChange={(e) => updateFilter('priority', e.target.value)}
-          >
-            <option value="">Tất cả</option>
-            <option value="HIGH">Cao (High)</option>
-            <option value="MEDIUM">Vừa (Medium)</option>
-            <option value="LOW">Thấp (Low)</option>
-          </select>
+          <Select value={filters.priority || 'all'} onValueChange={(val) => updateFilter('priority', val === 'all' ? '' : val)}>
+            <SelectTrigger className="h-9">
+              <SelectValue placeholder="Tất cả" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả</SelectItem>
+              <SelectItem value="HIGH">Cao (High)</SelectItem>
+              <SelectItem value="MEDIUM">Vừa (Medium)</SelectItem>
+              <SelectItem value="LOW">Thấp (Low)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-1.5 flex-1 min-w-[150px]">
           <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5"><ArrowDownUp className="w-3.5 h-3.5" /> Sắp xếp</label>
-          <select
-            className="w-full h-9 rounded-md border border-gray-300 px-3 text-sm focus:border-black focus:ring-1 focus:ring-black outline-none bg-white"
-            value={filters.sortBy}
-            onChange={(e) => updateFilter('sortBy', e.target.value)}
-          >
-            <option value="createdAt_desc">Mới nhất</option>
-            <option value="createdAt_asc">Cũ nhất</option>
-            <option value="priority_desc">Ưu tiên (Cao ➔ Thấp)</option>
-            <option value="priority_asc">Ưu tiên (Thấp ➔ Cao)</option>
-          </select>
+          <Select value={filters.sortBy} onValueChange={(val) => updateFilter('sortBy', val)}>
+            <SelectTrigger className="h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="createdAt_desc">Mới nhất</SelectItem>
+              <SelectItem value="createdAt_asc">Cũ nhất</SelectItem>
+              <SelectItem value="priority_desc">Ưu tiên (Cao ➔ Thấp)</SelectItem>
+              <SelectItem value="priority_asc">Ưu tiên (Thấp ➔ Cao)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex items-end mb-0.5">
           <button

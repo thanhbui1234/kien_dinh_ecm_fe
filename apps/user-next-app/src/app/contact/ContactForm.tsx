@@ -15,9 +15,15 @@ type ContactFormValues = z.infer<typeof CreateLeadSchema>;
 export default function ContactForm({
   productId,
   productName,
+  jobId,
+  jobTitle,
+  defaultMessage,
 }: {
   productId?: string;
   productName?: string;
+  jobId?: string;
+  jobTitle?: string;
+  defaultMessage?: string;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -34,8 +40,9 @@ export default function ContactForm({
       fullName: '',
       phoneNumber: '',
       email: '',
-      message: '',
+      message: defaultMessage || '',
       targetProductId: productId || '',
+      targetJobId: jobId || '',
     },
   });
 
@@ -47,6 +54,7 @@ export default function ContactForm({
         ...data,
         email: data.email || undefined,
         targetProductId: data.targetProductId || undefined,
+        targetJobId: data.targetJobId || undefined,
       });
       setIsSuccess(true);
       reset();
@@ -106,8 +114,28 @@ export default function ContactForm({
         </div>
       )}
 
-      {/* Hidden input for targetProductId */}
+      {jobTitle && (
+        <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl mb-2 flex items-start gap-3">
+          <div className="shrink-0 mt-0.5 text-[#ff5901]">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-[12px] font-semibold uppercase tracking-wider text-gray-400 m-0 mb-1">
+              Vị trí ứng tuyển
+            </p>
+            <p className="text-[15px] font-medium text-[#111] m-0 leading-snug">
+              {jobTitle}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Hidden inputs */}
       <input type="hidden" {...register('targetProductId')} />
+      <input type="hidden" {...register('targetJobId')} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Input

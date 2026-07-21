@@ -14,11 +14,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/about-us/company-history/`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
     { url: `${SITE_URL}/about-us/production-facilities/`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
     { url: `${SITE_URL}/contact/`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${SITE_URL}/tuyen-dung/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
   ];
 
-  const [productsRes, projectsRes] = await Promise.allSettled([
+  const [productsRes, projectsRes, jobsRes] = await Promise.allSettled([
     api.products.getProducts({ limit: '500' }),
     api.projects.getProjects({ limit: '500' }),
+    api.jobs.getJobs({ limit: '500' }),
   ]);
 
   const productRoutes: MetadataRoute.Sitemap =
@@ -41,5 +43,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }))
       : [];
 
-  return [...staticRoutes, ...productRoutes, ...projectRoutes];
+  const jobRoutes: MetadataRoute.Sitemap =
+    jobsRes.status === 'fulfilled'
+      ? (jobsRes.value?.items ?? []).map((j) => ({
+          url: `${SITE_URL}/tuyen-dung/${j.slug}/`,
+          lastModified: new Date(j.createdAt),
+          changeFrequency: 'monthly' as const,
+          priority: 0.5,
+        }))
+      : [];
+
+  return [...staticRoutes, ...productRoutes, ...projectRoutes, ...jobRoutes];
 }

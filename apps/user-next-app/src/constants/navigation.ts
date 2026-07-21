@@ -38,6 +38,10 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/about-us/',
   },
   {
+    label: 'Tuyển dụng',
+    href: '/tuyen-dung/',
+  },
+  {
     label: 'Liên hệ chúng tôi',
     href: '/contact/',
   },
