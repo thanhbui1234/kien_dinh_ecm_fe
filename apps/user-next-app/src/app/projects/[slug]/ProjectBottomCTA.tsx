@@ -20,8 +20,8 @@ export default function ProjectBottomCTA({ ctaRef }: Props) {
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.85, ease: E }}
     >
-      <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-[#ff5901]/[0.08] blur-[72px]" />
-      <div className="pointer-events-none absolute -left-12 -bottom-12 h-48 w-48 rounded-full bg-[#ff5901]/[0.04] blur-[60px]" />
+      <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-[#5e8dd1]/[0.08] blur-[72px]" />
+      <div className="pointer-events-none absolute -left-12 -bottom-12 h-48 w-48 rounded-full bg-[#5e8dd1]/[0.04] blur-[60px]" />
 
       <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
         <div className="max-w-[460px]">
@@ -35,7 +35,7 @@ export default function ProjectBottomCTA({ ctaRef }: Props) {
         <div className="flex flex-col sm:flex-row gap-3 shrink-0">
           <Link
             href="/contact/"
-            className="inline-flex items-center justify-center gap-2 bg-[#ff5901] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#e04f00] active:scale-[0.98] transition-all no-underline"
+            className="inline-flex items-center justify-center gap-2 bg-[#5e8dd1] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#356098] active:scale-[0.98] transition-all no-underline"
           >
             Liên hệ tư vấn
           </Link>

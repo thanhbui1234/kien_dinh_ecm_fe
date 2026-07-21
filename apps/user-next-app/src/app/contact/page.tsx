@@ -63,7 +63,7 @@ export default async function ContactPage({
             <div>
               <h1 className="text-[32px] md:text-[40px] font-light text-[#111] leading-tight m-0 mb-4">
                 Liên hệ với<br />
-                <span className="font-medium text-[#ff5901]">chúng tôi</span>
+                <span className="font-medium text-[#5e8dd1]">chúng tôi</span>
               </h1>
               <p className="text-gray-500 text-[15px] leading-relaxed">
                 Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn về sản phẩm và dịch vụ. Hãy để lại thông tin, đội ngũ tư vấn sẽ liên hệ với bạn trong thời gian sớm nhất.
@@ -73,14 +73,14 @@ export default async function ContactPage({
             <div className="flex flex-col gap-6 p-8 bg-white rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
               {/* Hotline */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-[#ff5901]/10 rounded-2xl flex items-center justify-center shrink-0">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff5901" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="w-12 h-12 bg-[#5e8dd1]/10 rounded-2xl flex items-center justify-center shrink-0">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5e8dd1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                   </svg>
                 </div>
                 <div className="pt-1">
                   <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Hotline tư vấn</p>
-                  <a href="tel:0374864110" className="text-[20px] font-semibold text-[#111] hover:text-[#ff5901] transition-colors no-underline">
+                  <a href="tel:0374864110" className="text-[20px] font-semibold text-[#111] hover:text-[#5e8dd1] transition-colors no-underline">
                     0374 864 110
                   </a>
                 </div>
@@ -115,7 +115,7 @@ export default async function ContactPage({
                 </div>
                 <div className="pt-1">
                   <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Email</p>
-                  <a href="mailto:info@kiendinhecm.com" className="text-[16px] font-medium text-[#111] hover:text-[#ff5901] transition-colors no-underline">
+                  <a href="mailto:info@kiendinhecm.com" className="text-[16px] font-medium text-[#111] hover:text-[#5e8dd1] transition-colors no-underline">
                     info@kiendinhecm.com
                   </a>
                 </div>

@@ -11,7 +11,7 @@ export const UtilityBar = ({ utilityTextClass }: UtilityBarProps) => {
     <div className="hidden lg:flex justify-end items-center px-6 h-[40px] border-b border-white/15 gap-5">
       <Link
         href="/careers/"
-        className={`text-[11px] font-semibold no-underline tracking-[0.5px] uppercase transition-colors duration-200 hover:text-[#ff5901] ${utilityTextClass}`}
+        className={`text-[11px] font-semibold no-underline tracking-[0.5px] uppercase transition-colors duration-200 hover:text-[#5e8dd1] ${utilityTextClass}`}
       >
         TUYỂN DỤNG
       </Link>

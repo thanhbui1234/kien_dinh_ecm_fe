@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { AnimatePresence } from 'framer-motion';
 
 import { NAV_ITEMS, NavItem } from '@/constants/navigation';
 import { UtilityBar } from './header/UtilityBar';
@@ -12,6 +13,8 @@ import { HamburgerButton } from './header/HamburgerButton';
 import { MegaMenu } from './header/MegaMenu';
 import { MobileMenu } from './header/MobileMenu';
 import type { Category } from 'shared-api';
+
+const DROPDOWN_CLOSE_DELAY = 150;
 
 interface HeaderProps {
   categories?: Category[];
@@ -25,6 +28,31 @@ export default function Header({ categories = [] }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearCloseTimer = useCallback(() => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  }, []);
+
+  const openDropdown = useCallback(
+    (label: string) => {
+      clearCloseTimer();
+      setActiveDropdown(label);
+    },
+    [clearCloseTimer]
+  );
+
+  const scheduleCloseDropdown = useCallback(() => {
+    clearCloseTimer();
+    closeTimerRef.current = setTimeout(() => {
+      setActiveDropdown(null);
+    }, DROPDOWN_CLOSE_DELAY);
+  }, [clearCloseTimer]);
+
+  useEffect(() => clearCloseTimer, [clearCloseTimer]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -66,11 +94,8 @@ export default function Header({ categories = [] }: HeaderProps) {
     setMobileOpen(false);
   }, [pathname]);
 
-  const handleNavClick = (label: string) => {
-    setActiveDropdown((prev) => (prev === label ? null : label));
-  };
-
   const closeMenu = () => {
+    clearCloseTimer();
     setActiveDropdown(null);
     setMobileOpen(false);
   };
@@ -110,6 +135,7 @@ export default function Header({ categories = [] }: HeaderProps) {
         children: categories.map((cat) => ({
           label: cat.name,
           href: `/products/?category=${cat.slug}`,
+          imageUrl: cat.imageUrl,
         })),
       };
     }
@@ -149,7 +175,8 @@ export default function Header({ categories = [] }: HeaderProps) {
             navItems={navItems}
             activeDropdown={activeDropdown}
             navTextClass={navTextClass}
-            handleNavClick={handleNavClick}
+            onOpenDropdown={openDropdown}
+            onScheduleClose={scheduleCloseDropdown}
           />
 
           {/* Mobile Hamburger */}
@@ -161,29 +188,21 @@ export default function Header({ categories = [] }: HeaderProps) {
           />
         </div>
 
-        {/* Megamenu — gradient black, click-triggered, full-width below header */}
-        {activeDropdown && activeNavItem && (
-          <MegaMenu activeNavItem={activeNavItem} closeMenu={closeMenu} />
-        )}
+        {/* Megamenu — hover-triggered, full-width below header */}
+        <AnimatePresence>
+          {activeDropdown && activeNavItem && (
+            <MegaMenu
+              activeNavItem={activeNavItem}
+              closeMenu={closeMenu}
+              onMouseEnter={clearCloseTimer}
+              onMouseLeave={scheduleCloseDropdown}
+            />
+          )}
+        </AnimatePresence>
       </header>
 
       {/* Mobile Menu */}
       {mobileOpen && <MobileMenu navItems={navItems} closeMenu={closeMenu} />}
-
-      <style>{`
-        @keyframes megaFadeIn {
-          0% { opacity: 0; transform: translateY(-8px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        @media (max-width: 1024px) {
-          .mazak-desktop-nav { display: none !important; }
-          .mazak-mobile-btn { display: flex !important; }
-          .utility-bar { display: none !important; }
-        }
-        @media (min-width: 1025px) {
-          .mazak-mobile-btn { display: none !important; }
-        }
-      `}</style>
     </>
   );
 }

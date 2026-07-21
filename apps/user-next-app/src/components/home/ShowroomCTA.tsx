@@ -9,7 +9,7 @@ export default function ShowroomCTA() {
       `}</style>
       <section
         style={{
-          backgroundColor: '#FF5901',
+          backgroundColor: '#5E8DD1',
           padding: '60px 40px',
           display: 'flex',
           flexDirection: 'column',

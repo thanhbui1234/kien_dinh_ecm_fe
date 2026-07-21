@@ -179,7 +179,7 @@ function BentoCard({ project, hero = false }: { project: Project; hero?: boolean
       {/* Content */}
       <div className="absolute inset-x-0 bottom-0 p-5 z-[2] overflow-hidden">
         {hero && (
-          <p className="text-[#ff5901] text-[11px] font-semibold uppercase tracking-[0.18em] mb-2">
+          <p className="text-[#5e8dd1] text-[11px] font-semibold uppercase tracking-[0.18em] mb-2">
             Dự án tiêu biểu
           </p>
         )}
@@ -204,7 +204,7 @@ function BentoCard({ project, hero = false }: { project: Project; hero?: boolean
 
         {/* CTA — hidden at rest */}
         <m.div
-          className="flex items-center gap-1.5 mt-3 text-[#ff5901] text-xs font-semibold uppercase tracking-wider"
+          className="flex items-center gap-1.5 mt-3 text-[#5e8dd1] text-xs font-semibold uppercase tracking-wider"
           variants={ctaVariants}
         >
           Xem dự án <ArrowRight className="w-3 h-3" />

@@ -26,7 +26,7 @@ export const MobileMenu = ({ navItems, closeMenu }: MobileMenuProps) => {
                   key={child.href}
                   href={child.href}
                   onClick={closeMenu}
-                  className="block px-10 py-2.5 text-[13px] text-[#555] no-underline border-l-[3px] border-[#ff5901]"
+                  className="block px-10 py-2.5 text-[13px] text-[#555] no-underline border-l-[3px] border-[#5e8dd1]"
                 >
                   {child.label}
                 </Link>

@@ -57,7 +57,7 @@ function ProjectCard({ project }: { project: Project }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
         {project.isFeatured && (
-          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-[#ff5901] text-white text-[10px] font-semibold uppercase tracking-[0.14em] px-2.5 py-1 rounded-full">
+          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-[#5e8dd1] text-white text-[10px] font-semibold uppercase tracking-[0.14em] px-2.5 py-1 rounded-full">
             <span className="relative flex h-1.5 w-1.5 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-60" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
@@ -70,7 +70,7 @@ function ProjectCard({ project }: { project: Project }) {
       {/* Info */}
       <div className="flex flex-col p-5 grow">
         <p className="text-[11px] text-gray-400 m-0 mb-2 tabular-nums">{formattedDate}</p>
-        <h3 className="text-[15px] font-medium text-[#111] leading-snug m-0 line-clamp-2 group-hover:text-[#ff5901] transition-colors duration-200">
+        <h3 className="text-[15px] font-medium text-[#111] leading-snug m-0 line-clamp-2 group-hover:text-[#5e8dd1] transition-colors duration-200">
           {project.name}
         </h3>
         {project.description && (
@@ -79,7 +79,7 @@ function ProjectCard({ project }: { project: Project }) {
           </p>
         )}
         <div className="mt-auto pt-4 flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-gray-400 group-hover:text-[#ff5901] transition-colors duration-200">
+          <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-gray-400 group-hover:text-[#5e8dd1] transition-colors duration-200">
             Xem dự án
             <svg
               width="14" height="14" viewBox="0 0 14 14" fill="none"
@@ -123,7 +123,7 @@ function Pagination({ meta, searchParams }: { meta: { page: number; totalPages: 
   return (
     <div className="flex items-center justify-center gap-2 mt-14">
       {page > 1 && (
-        <Link href={buildHref(page - 1)} className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:border-[#ff5901] hover:text-[#ff5901] no-underline transition-all text-sm">←</Link>
+        <Link href={buildHref(page - 1)} className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:border-[#5e8dd1] hover:text-[#5e8dd1] no-underline transition-all text-sm">←</Link>
       )}
       {pages.map((p) => (
         <Link
@@ -131,15 +131,15 @@ function Pagination({ meta, searchParams }: { meta: { page: number; totalPages: 
           href={buildHref(p)}
           className={`w-9 h-9 flex items-center justify-center rounded-full text-[13px] no-underline transition-all ${
             p === page
-              ? 'bg-[#ff5901] text-white'
-              : 'border border-gray-200 text-gray-500 hover:border-[#ff5901] hover:text-[#ff5901]'
+              ? 'bg-[#5e8dd1] text-white'
+              : 'border border-gray-200 text-gray-500 hover:border-[#5e8dd1] hover:text-[#5e8dd1]'
           }`}
         >
           {p}
         </Link>
       ))}
       {page < totalPages && (
-        <Link href={buildHref(page + 1)} className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:border-[#ff5901] hover:text-[#ff5901] no-underline transition-all text-sm">→</Link>
+        <Link href={buildHref(page + 1)} className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:border-[#5e8dd1] hover:text-[#5e8dd1] no-underline transition-all text-sm">→</Link>
       )}
     </div>
   );
@@ -162,8 +162,8 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
       {/* Page header */}
       <div className="border-b border-gray-100">
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-6">
-          <div className="flex items-center gap-2 text-[12px] text-gray-400 mb-4">
-            <Link href="/" className="hover:text-[#ff5901] no-underline transition-colors">Trang chủ</Link>
+          <div className="flex items-center gap-2 text-[14px] text-gray-400 mb-4">
+            <Link href="/" className="hover:text-[#5e8dd1] no-underline transition-colors">Trang chủ</Link>
             <span>/</span>
             <span className="text-[#111]">Dự án</span>
           </div>

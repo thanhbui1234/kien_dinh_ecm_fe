@@ -68,9 +68,9 @@ export default function ContactForm({
 
   if (isSuccess) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 bg-[#fff8f5] rounded-3xl border border-[#ff5901]/20 text-center animate-fade-in">
-        <div className="w-16 h-16 bg-[#ff5901]/10 rounded-full flex items-center justify-center mb-6">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ff5901" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <div className="flex flex-col items-center justify-center p-12 bg-[#f8fafd] rounded-3xl border border-[#5e8dd1]/20 text-center animate-fade-in">
+        <div className="w-16 h-16 bg-[#5e8dd1]/10 rounded-full flex items-center justify-center mb-6">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#5e8dd1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
@@ -96,7 +96,7 @@ export default function ContactForm({
 
       {productName && (
         <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl mb-2 flex items-start gap-3">
-          <div className="shrink-0 mt-0.5 text-[#ff5901]">
+          <div className="shrink-0 mt-0.5 text-[#5e8dd1]">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
               <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
@@ -116,7 +116,7 @@ export default function ContactForm({
 
       {jobTitle && (
         <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl mb-2 flex items-start gap-3">
-          <div className="shrink-0 mt-0.5 text-[#ff5901]">
+          <div className="shrink-0 mt-0.5 text-[#5e8dd1]">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
               <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />

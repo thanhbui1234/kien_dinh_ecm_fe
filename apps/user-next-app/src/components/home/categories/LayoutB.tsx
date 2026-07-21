@@ -70,7 +70,7 @@ export default function LayoutB({ categories }: Props) {
                   className={[
                     "w-full h-full flex items-center justify-between gap-4 px-6 py-4 text-left border-b border-gray-100 transition-all duration-200",
                     isActive
-                      ? "border-l-4 border-l-[#ff5901] bg-[#fafafa]"
+                      ? "border-l-4 border-l-[#5e8dd1] bg-[#fafafa]"
                       : "border-l-4 border-l-transparent hover:bg-[#f8f8f8]",
                   ].join(" ")}
                 >
@@ -85,7 +85,7 @@ export default function LayoutB({ categories }: Props) {
                   <span
                     className={[
                       "text-xs font-mono shrink-0 transition-colors duration-200",
-                      isActive ? "text-[#ff5901]" : "text-gray-300",
+                      isActive ? "text-[#5e8dd1]" : "text-gray-300",
                     ].join(" ")}
                   >
                     {String(index + 1).padStart(2, "0")}
@@ -132,7 +132,7 @@ export default function LayoutB({ categories }: Props) {
 
               {/* Bottom content */}
               <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                <p className="text-[#ff5901] text-[11px] font-semibold uppercase tracking-[0.2em] mb-2">
+                <p className="text-[#5e8dd1] text-[11px] font-semibold uppercase tracking-[0.2em] mb-2">
                   Danh mục sản phẩm
                 </p>
                 <h3 className="text-white text-2xl md:text-3xl font-semibold mb-4">

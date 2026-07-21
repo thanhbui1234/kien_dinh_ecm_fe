@@ -45,7 +45,7 @@ export default async function CompanyHistoryPage() {
                   style={{
                     fontSize: '15px',
                     fontWeight: 600,
-                    color: '#ff5901',
+                    color: '#5e8dd1',
                     width: '60px',
                     flexShrink: 0,
                     paddingTop: '2px',

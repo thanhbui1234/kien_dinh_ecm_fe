@@ -38,7 +38,7 @@ function JobCard({ job }: { job: Job }) {
       href={`/tuyen-dung/${job.slug}/`}
       className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-white border rounded-2xl no-underline transition-all duration-200 ${
         job.status
-          ? 'border-gray-100 hover:border-[#ff5901]/40 hover:shadow-lg hover:shadow-[#ff5901]/[0.06]'
+          ? 'border-gray-100 hover:border-[#5e8dd1]/40 hover:shadow-lg hover:shadow-[#5e8dd1]/[0.06]'
           : 'border-gray-100 opacity-60 hover:opacity-80'
       }`}
     >
@@ -46,7 +46,7 @@ function JobCard({ job }: { job: Job }) {
         <div className="flex items-center gap-3 flex-wrap">
           <StatusBadge active={job.status} />
         </div>
-        <h2 className="text-[17px] font-medium text-[#111] leading-snug m-0 group-hover:text-[#ff5901] transition-colors duration-200">
+        <h2 className="text-[17px] font-medium text-[#111] leading-snug m-0 group-hover:text-[#5e8dd1] transition-colors duration-200">
           {job.title}
         </h2>
         {job.salary && (
@@ -56,7 +56,7 @@ function JobCard({ job }: { job: Job }) {
         )}
       </div>
 
-      <div className="shrink-0 flex items-center gap-2 text-[13px] font-medium text-gray-400 group-hover:text-[#ff5901] transition-colors duration-200">
+      <div className="shrink-0 flex items-center gap-2 text-[13px] font-medium text-gray-400 group-hover:text-[#5e8dd1] transition-colors duration-200">
         Xem chi tiết
         <svg width="16" height="16" viewBox="0 0 14 14" fill="none" className="transition-transform duration-300 group-hover:translate-x-1">
           <path d="M2.33 7H11.67M11.67 7L7.58 3M11.67 7L7.58 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -95,7 +95,7 @@ export default async function JobsPage() {
       {/* Breadcrumb */}
       <div className="border-b border-gray-100">
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-3 flex items-center gap-2 text-[12px] text-gray-400">
-          <Link href="/" className="hover:text-[#ff5901] transition-colors no-underline">Trang chủ</Link>
+          <Link href="/" className="hover:text-[#5e8dd1] transition-colors no-underline">Trang chủ</Link>
           <span>/</span>
           <span className="text-[#111]">Tuyển dụng</span>
         </div>
@@ -103,7 +103,7 @@ export default async function JobsPage() {
 
       {/* Header */}
       <div className="max-w-[1300px] mx-auto px-6 md:px-10 pt-12 pb-10 border-b border-gray-100">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#ff5901]">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#5e8dd1]">
           Cơ hội việc làm
         </span>
         <h1 className="text-[32px] md:text-[48px] font-light text-[#111] leading-tight tracking-[-0.02em] m-0 mt-3">
@@ -173,7 +173,7 @@ export default async function JobsPage() {
           </div>
           <Link
             href="/contact/"
-            className="inline-flex items-center justify-center gap-2 bg-[#ff5901] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#e04f00] active:scale-[0.98] transition-all no-underline shrink-0"
+            className="inline-flex items-center justify-center gap-2 bg-[#5e8dd1] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#356098] active:scale-[0.98] transition-all no-underline shrink-0"
           >
             Liên hệ ngay
           </Link>
