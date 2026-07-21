@@ -19,11 +19,12 @@ export const metadata = {
 export default async function ContactPage({
   searchParams,
 }: {
-  searchParams: Promise<{ productId?: string }>;
+  searchParams: Promise<{ productId?: string; jobId?: string }>;
 }) {
   const params = await searchParams;
   const productId = params.productId;
-  
+  const jobId = params.jobId;
+
   let productName = undefined;
   if (productId) {
     try {
@@ -35,6 +36,22 @@ export default async function ContactPage({
       console.error('Failed to fetch product for contact page', e);
     }
   }
+
+  let jobTitle = undefined;
+  if (jobId) {
+    try {
+      const job = await api.jobs.getJobDetail(jobId);
+      if (job) {
+        jobTitle = job.title;
+      }
+    } catch (e) {
+      console.error('Failed to fetch job for contact page', e);
+    }
+  }
+
+  const defaultMessage = jobTitle
+    ? `Xin chào, tôi muốn ứng tuyển vị trí: ${jobTitle}.`
+    : undefined;
 
   return (
     <div className="min-h-screen bg-[#fafafa] pt-[80px]">
@@ -113,7 +130,7 @@ export default async function ContactPage({
               <h2 className="text-[24px] font-semibold text-[#111] mb-8">
                 Gửi yêu cầu báo giá / Tư vấn
               </h2>
-              <ContactForm productId={productId} productName={productName} />
+              <ContactForm productId={productId} productName={productName} jobId={jobId} jobTitle={jobTitle} defaultMessage={defaultMessage} />
             </div>
           </div>
 

@@ -535,6 +535,8 @@ export interface LeadResponseDto {
   adminNote?: string | null;
   /** ID Sản phẩm quan tâm */
   targetProductId?: string | null;
+  /** ID Vị trí tuyển dụng quan tâm */
+  targetJobId?: string | null;
   /**
    * Ngày tạo
    * @format date-time
@@ -542,6 +544,8 @@ export interface LeadResponseDto {
   createdAt: string;
   /** Thông tin sản phẩm */
   product?: ProductResponseDto;
+  /** Thông tin vị trí tuyển dụng */
+  job?: JobResponseDto;
 }
 
 export interface CreateLeadDto {
@@ -558,6 +562,8 @@ export interface CreateLeadDto {
   message: string;
   /** ID Sản phẩm khách hàng quan tâm */
   targetProductId?: string;
+  /** ID Vị trí tuyển dụng khách hàng quan tâm */
+  targetJobId?: string;
 }
 
 export interface UpdateLeadStatusDto {

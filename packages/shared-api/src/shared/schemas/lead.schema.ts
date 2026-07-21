@@ -7,6 +7,7 @@ export const CreateLeadSchema = z.object({
   email: z.string().email('Email không hợp lệ').or(z.literal('')).optional(),
   message: z.string().min(10, 'Nội dung tin nhắn cần ít nhất 10 ký tự'),
   targetProductId: z.string().optional(),
+  targetJobId: z.string().optional(),
 });
 
 export type CreateLeadInput = CreateLeadDto;
