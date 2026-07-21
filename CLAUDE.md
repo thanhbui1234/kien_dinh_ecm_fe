@@ -16,6 +16,13 @@ When working with data fetching in either the Client (Next.js) or Admin (Vite) a
 
 This document outlines the decoupled architecture for HTTP Clients (Fetch for Next.js and Axios for Vite) and the React Query `keepPreviousData` pattern for Admin Hooks.
 
+## 🔍 SEO (CLIENT APP)
+
+All SEO metadata for `apps/user-next-app` is centralized. Before adding or editing metadata on any page, read:
+👉 **`.claude/rules/seo.md`**
+
+Key rule: never hardcode brand names or domain strings in page files — always import from `@/lib/seo`.
+
 ## Project Context & Architecture
 
 The project architecture, monorepo folder structure, tech stack, and build commands have been moved to **[`README.md`](README.md)**. 

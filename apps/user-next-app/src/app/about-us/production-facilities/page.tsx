@@ -8,7 +8,9 @@ import { FacilityCard } from './FacilityCard';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Cơ sở sản xuất | Kiến Đỉnh',
+  title: 'Cơ sở sản xuất | Thanh Bằng',
+  description: 'Hệ thống cơ sở sản xuất và kho hàng của Thanh Bằng trên toàn quốc — đảm bảo cung ứng nhanh chóng và chất lượng.',
+  alternates: { canonical: 'https://thanhbang.com/about-us/production-facilities/' },
 };
 
 const breadcrumbs = [

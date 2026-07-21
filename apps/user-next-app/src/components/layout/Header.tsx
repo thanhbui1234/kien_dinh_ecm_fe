@@ -132,7 +132,7 @@ export default function Header({ categories = [] }: HeaderProps) {
           <Link
             href="/"
             className="flex items-center shrink-0"
-            aria-label="Trang chủ Mazak Vietnam"
+            aria-label="Trang chủ Thanh Bằng"
           >
             <Image
               src="/images/logo_thanh_bang.png"

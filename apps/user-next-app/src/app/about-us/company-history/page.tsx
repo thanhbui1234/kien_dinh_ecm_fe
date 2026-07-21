@@ -6,7 +6,9 @@ import type { Metadata } from 'next';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Lịch sử công ty | Kiến Đỉnh',
+  title: 'Lịch sử công ty | Thanh Bằng',
+  description: 'Hành trình phát triển của Thanh Bằng qua các năm — từ những bước khởi đầu đến vị thế hàng đầu trong ngành máy công cụ CNC tại Việt Nam.',
+  alternates: { canonical: 'https://thanhbang.com/about-us/company-history/' },
 };
 
 const breadcrumbs = [

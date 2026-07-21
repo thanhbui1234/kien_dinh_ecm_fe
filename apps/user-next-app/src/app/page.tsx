@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import HeroCarousel from "@/components/home/HeroCarousel";
 import ProductsSection from "@/components/home/ProductsSection";
 import CategoriesSection from "@/components/home/CategoriesSection";
@@ -8,6 +9,25 @@ import ShowroomCTA from "@/components/home/ShowroomCTA";
 import { getCachedCategories, getCachedBanners } from "@/lib/cached-api";
 import { api } from "@/lib/api";
 import { Skeleton } from "@/components/ui/Skeleton";
+
+export const metadata: Metadata = {
+  title: "Thanh Bằng — Phụ tùng & Máy công cụ CNC",
+  description: "Thanh Bằng chuyên cung cấp phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Việt Nam. Tư vấn kỹ thuật chuyên sâu, giao hàng toàn quốc.",
+  alternates: { canonical: "https://thanhbang.com/" },
+  openGraph: {
+    title: "Thanh Bằng — Phụ tùng & Máy công cụ CNC",
+    description: "Thanh Bằng chuyên cung cấp phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Việt Nam.",
+    url: "https://thanhbang.com/",
+    siteName: "Thanh Bằng",
+    locale: "vi_VN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Thanh Bằng — Phụ tùng & Máy công cụ CNC",
+    description: "Thanh Bằng chuyên cung cấp phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Việt Nam.",
+  },
+};
 
 export const experimental_ppr = true;
 

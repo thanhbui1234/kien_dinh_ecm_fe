@@ -5,8 +5,22 @@ import type { Metadata } from 'next';
 import type { Project } from 'shared-api';
 
 export const metadata: Metadata = {
-  title: 'Dự án | Kiến Đỉnh',
-  description: 'Khám phá các dự án tiêu biểu của Kiến Đỉnh — từ lắp đặt máy CNC, hệ thống tự động hóa đến tích hợp dây chuyền sản xuất.',
+  title: 'Dự án | Thanh Bằng',
+  description: 'Khám phá các dự án tiêu biểu của Thanh Bằng — lắp đặt máy CNC, hệ thống tự động hóa và tích hợp dây chuyền sản xuất.',
+  alternates: { canonical: 'https://thanhbang.com/projects/' },
+  openGraph: {
+    title: 'Dự án | Thanh Bằng',
+    description: 'Khám phá các dự án tiêu biểu của Thanh Bằng — lắp đặt máy CNC, hệ thống tự động hóa và tích hợp dây chuyền sản xuất.',
+    url: 'https://thanhbang.com/projects/',
+    siteName: 'Thanh Bằng',
+    locale: 'vi_VN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Dự án | Thanh Bằng',
+    description: 'Khám phá các dự án tiêu biểu của Thanh Bằng — lắp đặt máy CNC, hệ thống tự động hóa và tích hợp dây chuyền sản xuất.',
+  },
 };
 
 interface SearchParams {

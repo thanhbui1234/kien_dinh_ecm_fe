@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { getCachedCategories } from '@/lib/cached-api';
 import ProductDetailClient from './ProductDetailClient';
 import type { Metadata } from 'next';
+import { buildProductMetadata } from '@/lib/seo';
 
 export const revalidate = 3600;
 
@@ -19,10 +20,15 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const product = await api.products.getProductDetail(slug);
-  return {
-    title: product ? `${product.name} | MAZAK VIETNAM` : 'Sản phẩm | MAZAK VIETNAM',
-    description: product?.name,
-  };
+  if (!product) {
+    return { title: 'Sản phẩm' };
+  }
+  return buildProductMetadata({
+    name: product.name,
+    slug,
+    thumbnailUrl: product.thumbnailUrl,
+    seoMeta: product.detail?.seoMeta as Record<string, string> | undefined,
+  });
 }
 
 export default async function ProductDetailPage({ params }: Props) {

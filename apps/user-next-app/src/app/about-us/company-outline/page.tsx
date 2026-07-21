@@ -6,7 +6,9 @@ import type { Metadata } from 'next';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Sơ lược về công ty | Kiến Đỉnh',
+  title: 'Sơ lược về công ty | Thanh Bằng',
+  description: 'Thông tin tổng quan về công ty Thanh Bằng — tầm nhìn, sứ mệnh và các thông tin doanh nghiệp.',
+  alternates: { canonical: 'https://thanhbang.com/about-us/company-outline/' },
 };
 
 const breadcrumbs = [

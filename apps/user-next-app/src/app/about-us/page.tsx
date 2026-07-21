@@ -11,8 +11,22 @@ const CompanyHistoryTimeline = dynamic(
 );
 
 export const metadata: Metadata = {
-  title: 'Về chúng tôi | Kiến Đỉnh',
-  description: 'Tìm hiểu về Kiến Đỉnh — lịch sử, sứ mệnh và các cơ sở sản xuất trên toàn thế giới.',
+  title: 'Về chúng tôi | Thanh Bằng',
+  description: 'Tìm hiểu về Thanh Bằng — lịch sử, sứ mệnh và cơ sở sản xuất. Chuyên cung cấp phụ tùng, dụng cụ cắt gọt và máy công cụ CNC tại Việt Nam.',
+  alternates: { canonical: 'https://thanhbang.com/about-us/' },
+  openGraph: {
+    title: 'Về chúng tôi | Thanh Bằng',
+    description: 'Tìm hiểu về Thanh Bằng — lịch sử, sứ mệnh và cơ sở sản xuất.',
+    url: 'https://thanhbang.com/about-us/',
+    siteName: 'Thanh Bằng',
+    locale: 'vi_VN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Về chúng tôi | Thanh Bằng',
+    description: 'Tìm hiểu về Thanh Bằng — lịch sử, sứ mệnh và cơ sở sản xuất.',
+  },
 };
 
 function sanitizeHtml(html: string): string {
@@ -78,7 +92,7 @@ export default async function AboutUsPage() {
             Về chúng tôi
           </p>
           <h1 className="text-white text-[32px] md:text-[52px] lg:text-[60px] font-light leading-[1.1] tracking-[-0.02em] max-w-[800px] m-0">
-            Kiến Đỉnh —<br />
+            Thanh Bằng —<br />
             <span className="text-white/50">chuyên gia máy CNC</span><br />
             tại Việt Nam.
           </h1>
@@ -94,7 +108,7 @@ export default async function AboutUsPage() {
           <div className="mb-12">
             <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#ff5901]">01 — Sơ lược</span>
             <h2 className="text-[36px] md:text-[52px] font-light text-[#111] tracking-[-0.03em] m-0 mt-3 leading-tight">
-              Về Kiến Đỉnh
+              Về Thanh Bằng
             </h2>
             <div className="mt-4 w-12 h-[3px] bg-[#ff5901]" />
           </div>

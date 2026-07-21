@@ -1,8 +1,23 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 import { api } from '@/lib/api';
 import { getCachedCategories } from '@/lib/cached-api';
 import FilterDrawer from './FilterDrawer';
+
+export const metadata: Metadata = {
+  title: 'Sản phẩm | Thanh Bằng',
+  description: 'Danh mục sản phẩm phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Thanh Bằng. Tìm kiếm và lọc theo danh mục.',
+  alternates: { canonical: 'https://thanhbang.com/products/' },
+  openGraph: {
+    title: 'Sản phẩm | Thanh Bằng',
+    description: 'Danh mục sản phẩm phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Thanh Bằng.',
+    url: 'https://thanhbang.com/products/',
+    siteName: 'Thanh Bằng',
+    locale: 'vi_VN',
+    type: 'website',
+  },
+};
 
 interface SearchParams {
   category?: string;

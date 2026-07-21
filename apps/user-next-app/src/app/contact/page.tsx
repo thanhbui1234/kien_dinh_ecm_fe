@@ -3,8 +3,17 @@ import ContactForm from './ContactForm';
 import { api } from '@/lib/api';
 
 export const metadata = {
-  title: 'Liên hệ | KIEN DINH ECM',
-  description: 'Liên hệ với KIEN DINH ECM để được tư vấn và báo giá sản phẩm, dịch vụ.',
+  title: 'Liên hệ | Thanh Bằng',
+  description: 'Liên hệ với Thanh Bằng để được tư vấn và báo giá sản phẩm, dịch vụ máy công cụ CNC.',
+  alternates: { canonical: 'https://thanhbang.com/contact/' },
+  openGraph: {
+    title: 'Liên hệ | Thanh Bằng',
+    description: 'Liên hệ với Thanh Bằng để được tư vấn và báo giá sản phẩm, dịch vụ máy công cụ CNC.',
+    url: 'https://thanhbang.com/contact/',
+    siteName: 'Thanh Bằng',
+    locale: 'vi_VN',
+    type: 'website',
+  },
 };
 
 export default async function ContactPage({

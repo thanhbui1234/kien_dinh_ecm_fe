@@ -5,10 +5,10 @@ import { FacebookIcon, YouTubeIcon } from '@/components/icons';
 export const FooterSocial = () => {
   return (
     <div>
-      <Link href="/" aria-label="Trang chủ Mazak Vietnam" className="inline-block mb-8">
+      <Link href="/" aria-label="Trang chủ Thanh Bằng" className="inline-block mb-8">
         <Image
           src="/images/logo_thanh_bang.png"
-          alt="Yamazaki Mazak Vietnam"
+          alt="Thanh Bằng"
           width={120}
           height={32}
           className="object-contain"
@@ -24,7 +24,7 @@ export const FooterSocial = () => {
           href="https://www.facebook.com/profile.php?id=100063365610939"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Facebook Yamazaki Mazak Vietnam"
+          aria-label="Facebook Thanh Bằng"
         >
           <FacebookIcon />
         </a>
@@ -32,7 +32,7 @@ export const FooterSocial = () => {
           href="https://www.youtube.com/@yamazakimazakvietnam"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="YouTube Yamazaki Mazak Vietnam"
+          aria-label="YouTube Thanh Bằng"
         >
           <YouTubeIcon />
         </a>
