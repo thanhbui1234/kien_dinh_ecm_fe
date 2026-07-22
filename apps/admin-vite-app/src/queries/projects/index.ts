@@ -4,6 +4,7 @@ import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { projectKeys } from 'shared-api';
 import { Project, CreateProjectInput, UpdateProjectInput, PageMeta } from 'shared-api';
+import { triggerRevalidate } from '@/utils/revalidate';
 
 export const useProjects = (params?: Record<string, any>) => {
   const client = axiosInstance;
@@ -43,6 +44,7 @@ export const useCreateProject = () => {
     onSuccess: () => {
       toast.success("Thêm dự án thành công");
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+      triggerRevalidate('projects');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -62,6 +64,7 @@ export const useUpdateProject = () => {
       toast.success("Cập nhật dự án thành công");
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
       queryClient.invalidateQueries({ queryKey: projectKeys.detail(variables.id) });
+      triggerRevalidate('projects');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -80,6 +83,7 @@ export const useDeleteProject = () => {
     onSuccess: () => {
       toast.success("Xóa dự án thành công");
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+      triggerRevalidate('projects');
     },
     onError: (error: any) => {
       toast.error(error);

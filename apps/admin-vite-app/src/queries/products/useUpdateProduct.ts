@@ -4,6 +4,7 @@ import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { productKeys } from 'shared-api';
 import { UpdateProductInput, Product } from 'shared-api';
+import { triggerRevalidate } from '@/utils/revalidate';
 
 export const useUpdateProduct = () => {
   const client = axiosInstance;
@@ -18,6 +19,7 @@ export const useUpdateProduct = () => {
       toast.success("Cập nhật sản phẩm thành công");
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       queryClient.invalidateQueries({ queryKey: productKeys.detail(variables.id) });
+      triggerRevalidate('products');
     },
     onError: (error: any) => {
       toast.error(error);

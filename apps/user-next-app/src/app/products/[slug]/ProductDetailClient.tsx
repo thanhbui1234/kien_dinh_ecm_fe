@@ -167,7 +167,7 @@ function FeaturesSection({ features }: { features: object }) {
 
 export default function ProductDetailClient({ product, category, relatedProducts = [] }: Props) {
   const bottomSectionRef = useRef<HTMLDivElement>(null);
-  const hasPrice = product.price != null;
+  const hasPrice = product.price != null && product.price > 0;
 
   return (
     <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-12">
@@ -195,9 +195,9 @@ export default function ProductDetailClient({ product, category, relatedProducts
             {product.name}
           </h1>
 
-          {product.price != null ? (
+          {hasPrice ? (
             <p className="text-[20px] font-semibold text-[#5e8dd1] m-0">
-              {product.price.toLocaleString('vi-VN')} ₫
+              {product.price!.toLocaleString('vi-VN')} ₫
             </p>
           ) : (
             <Link
@@ -289,7 +289,7 @@ export default function ProductDetailClient({ product, category, relatedProducts
             href={`/contact/?productId=${product.id}`}
             className="inline-flex items-center justify-center gap-2 bg-[#5e8dd1] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#356098] transition-colors no-underline"
           >
-            {product.price != null ? 'Liên hệ tư vấn' : 'Báo giá ngay'}
+            {hasPrice ? 'Liên hệ tư vấn' : 'Báo giá ngay'}
           </Link>
           <a
             href="https://zalo.me/0374864110"

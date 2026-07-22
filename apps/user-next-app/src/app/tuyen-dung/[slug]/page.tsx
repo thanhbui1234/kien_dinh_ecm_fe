@@ -11,7 +11,7 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const res = await api.jobs.getJobs({ limit: '200' }).catch(() => null);
+  const res = await api.jobs.getJobs({ limit: '100' }).catch(() => null);
   return (res?.items ?? []).map((j) => ({ slug: j.slug }));
 }
 

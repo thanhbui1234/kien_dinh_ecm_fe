@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { MotionConfig } from 'framer-motion';
-import type { Project, Product } from 'shared-api';
+import type { Project, Product, Category } from 'shared-api';
 import ProjectHero from './ProjectHero';
 import ProjectGallery from './ProjectGallery';
 import RelatedProducts from './RelatedProducts';
@@ -15,6 +15,7 @@ import ProjectBottomCTA from './ProjectBottomCTA';
 interface Props {
   project: Project;
   relatedProducts?: Product[];
+  relatedCategories?: Category[];
   galleryImages?: string[];
 }
 
@@ -30,6 +31,7 @@ function calcReadingTime(html: string): number {
 export default function ProjectDetailClient({
   project,
   relatedProducts = [],
+  relatedCategories = [],
   galleryImages = [],
 }: Props) {
   const ctaRef = useRef<HTMLDivElement>(null);
@@ -55,7 +57,12 @@ export default function ProjectDetailClient({
         <div className="max-w-[1300px] mx-auto px-6 md:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_272px] gap-12 lg:gap-16 py-12 md:py-16">
             <ProjectArticleBody project={project} />
-            <ProjectSidebar project={project} formattedDate={formattedDate} relatedProducts={relatedProducts} />
+            <ProjectSidebar 
+              project={project} 
+              formattedDate={formattedDate} 
+              relatedProducts={relatedProducts} 
+              relatedCategories={relatedCategories}
+            />
           </div>
 
           {/* Full-width below the grid */}

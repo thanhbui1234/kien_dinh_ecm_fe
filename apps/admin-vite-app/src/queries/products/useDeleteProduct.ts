@@ -4,6 +4,7 @@ import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { productKeys } from 'shared-api';
 import { Product } from 'shared-api';
+import { triggerRevalidate } from '@/utils/revalidate';
 
 export const useDeleteProduct = () => {
   const client = axiosInstance;
@@ -17,6 +18,7 @@ export const useDeleteProduct = () => {
     onSuccess: () => {
       toast.success("Xóa sản phẩm thành công");
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      triggerRevalidate('products');
     },
     onError: (error: any) => {
       toast.error(error);

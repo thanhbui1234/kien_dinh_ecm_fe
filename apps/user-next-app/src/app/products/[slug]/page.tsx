@@ -9,7 +9,7 @@ import { buildProductMetadata } from '@/lib/seo';
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const res = await api.products.getProducts({ limit: '200' }).catch(() => null);
+  const res = await api.products.getProducts({ limit: '100' }).catch(() => null);
   return (res?.items ?? []).map((p) => ({ slug: p.slug }));
 }
 
