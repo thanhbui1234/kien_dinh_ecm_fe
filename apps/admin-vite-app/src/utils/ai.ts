@@ -1,3 +1,5 @@
+import { ENV } from '@/config/env';
+
 export interface AIProductGenerationResult {
   name: string;
   price?: number;
@@ -35,12 +37,12 @@ Yêu cầu từ người dùng: ${prompt}
 Hãy sinh ra JSON cấu hình sản phẩm theo đúng chuẩn đã yêu cầu. Không được trả về gì ngoài JSON.
   `;
 
-  const envModels = import.meta.env.VITE_GEMINI_FALLBACK_MODELS;
+  const envModels = ENV.GEMINI_FALLBACK_MODELS;
   const modelsToTry = envModels 
     ? envModels.split(',').map((m: string) => m.trim()).filter(Boolean)
     : ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-1.5-flash-latest'];
 
-  const temperature = parseFloat(import.meta.env.VITE_GEMINI_TEMPERATURE || '0.7');
+  const temperature = ENV.GEMINI_TEMPERATURE;
 
   let lastError: any = null;
 
@@ -119,12 +121,12 @@ Yêu cầu từ người dùng: ${prompt}
 Hãy sinh ra JSON thông tin dự án theo đúng chuẩn đã yêu cầu. Không được trả về gì ngoài JSON.
   `;
 
-  const envModels = import.meta.env.VITE_GEMINI_FALLBACK_MODELS;
+  const envModels = ENV.GEMINI_FALLBACK_MODELS;
   const modelsToTry = envModels 
     ? envModels.split(',').map((m: string) => m.trim()).filter(Boolean)
     : ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-1.5-flash-latest'];
 
-  const temperature = parseFloat(import.meta.env.VITE_GEMINI_TEMPERATURE || '0.7');
+  const temperature = ENV.GEMINI_TEMPERATURE;
 
   let lastError: any = null;
 

@@ -1,8 +1,9 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { TokenService } from '@/utils/token';
+import { ENV } from "@/config/env";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = ENV.API_URL;
 
 export const axiosInstance = axios.create({
   baseURL: API_URL,

@@ -10,5 +10,5 @@ export const getCachedCategories = cache(async () => {
 
 // getBanners is called in layout (if any future use) and page.tsx HeroSection.
 export const getCachedBanners = cache(async () => {
-  return api.settings.getBanners().catch(() => []);
+  return api.settings.getBanners({ next: { tags: ['banners'] } } as RequestInit).catch(() => []);
 });

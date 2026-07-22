@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Loader2, Sparkles } from 'lucide-react';
+import { ENV } from '@/config/env';
 
 interface AIGeneratorProps {
   title?: string;
@@ -27,9 +28,9 @@ export function AIGenerator({
       setIsGeneratingAI(true);
       setAiError('');
       
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const apiKey = ENV.GEMINI_API_KEY;
       if (!apiKey) {
-        throw new Error('Chưa cấu hình VITE_GEMINI_API_KEY trong file .env.local');
+        throw new Error('Chưa cấu hình GEMINI_API_KEY trong file .env');
       }
 
       const result = await generateContent(apiKey, aiPrompt);
