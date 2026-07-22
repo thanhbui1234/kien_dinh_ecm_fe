@@ -4,6 +4,7 @@ import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { settingKeys } from 'shared-api';
 import { SystemSetting, Banner, Timeline, Slogan, PageMeta, UpdateSettingInput } from 'shared-api';
+import { triggerRevalidate } from '@/utils/revalidate';
 
 // System Settings
 export const useSystemSettings = () => {
@@ -62,6 +63,7 @@ export const useCreateBanner = () => {
     onSuccess: () => {
       toast.success("Thêm banner thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.banners() });
+      triggerRevalidate('banners');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -80,6 +82,7 @@ export const useUpdateBanner = () => {
     onSuccess: () => {
       toast.success("Cập nhật banner thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.banners() });
+      triggerRevalidate('banners');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -98,6 +101,7 @@ export const useUpdateBannerOrders = () => {
     onSuccess: () => {
       toast.success("Cập nhật thứ tự banner thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.banners() });
+      triggerRevalidate('banners');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -116,6 +120,7 @@ export const useDeleteBanner = () => {
     onSuccess: () => {
       toast.success("Xóa banner thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.banners() });
+      triggerRevalidate('banners');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -152,6 +157,7 @@ export const useCreateSlogan = () => {
     onSuccess: () => {
       toast.success("Thêm slogan thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.slogans() });
+      triggerRevalidate('slogans');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -170,6 +176,7 @@ export const useUpdateSlogan = () => {
     onSuccess: () => {
       toast.success("Cập nhật slogan thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.slogans() });
+      triggerRevalidate('slogans');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -188,6 +195,7 @@ export const useUpdateSloganOrders = () => {
     onSuccess: () => {
       toast.success("Cập nhật thứ tự slogan thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.slogans() });
+      triggerRevalidate('slogans');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -206,6 +214,7 @@ export const useDeleteSlogan = () => {
     onSuccess: () => {
       toast.success("Xóa slogan thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.slogans() });
+      triggerRevalidate('slogans');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -240,6 +249,7 @@ export const useCreateTimeline = () => {
     onSuccess: () => {
       toast.success("Thêm timeline thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.timelines() });
+      triggerRevalidate('timelines');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -258,6 +268,7 @@ export const useUpdateTimeline = () => {
     onSuccess: () => {
       toast.success("Cập nhật timeline thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.timelines() });
+      triggerRevalidate('timelines');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -276,6 +287,7 @@ export const useUpdateTimelineOrders = () => {
     onSuccess: () => {
       toast.success("Cập nhật thứ tự timeline thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.timelines() });
+      triggerRevalidate('timelines');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -294,6 +306,7 @@ export const useDeleteTimeline = () => {
     onSuccess: () => {
       toast.success("Xóa timeline thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.timelines() });
+      triggerRevalidate('timelines');
     },
     onError: (error: any) => {
       toast.error(error);
