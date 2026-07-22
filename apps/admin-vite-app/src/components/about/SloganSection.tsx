@@ -5,6 +5,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStr
 import { Slogan } from 'shared-api';
 import { useSlogans, useCreateSlogan, useUpdateSlogan, useDeleteSlogan, useUpdateSloganOrders } from '@/queries/settings';
 import { SloganCard } from './SloganCard';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { btnPrimary } from '@/utils/admin-styles';
 
 export function SloganSection() {
@@ -15,6 +16,7 @@ export function SloganSection() {
   const reorderMutation = useUpdateSloganOrders();
 
   const [items, setItems] = useState<Slogan[]>([]);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (data) {
@@ -50,8 +52,8 @@ export function SloganSection() {
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa slogan này?')) deleteMutation.mutate(id);
+  const handleConfirmDelete = () => {
+    if (deleteId) deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
   };
 
   return (
@@ -98,7 +100,7 @@ export function SloganSection() {
                   <SloganCard
                     key={slogan.id}
                     slogan={slogan}
-                    onDelete={handleDelete}
+                    onDelete={setDeleteId}
                     onUpdate={(id, data) => updateMutation.mutate({ id, data })}
                     isDeleting={deleteMutation.isPending}
                   />
@@ -111,6 +113,15 @@ export function SloganSection() {
           </p>
         </>
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Xóa slogan"
+        description="Bạn có chắc chắn muốn xóa slogan này? Hành động này không thể hoàn tác."
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

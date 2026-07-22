@@ -5,10 +5,7 @@ import { useCreateFacility } from '@/queries/about';
 import { inputCls, labelCls, btnPrimary, btnGhost } from '@/utils/admin-styles';
 import type { Facility } from '@/types/about';
 
-const REGIONS = ['Châu Á', 'Bắc Mỹ', 'Trung và Nam Mỹ', 'Châu Âu', 'Khác'];
-
 const defaultForm: Omit<Facility, 'id'> = {
-  region: 'Châu Á',
   country: '',
   name: '',
   address: '',
@@ -47,30 +44,16 @@ export function AddFacilityForm({ onClose, orderIndex }: Props) {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className={labelCls}>
-            Khu vực <span className="text-red-400">*</span>
-          </label>
-          <select
-            value={form.region}
-            onChange={(e) => set('region', e.target.value)}
-            className={inputCls}
-          >
-            {REGIONS.map((r) => <option key={r}>{r}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className={labelCls}>
-            Quốc gia <span className="text-red-400">*</span>
-          </label>
-          <input
-            value={form.country}
-            onChange={(e) => set('country', e.target.value)}
-            className={inputCls}
-            placeholder="VD: Nhật Bản"
-          />
-        </div>
+      <div>
+        <label className={labelCls}>
+          Quốc gia <span className="text-red-400">*</span>
+        </label>
+        <input
+          value={form.country}
+          onChange={(e) => set('country', e.target.value)}
+          className={inputCls}
+          placeholder="VD: Nhật Bản"
+        />
       </div>
 
       <div>

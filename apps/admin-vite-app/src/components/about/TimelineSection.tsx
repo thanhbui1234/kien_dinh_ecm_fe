@@ -5,6 +5,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStr
 import { CSS } from '@dnd-kit/utilities';
 import type { CompanyHistoryEvent } from 'shared-api';
 import { FileUpload } from '@/components/upload/FileUpload';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 import {
   useHistoryEvents,
   useCreateHistoryEvent,
@@ -81,17 +82,17 @@ const TimelineCard = ({
       {isEditing ? (
         <div className="space-y-3">
           <div>
-            <label className={labelCls}>Nam</label>
+            <label className={labelCls}>Năm</label>
             <input
               type="text"
               value={year}
               onChange={(e) => setYear(e.target.value)}
               className={inputCls}
-              placeholder="Nam..."
+              placeholder="Năm..."
             />
           </div>
           <div>
-            <label className={labelCls}>Giai doan (period)</label>
+            <label className={labelCls}>Giai đoạn (period)</label>
             <input
               type="text"
               value={period}
@@ -101,19 +102,19 @@ const TimelineCard = ({
             />
           </div>
           <div>
-            <label className={labelCls}>Noi dung</label>
+            <label className={labelCls}>Nội dung</label>
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
               className={`${inputCls} h-auto py-2`}
               rows={3}
-              placeholder="Mo ta su kien..."
+              placeholder="Mô tả sự kiện..."
             />
           </div>
           <div>
-            <label className={labelCls}>Anh cot moc</label>
+            <label className={labelCls}>Ảnh cột mốc</label>
             <FileUpload
-              label="Tai anh len"
+              label="Tải ảnh lên"
               value={imageUrl}
               onChange={(url) => setImageUrl(url)}
               bgOption="none"
@@ -125,14 +126,14 @@ const TimelineCard = ({
               onClick={() => setIsEditing(false)}
               className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-black transition-colors cursor-pointer"
             >
-              Huy
+              Hủy
             </button>
             <button
               type="button"
               onClick={handleSave}
               className="px-3 py-1.5 text-xs font-bold text-white bg-black rounded hover:bg-gray-800 transition-colors cursor-pointer"
             >
-              Luu lai
+              Lưu lại
             </button>
           </div>
         </div>
@@ -140,7 +141,7 @@ const TimelineCard = ({
         <div
           className="cursor-pointer"
           onClick={() => setIsEditing(true)}
-          title="Bam de chinh sua"
+          title="Bấm để chỉnh sửa"
         >
           {event.imageUrl ? (
             <img
@@ -153,9 +154,9 @@ const TimelineCard = ({
               <ImageIcon className="h-5 w-5 text-gray-300" />
             </div>
           )}
-          <p className="text-blue-600 font-bold text-sm">{year || 'Chua co nam'}</p>
+          <p className="text-blue-600 font-bold text-sm">{year || 'Chưa có năm'}</p>
           {period && <p className="text-xs text-gray-400 mt-0.5">{period}</p>}
-          <p className="text-xs text-gray-500 mt-1 line-clamp-3">{text || 'Chua co noi dung'}</p>
+          <p className="text-xs text-gray-500 mt-1 line-clamp-3">{text || 'Chưa có nội dung'}</p>
         </div>
       )}
     </div>
@@ -175,6 +176,7 @@ export function TimelineSection() {
   const [newPeriod, setNewPeriod] = useState('');
   const [newText, setNewText] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (data) {
@@ -217,18 +219,16 @@ export function TimelineSection() {
   };
 
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Ban co chac chan muon xoa cot moc nay?')) {
-      deleteMutation.mutate(id);
-    }
+  const handleConfirmDelete = () => {
+    if (deleteId) deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
   };
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-6">
       <div className="flex items-center justify-between border-b border-gray-100 pb-3">
         <div>
-          <h2 className="text-sm font-bold text-black">LICH SU PHAT TRIEN</h2>
-          <p className="text-xs text-gray-500 mt-0.5">Quan ly cac cot moc lich su cong ty</p>
+          <h2 className="text-sm font-bold text-black">LỊCH SỬ PHÁT TRIỂN</h2>
+          <p className="text-xs text-gray-500 mt-0.5">Quản lý các cột mốc lịch sử công ty</p>
         </div>
         <button
           type="button"
@@ -236,36 +236,36 @@ export function TimelineSection() {
           disabled={showNewForm}
           className="text-xs font-bold bg-black text-white px-3 py-1.5 rounded hover:bg-gray-800 disabled:opacity-50 transition-colors cursor-pointer"
         >
-          + Them cot moc
+          + Thêm cột mốc
         </button>
       </div>
 
       {/* New form */}
       {showNewForm && (
         <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 space-y-3">
-          <p className="text-xs font-bold text-gray-500 uppercase">Cot moc moi</p>
+          <p className="text-xs font-bold text-gray-500 uppercase">Cột mốc mới</p>
           <div>
-            <label className={labelCls}>Nam</label>
-            <input type="text" value={newYear} onChange={(e) => setNewYear(e.target.value)} className={inputCls} placeholder="Nam..." />
+            <label className={labelCls}>Năm</label>
+            <input type="text" value={newYear} onChange={(e) => setNewYear(e.target.value)} className={inputCls} placeholder="Năm..." />
           </div>
           <div>
-            <label className={labelCls}>Giai doan (period)</label>
+            <label className={labelCls}>Giai đoạn (period)</label>
             <input type="text" value={newPeriod} onChange={(e) => setNewPeriod(e.target.value)} className={inputCls} placeholder="VD: 1919 - 1950" />
           </div>
           <div>
-            <label className={labelCls}>Noi dung</label>
-            <textarea value={newText} onChange={(e) => setNewText(e.target.value)} className={`${inputCls} h-auto py-2`} rows={3} placeholder="Mo ta su kien..." />
+            <label className={labelCls}>Nội dung</label>
+            <textarea value={newText} onChange={(e) => setNewText(e.target.value)} className={`${inputCls} h-auto py-2`} rows={3} placeholder="Mô tả sự kiện..." />
           </div>
           <div>
-            <label className={labelCls}>Anh cot moc</label>
-            <FileUpload label="Tai anh len" value={newImageUrl} onChange={setNewImageUrl} bgOption="none" />
+            <label className={labelCls}>Ảnh cột mốc</label>
+            <FileUpload label="Tải ảnh lên" value={newImageUrl} onChange={setNewImageUrl} bgOption="none" />
           </div>
           <div className="flex gap-2 justify-end pt-1">
             <button type="button" onClick={() => setShowNewForm(false)} className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
-              Huy
+              Hủy
             </button>
             <button type="button" onClick={handleCreateSubmit} disabled={createMutation.isPending} className="px-3 py-1.5 text-xs font-bold text-white bg-black rounded hover:bg-gray-800 disabled:opacity-50 transition-colors cursor-pointer">
-              {createMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin inline" /> : 'Tao cot moc'}
+              {createMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin inline" /> : 'Tạo cột mốc'}
             </button>
           </div>
         </div>
@@ -280,8 +280,8 @@ export function TimelineSection() {
           <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
             <GripVertical className="h-5 w-5 text-gray-400" />
           </div>
-          <p className="text-sm font-medium text-gray-500">Chua co cot moc nao</p>
-          <p className="text-xs text-gray-400 mt-1">Bam "Them cot moc" de bat dau</p>
+          <p className="text-sm font-medium text-gray-500">Chưa có cột mốc nào</p>
+          <p className="text-xs text-gray-400 mt-1">Bấm "Thêm cột mốc" để bắt đầu</p>
         </div>
       ) : (
         <DndContext
@@ -295,7 +295,7 @@ export function TimelineSection() {
                 <TimelineCard
                   key={event.id}
                   event={event}
-                  onDelete={handleDelete}
+                  onDelete={setDeleteId}
                   onUpdate={(id, data) => updateMutation.mutate({ id, data })}
                   isDeleting={deleteMutation.isPending}
                 />
@@ -307,9 +307,18 @@ export function TimelineSection() {
 
       {items.length > 0 && (
         <p className="text-xs text-gray-400 text-center pt-2">
-          Keo tha de thay doi thu tu hien thi • Bam vao card de chinh sua
+          Kéo thả để thay đổi thứ tự hiển thị • Bấm vào card để chỉnh sửa
         </p>
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Xóa cột mốc"
+        description="Bạn có chắc chắn muốn xóa cột mốc này? Hành động này không thể hoàn tác."
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

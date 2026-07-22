@@ -20,12 +20,10 @@ const breadcrumbs = [
 ];
 
 function groupFacilities(facilities: Facility[]) {
-  const map = new Map<string, Map<string, Facility[]>>();
+  const map = new Map<string, Facility[]>();
   for (const f of facilities) {
-    if (!map.has(f.region)) map.set(f.region, new Map());
-    const countryMap = map.get(f.region)!;
-    if (!countryMap.has(f.country)) countryMap.set(f.country, []);
-    countryMap.get(f.country)!.push(f);
+    if (!map.has(f.country)) map.set(f.country, []);
+    map.get(f.country)!.push(f);
   }
   return map;
 }
@@ -44,25 +42,17 @@ export default async function ProductionFacilitiesPage() {
           <p className="text-[14px] text-gray-400">Chưa có dữ liệu cơ sở sản xuất.</p>
         )}
 
-        {Array.from(grouped.entries()).map(([region, countryMap]) => (
-          <div key={region}>
+        {Array.from(grouped.entries()).map(([country, items]) => (
+          <div key={country}>
             <h2 className="m-0 mt-10 border-b-2 border-[#5e8dd1] pb-2 text-[26px] font-light text-[#111]">
-              {region}
+              {country}
             </h2>
 
-            {Array.from(countryMap.entries()).map(([country, items]) => (
-              <div key={country}>
-                <h3 className="m-0 mb-4 mt-6 text-[18px] font-light text-[#5e8dd1]">
-                  {country}
-                </h3>
-
-                <div className="grid gap-5 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
-                  {items.map((facility) => (
-                    <FacilityCard key={facility.id} facility={facility} />
-                  ))}
-                </div>
-              </div>
-            ))}
+            <div className="grid gap-5 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
+              {items.map((facility) => (
+                <FacilityCard key={facility.id} facility={facility} />
+              ))}
+            </div>
           </div>
         ))}
       </PageContent>

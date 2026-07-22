@@ -34,12 +34,10 @@ function sanitizeHtml(html: string): string {
 }
 
 function groupFacilities(facilities: Facility[]) {
-  const map = new Map<string, Map<string, Facility[]>>();
+  const map = new Map<string, Facility[]>();
   for (const f of facilities) {
-    if (!map.has(f.region)) map.set(f.region, new Map());
-    const countryMap = map.get(f.region)!;
-    if (!countryMap.has(f.country)) countryMap.set(f.country, []);
-    countryMap.get(f.country)!.push(f);
+    if (!map.has(f.country)) map.set(f.country, []);
+    map.get(f.country)!.push(f);
   }
   return map;
 }
@@ -104,41 +102,43 @@ export default async function AboutUsPage() {
 
       {/* ── SƠ LƯỢC ──────────────────────────────────────────── */}
       {((companyInfo ?? []).length > 0 || introHtml || aboutThumbnail) && (
-        <section className="max-w-[1300px] mx-auto px-6 md:px-10 py-20 md:py-28">
-          <div className="mb-12">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#5e8dd1]">01 — Sơ lược</span>
-            <h2 className="text-[36px] md:text-[52px] font-light text-[#111] tracking-[-0.03em] m-0 mt-3 leading-tight">
-              Về Thanh Bằng
-            </h2>
-            <div className="mt-4 w-12 h-[3px] bg-[#5e8dd1]" />
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-            {(companyInfo ?? []).length > 0 && (
-              <div className="divide-y divide-gray-100">
-                {(companyInfo ?? []).map((row) => (
-                  <div key={row.id} className="grid grid-cols-[160px_1fr] gap-4 py-4">
-                    <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-gray-400 pt-0.5 leading-snug">
-                      {row.label}
-                    </span>
-                    <span className="text-[14px] text-[#111] leading-relaxed">{row.value}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-            {/* Right: intro HTML */}
-            {introHtml && (
-              <div
-                className="project-article-body text-[15px] leading-[1.85]"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(introHtml) }}
-              />
-            )}
-          </div>
-        </section>
+        <div className="bg-[#fafbfd]">
+          <section className="max-w-[1300px] mx-auto px-6 md:px-10 py-20 md:py-28">
+            <div className="mb-12">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#5e8dd1]">01 — Sơ lược</span>
+              <h2 className="text-[36px] md:text-[52px] font-light text-[#111] tracking-[-0.03em] m-0 mt-3 leading-tight">
+                Về Thanh Bằng
+              </h2>
+              <div className="mt-4 w-12 h-[3px] bg-[#5e8dd1]" />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+              {(companyInfo ?? []).length > 0 && (
+                <div className="divide-y divide-gray-100">
+                  {(companyInfo ?? []).map((row) => (
+                    <div key={row.id} className="grid grid-cols-[160px_1fr] gap-4 py-4">
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-gray-400 pt-0.5 leading-snug">
+                        {row.label}
+                      </span>
+                      <span className="text-[14px] text-[#111] leading-relaxed">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* Right: intro HTML */}
+              {introHtml && (
+                <div
+                  className="project-article-body text-[15px] leading-[1.85]"
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(introHtml) }}
+                />
+              )}
+            </div>
+          </section>
+        </div>
       )}
 
       {/* ── LỊCH SỬ PHÁT TRIỂN ───────────────────────────────── */}
       {sortedTimelines.length > 0 && (
-        <div className="bg-[#f9f9f9]">
+        <div className="bg-[#eef2f9]">
           <div className="max-w-[1300px] mx-auto px-6 md:px-10 pt-20 md:pt-28 pb-0">
             <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#5e8dd1]">02 — Lịch sử phát triển</span>
             <h2 className="text-[36px] md:text-[52px] font-light text-[#111] tracking-[-0.03em] m-0 mt-3 leading-tight">
@@ -156,28 +156,25 @@ export default async function AboutUsPage() {
           <div className="mb-14">
             <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#5e8dd1]">03 — Cơ sở sản xuất</span>
             <h2 className="text-[36px] md:text-[52px] font-light text-[#111] tracking-[-0.03em] m-0 mt-3 leading-tight">
-              Hệ thống cơ sở toàn cầu
+              Hệ thống cơ sở sản xuất
             </h2>
             <div className="mt-4 w-12 h-[3px] bg-[#5e8dd1]" />
           </div>
-          {Array.from(grouped.entries()).map(([region, countryMap]) => (
-            <div key={region} className="mb-14 last:mb-0">
-              <div className="flex items-center gap-4 mb-8">
-                <h3 className="text-[18px] font-semibold text-[#111] m-0">{region}</h3>
-                <div className="flex-1 h-px bg-gray-100" />
-              </div>
-              {Array.from(countryMap.entries()).map(([country, items]) => (
-                <div key={country} className="mb-8 last:mb-0">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5e8dd1] mb-4 m-0">{country}</p>
-                  <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {items.map((facility) => (
-                      <FacilityCard key={facility.id} facility={facility} />
-                    ))}
-                  </div>
+          <div className="grid gap-x-10 gap-y-14 md:grid-cols-2">
+            {Array.from(grouped.entries()).map(([country, items]) => (
+              <div key={country}>
+                <div className="flex items-center gap-4 mb-8">
+                  <h3 className="text-[18px] font-semibold text-[#111] m-0">{country}</h3>
+                  <div className="flex-1 h-px bg-gray-100" />
                 </div>
-              ))}
-            </div>
-          ))}
+                <div className="grid gap-5 grid-cols-1 sm:grid-cols-2">
+                  {items.map((facility) => (
+                    <FacilityCard key={facility.id} facility={facility} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
       )}
     </div>

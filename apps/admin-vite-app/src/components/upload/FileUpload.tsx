@@ -158,7 +158,7 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
     handleSelectFile(event.target.files?.[0]);
   };
 
-  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+  const handleDrop = (event: DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
     handleSelectFile(event.dataTransfer.files?.[0]);
   };
@@ -277,34 +277,29 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
       {/* Khu vực kéo thả */}
       {!pendingFile && !isUploading && (
         <div className={`flex flex-col gap-3 ${value ? 'mt-4' : ''}`}>
-          <div
-            className="flex flex-col justify-center rounded-lg border-2 border-dashed border-gray-300 px-3 py-6 transition-colors hover:border-black bg-gray-50"
+          <label
+            htmlFor={inputId}
+            className="flex cursor-pointer flex-col justify-center rounded-lg border-2 border-dashed border-gray-300 px-3 py-6 transition-colors hover:border-black bg-gray-50"
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
           >
             <div className="text-center">
               <ImagePlus aria-hidden={true} className="mx-auto h-8 w-8 text-gray-400" />
               <div className="mt-3 text-xs font-medium text-gray-600 leading-normal text-balance">
-                Kéo thả ảnh vào đây hoặc{' '}
-                <label
-                  className="relative cursor-pointer rounded-sm font-bold text-black hover:underline focus-within:outline-none"
-                  htmlFor={inputId}
-                >
-                  chọn file
-                  <input
-                    accept="image/jpeg, image/png, image/webp, image/gif"
-                    className="sr-only"
-                    id={inputId}
-                    name={inputId}
-                    onChange={handleFileChange}
-                    ref={fileInputRef}
-                    type="file"
-                  />
-                </label>
+                Kéo thả ảnh vào đây hoặc <span className="font-bold text-black hover:underline">chọn file</span>
               </div>
               <p className="mt-1.5 text-[9px] font-bold text-gray-400 uppercase tracking-wider text-balance">PNG, JPG, WEBP (TỐI ĐA 10MB)</p>
             </div>
-          </div>
+            <input
+              accept="image/jpeg, image/png, image/webp, image/gif"
+              className="sr-only"
+              id={inputId}
+              name={inputId}
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              type="file"
+            />
+          </label>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">
