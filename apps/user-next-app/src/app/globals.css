@@ -139,7 +139,7 @@ body {
 
 /* Mazak brand tokens */
 :root {
-  --mazak-orange: #ff5901;
+  --mazak-accent: #5e8dd1;
   --mazak-black: #000000;
   --mazak-white: #ffffff;
   --mazak-gray: #f5f5f5;
@@ -171,7 +171,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Orange accent underline */
 .orange-underline {
-  border-bottom: 3px solid var(--mazak-orange);
+  border-bottom: 3px solid var(--mazak-accent);
   padding-bottom: 4px;
 }
 
@@ -304,7 +304,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .project-article-body strong {
-  color: #ff5901;
+  color: #5e8dd1;
   font-weight: 600;
 }
 
@@ -326,7 +326,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .project-article-body a {
-  color: #ff5901;
+  color: #5e8dd1;
   text-decoration: none;
 }
 .project-article-body a:hover { text-decoration: underline; }

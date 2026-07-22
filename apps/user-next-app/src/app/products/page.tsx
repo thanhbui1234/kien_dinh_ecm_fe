@@ -60,15 +60,15 @@ function ProductCard({
       {/* Info */}
       <div className="flex flex-col p-5 sm:p-6 grow">
         {categoryName && (
-          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ff5901] m-0 mb-2">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5e8dd1] m-0 mb-2">
             {categoryName}
           </p>
         )}
-        <h3 className="text-[15px] sm:text-[16px] font-medium text-[#111] leading-snug m-0 group-hover:text-[#ff5901] transition-colors duration-200 line-clamp-2">
+        <h3 className="text-[15px] sm:text-[16px] font-medium text-[#111] leading-snug m-0 group-hover:text-[#5e8dd1] transition-colors duration-200 line-clamp-2">
           {product.name}
         </h3>
         <div className="mt-auto pt-4">
-          <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-gray-400 group-hover:text-[#ff5901] transition-colors duration-200 w-fit">
+          <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-gray-400 group-hover:text-[#5e8dd1] transition-colors duration-200 w-fit">
             Xem chi tiết
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="transition-transform duration-300 group-hover:translate-x-1">
               <path d="M2.33 7H11.67M11.67 7L7.58 3M11.67 7L7.58 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -108,13 +108,13 @@ function Pagination({ meta, searchParams }: { meta: { page: number; totalPages: 
   return (
     <div className="flex items-center justify-center gap-2 mt-12">
       {page > 1 && (
-        <Link href={buildHref(page - 1)} className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:border-[#ff5901] hover:text-[#ff5901] no-underline transition-all text-sm">←</Link>
+        <Link href={buildHref(page - 1)} className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:border-[#5e8dd1] hover:text-[#5e8dd1] no-underline transition-all text-sm">←</Link>
       )}
       {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-        <Link key={p} href={buildHref(p)} className={`w-9 h-9 flex items-center justify-center rounded-full text-[13px] no-underline transition-all ${p === page ? 'bg-[#ff5901] text-white' : 'border border-gray-200 text-gray-500 hover:border-[#ff5901] hover:text-[#ff5901]'}`}>{p}</Link>
+        <Link key={p} href={buildHref(p)} className={`w-9 h-9 flex items-center justify-center rounded-full text-[13px] no-underline transition-all ${p === page ? 'bg-[#5e8dd1] text-white' : 'border border-gray-200 text-gray-500 hover:border-[#5e8dd1] hover:text-[#5e8dd1]'}`}>{p}</Link>
       ))}
       {page < totalPages && (
-        <Link href={buildHref(page + 1)} className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:border-[#ff5901] hover:text-[#ff5901] no-underline transition-all text-sm">→</Link>
+        <Link href={buildHref(page + 1)} className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:border-[#5e8dd1] hover:text-[#5e8dd1] no-underline transition-all text-sm">→</Link>
       )}
     </div>
   );
@@ -159,12 +159,12 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
       {/* Page header */}
       <div className="border-b border-gray-100">
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-6">
-          <div className="flex items-center gap-2 text-[12px] text-gray-400 mb-4">
-            <Link href="/" className="hover:text-[#ff5901] no-underline transition-colors">Trang chủ</Link>
+          <div className="flex items-center gap-2 text-[14px] text-gray-400 mb-4">
+            <Link href="/" className="hover:text-[#5e8dd1] no-underline transition-colors">Trang chủ</Link>
             <span>/</span>
             {activeCategoryName ? (
               <>
-                <Link href="/products/" className="hover:text-[#ff5901] no-underline transition-colors">Sản phẩm</Link>
+                <Link href="/products/" className="hover:text-[#5e8dd1] no-underline transition-colors">Sản phẩm</Link>
                 <span>/</span>
                 <span className="text-[#111]">{activeCategoryName}</span>
               </>

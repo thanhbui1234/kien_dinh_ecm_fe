@@ -14,7 +14,7 @@ import type { CompanyHistoryEvent } from "shared-api";
 const EXPO = [0.16, 1, 0.3, 1] as const;
 
 // TODO: remove fallback once BE adds imageUrl to TimelineResponseDto
-const PLACEHOLDER_IMAGE = "https://placehold.co/480x300/111111/ff5901?text=Kiến+Đỉnh";
+const PLACEHOLDER_IMAGE = "https://placehold.co/480x300/111111/5e8dd1?text=Kiến+Đỉnh";
 
 function VerticalLine({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) {
   const { scrollYProgress } = useScroll({
@@ -29,7 +29,7 @@ function VerticalLine({ containerRef }: { containerRef: React.RefObject<HTMLDivE
       aria-hidden="true"
     >
       <div className="absolute inset-0 bg-gray-200" />
-      <m.div className="absolute inset-0 origin-top bg-[#ff5901]" style={{ scaleY }} />
+      <m.div className="absolute inset-0 origin-top bg-[#5e8dd1]" style={{ scaleY }} />
     </div>
   );
 }
@@ -47,7 +47,7 @@ function MobileVerticalLine({ containerRef }: { containerRef: React.RefObject<HT
       aria-hidden="true"
     >
       <div className="absolute inset-0 bg-gray-200" />
-      <m.div className="absolute inset-0 origin-top bg-[#ff5901]" style={{ scaleY }} />
+      <m.div className="absolute inset-0 origin-top bg-[#5e8dd1]" style={{ scaleY }} />
     </div>
   );
 }
@@ -92,14 +92,14 @@ function ContentBlock({
             sizes="440px"
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#ff5901]" />
+          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#5e8dd1]" />
         </div>
       </m.div>
 
       {/* Year */}
       <div style={{ overflow: "hidden" }}>
         <m.span
-          className="block text-[#ff5901] font-black tabular-nums text-[42px] md:text-[52px] leading-none tracking-tight"
+          className="block text-[#5e8dd1] font-black tabular-nums text-[42px] md:text-[52px] leading-none tracking-tight"
           initial={{ y: "110%" }}
           animate={{ y: inView ? "0%" : "110%" }}
           transition={{ duration: 0.6, ease: EXPO }}
@@ -155,14 +155,14 @@ function Milestone({ item, index }: { item: CompanyHistoryEvent; index: number }
       {/* Center dot — absolute on the line, perfectly centered */}
       <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-8 z-10">
         <m.div
-          className="relative w-4 h-4 rounded-full bg-[#ff5901] ring-4 ring-[#f9f9f9] shadow-md"
+          className="relative w-4 h-4 rounded-full bg-[#5e8dd1] ring-4 ring-[#f9f9f9] shadow-md"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: inView ? 1 : 0, opacity: inView ? 1 : 0 }}
           transition={{ duration: 0.3, ease: EXPO }}
         >
           <m.span
             aria-hidden="true"
-            className="absolute inset-0 rounded-full border-2 border-[#ff5901]"
+            className="absolute inset-0 rounded-full border-2 border-[#5e8dd1]"
             initial={{ scale: 1, opacity: 0 }}
             animate={inView ? { scale: 3.5, opacity: [0.6, 0] } : { scale: 1, opacity: 0 }}
             transition={{ duration: 1.2, ease: "easeOut", delay: 0.15 }}
@@ -179,7 +179,7 @@ function Milestone({ item, index }: { item: CompanyHistoryEvent; index: number }
       <div className="md:hidden pl-14 pb-12">
         <div className="absolute left-5 top-2 -translate-x-1/2 z-10">
           <m.div
-            className="relative w-4 h-4 rounded-full bg-[#ff5901] ring-4 ring-white shadow-md"
+            className="relative w-4 h-4 rounded-full bg-[#5e8dd1] ring-4 ring-white shadow-md"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: inView ? 1 : 0, opacity: inView ? 1 : 0 }}
             transition={{ duration: 0.3, ease: EXPO }}

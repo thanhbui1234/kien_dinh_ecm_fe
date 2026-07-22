@@ -46,10 +46,10 @@ export default function ProjectSidebar({ project, formattedDate, relatedProducts
             transition={{ duration: 0.45, ease: E, delay: 0.26 }}
           >
             <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff5901] opacity-50" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff5901]" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5e8dd1] opacity-50" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#5e8dd1]" />
             </span>
-            <span className="text-[13px] font-medium text-[#ff5901]">
+            <span className="text-[13px] font-medium text-[#5e8dd1]">
               Dự án tiêu biểu
             </span>
           </motion.div>
@@ -72,7 +72,7 @@ export default function ProjectSidebar({ project, formattedDate, relatedProducts
                 <Link
                   key={p.id}
                   href={`/products/${p.slug}`}
-                  className="inline-block text-[11px] font-medium text-[#111] border border-gray-200 px-2.5 py-1 rounded hover:border-[#ff5901] hover:text-[#ff5901] transition-colors no-underline"
+                  className="inline-block text-[11px] font-medium text-[#111] border border-gray-200 px-2.5 py-1 rounded hover:border-[#5e8dd1] hover:text-[#5e8dd1] transition-colors no-underline"
                 >
                   {p.name}
                 </Link>

@@ -51,7 +51,7 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
 
       {/* Bottom accent — orange line expands on load */}
       <motion.div
-        className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#ff5901] via-[#ff5901]/60 to-transparent"
+        className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#5e8dd1] via-[#5e8dd1]/60 to-transparent"
         initial={{ width: '0%' }}
         animate={{ width: '45%' }}
         transition={{ duration: 1.2, ease: EASE_EXPO, delay: 0.7 }}
@@ -61,7 +61,7 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
       <div className="absolute inset-0 flex flex-col justify-end px-6 md:px-10 pb-12 md:pb-16 max-w-[1300px] mx-auto left-0 right-0">
         {project.isFeatured && (
           <motion.p
-            className="text-[#ff5901] text-[11px] font-semibold uppercase tracking-[0.22em] mb-3"
+            className="text-[#5e8dd1] text-[11px] font-semibold uppercase tracking-[0.22em] mb-3"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: EASE_EXPO, delay: 0.1 }}

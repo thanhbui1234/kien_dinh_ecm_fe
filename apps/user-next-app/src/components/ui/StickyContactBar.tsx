@@ -74,7 +74,7 @@ export default function StickyContactBar({
             </a>
             <Link
               href={ctaHref}
-              className="inline-flex items-center gap-2 bg-[#ff5901] text-white text-[13px] font-semibold px-6 py-2.5 rounded-full hover:bg-[#e04f00] transition-colors no-underline"
+              className="inline-flex items-center gap-2 bg-[#5e8dd1] text-white text-[13px] font-semibold px-6 py-2.5 rounded-full hover:bg-[#356098] transition-colors no-underline"
             >
               {ctaLabel}
             </Link>

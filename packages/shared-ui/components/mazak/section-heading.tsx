@@ -24,7 +24,7 @@ export function SectionHeading({ children, size = 'lg' }: SectionHeadingProps) {
         style={{
           width: large ? '56px' : '40px',
           height: '3px',
-          backgroundColor: '#ff5901',
+          backgroundColor: '#5e8dd1',
         }}
       />
     </div>

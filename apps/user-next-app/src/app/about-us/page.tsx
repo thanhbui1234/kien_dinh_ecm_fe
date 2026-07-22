@@ -62,7 +62,7 @@ export default async function AboutUsPage() {
       {/* Breadcrumb */}
       <div className="border-b border-gray-100">
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-3 flex items-center gap-2 text-[12px] text-gray-400">
-          <Link href="/" className="hover:text-[#ff5901] transition-colors no-underline">Trang chủ</Link>
+          <Link href="/" className="hover:text-[#5e8dd1] transition-colors no-underline">Trang chủ</Link>
           <span>/</span>
           <span className="text-[#111]">Về chúng tôi</span>
         </div>
@@ -85,10 +85,10 @@ export default async function AboutUsPage() {
         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-black/10" />
         <div className="absolute inset-0 bg-linear-to-r from-black/30 to-transparent" />
         {/* Orange bottom accent line */}
-        <div className="absolute bottom-0 left-0 h-[2px] w-[45%] bg-linear-to-r from-[#ff5901] via-[#ff5901]/60 to-transparent" />
+        <div className="absolute bottom-0 left-0 h-[2px] w-[45%] bg-linear-to-r from-[#5e8dd1] via-[#5e8dd1]/60 to-transparent" />
         {/* Content */}
         <div className="absolute inset-0 flex flex-col justify-end px-6 md:px-10 pb-12 md:pb-16 max-w-[1300px] mx-auto left-0 right-0">
-          <p className="text-[#ff5901] text-[11px] font-semibold uppercase tracking-[0.22em] mb-3">
+          <p className="text-[#5e8dd1] text-[11px] font-semibold uppercase tracking-[0.22em] mb-3">
             Về chúng tôi
           </p>
           <h1 className="text-white text-[32px] md:text-[52px] lg:text-[60px] font-light leading-[1.1] tracking-[-0.02em] max-w-[800px] m-0">
@@ -106,11 +106,11 @@ export default async function AboutUsPage() {
       {((companyInfo ?? []).length > 0 || introHtml || aboutThumbnail) && (
         <section className="max-w-[1300px] mx-auto px-6 md:px-10 py-20 md:py-28">
           <div className="mb-12">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#ff5901]">01 — Sơ lược</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#5e8dd1]">01 — Sơ lược</span>
             <h2 className="text-[36px] md:text-[52px] font-light text-[#111] tracking-[-0.03em] m-0 mt-3 leading-tight">
               Về Thanh Bằng
             </h2>
-            <div className="mt-4 w-12 h-[3px] bg-[#ff5901]" />
+            <div className="mt-4 w-12 h-[3px] bg-[#5e8dd1]" />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             {(companyInfo ?? []).length > 0 && (
@@ -140,11 +140,11 @@ export default async function AboutUsPage() {
       {sortedTimelines.length > 0 && (
         <div className="bg-[#f9f9f9]">
           <div className="max-w-[1300px] mx-auto px-6 md:px-10 pt-20 md:pt-28 pb-0">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#ff5901]">02 — Lịch sử phát triển</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#5e8dd1]">02 — Lịch sử phát triển</span>
             <h2 className="text-[36px] md:text-[52px] font-light text-[#111] tracking-[-0.03em] m-0 mt-3 leading-tight">
               Hành trình phát triển
             </h2>
-            <div className="mt-4 w-12 h-[3px] bg-[#ff5901]" />
+            <div className="mt-4 w-12 h-[3px] bg-[#5e8dd1]" />
           </div>
           <CompanyHistoryTimeline items={sortedTimelines} />
         </div>
@@ -154,11 +154,11 @@ export default async function AboutUsPage() {
       {grouped.size > 0 && (
         <section className="max-w-[1300px] mx-auto px-6 md:px-10 py-20 md:py-28">
           <div className="mb-14">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#ff5901]">03 — Cơ sở sản xuất</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#5e8dd1]">03 — Cơ sở sản xuất</span>
             <h2 className="text-[36px] md:text-[52px] font-light text-[#111] tracking-[-0.03em] m-0 mt-3 leading-tight">
               Hệ thống cơ sở toàn cầu
             </h2>
-            <div className="mt-4 w-12 h-[3px] bg-[#ff5901]" />
+            <div className="mt-4 w-12 h-[3px] bg-[#5e8dd1]" />
           </div>
           {Array.from(grouped.entries()).map(([region, countryMap]) => (
             <div key={region} className="mb-14 last:mb-0">
@@ -168,7 +168,7 @@ export default async function AboutUsPage() {
               </div>
               {Array.from(countryMap.entries()).map(([country, items]) => (
                 <div key={country} className="mb-8 last:mb-0">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ff5901] mb-4 m-0">{country}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5e8dd1] mb-4 m-0">{country}</p>
                   <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {items.map((facility) => (
                       <FacilityCard key={facility.id} facility={facility} />

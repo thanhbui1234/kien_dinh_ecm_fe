@@ -29,7 +29,7 @@ export default function FilterDrawer({ categories, activeSlug }: Props) {
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-full text-[14px] text-[#111] hover:border-[#ff5901] hover:text-[#ff5901] transition-all shadow-sm"
+        className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-full text-[14px] text-[#111] hover:border-[#5e8dd1] hover:text-[#5e8dd1] transition-all shadow-sm"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -71,7 +71,7 @@ export default function FilterDrawer({ categories, activeSlug }: Props) {
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl text-[14px] no-underline transition-all ${
                   !activeSlug
-                    ? 'bg-[#ff5901] text-white font-medium shadow-md shadow-[#ff5901]/20'
+                    ? 'bg-[#5e8dd1] text-white font-medium shadow-md shadow-[#5e8dd1]/20'
                     : 'text-gray-700 hover:text-[#111] hover:bg-white/60'
                 }`}
               >
@@ -89,7 +89,7 @@ export default function FilterDrawer({ categories, activeSlug }: Props) {
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center justify-between px-4 py-3 rounded-xl text-[14px] no-underline transition-all ${
                     activeSlug === cat.slug
-                      ? 'bg-[#ff5901] text-white font-medium shadow-md shadow-[#ff5901]/20'
+                      ? 'bg-[#5e8dd1] text-white font-medium shadow-md shadow-[#5e8dd1]/20'
                       : 'text-gray-700 hover:text-[#111] hover:bg-white/60'
                   }`}
                 >

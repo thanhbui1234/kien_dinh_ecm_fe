@@ -26,14 +26,14 @@ export const HeroControls = ({
             <button
               onClick={goPrev}
               aria-label="Slide trước"
-              className="w-14 h-14 max-[900px]:w-12 max-[900px]:h-12 rounded-full border-none bg-[#ff5901] text-white cursor-pointer inline-flex items-center justify-center shrink-0 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#e04d00] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#ff5901] focus-visible:outline-offset-2"
+              className="w-14 h-14 max-[900px]:w-12 max-[900px]:h-12 rounded-full border-none bg-[#5e8dd1] text-white cursor-pointer inline-flex items-center justify-center shrink-0 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#356098] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5e8dd1] focus-visible:outline-offset-2"
             >
               <ArrowLeft />
             </button>
             <button
               onClick={goNext}
               aria-label="Slide kế tiếp"
-              className="w-14 h-14 max-[900px]:w-12 max-[900px]:h-12 rounded-full border-none bg-[#ff5901] text-white cursor-pointer inline-flex items-center justify-center shrink-0 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#e04d00] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#ff5901] focus-visible:outline-offset-2"
+              className="w-14 h-14 max-[900px]:w-12 max-[900px]:h-12 rounded-full border-none bg-[#5e8dd1] text-white cursor-pointer inline-flex items-center justify-center shrink-0 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#356098] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5e8dd1] focus-visible:outline-offset-2"
             >
               <ArrowRight />
             </button>
@@ -56,7 +56,7 @@ export const HeroControls = ({
                   />
                   <span
                     key={`fill-${i}-${current}`}
-                    className={`absolute inset-0 bg-[#ff5901] origin-left ${active ? 'hero-progress-bar' : 'scale-x-0'}`}
+                    className={`absolute inset-0 bg-[#5e8dd1] origin-left ${active ? 'hero-progress-bar' : 'scale-x-0'}`}
                     style={{ animationDuration: `${AUTO_ADVANCE_MS}ms` }}
                     data-active={active}
                   />

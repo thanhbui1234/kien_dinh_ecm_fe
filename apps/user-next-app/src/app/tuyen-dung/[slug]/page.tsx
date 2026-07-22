@@ -45,9 +45,9 @@ export default async function JobDetailPage({ params }: Props) {
       {/* Breadcrumb */}
       <div className="border-b border-gray-100">
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-3 flex items-center gap-2 text-[12px] text-gray-400">
-          <Link href="/" className="hover:text-[#ff5901] transition-colors no-underline">Trang chủ</Link>
+          <Link href="/" className="hover:text-[#5e8dd1] transition-colors no-underline">Trang chủ</Link>
           <span>/</span>
-          <Link href="/tuyen-dung/" className="hover:text-[#ff5901] transition-colors no-underline">Tuyển dụng</Link>
+          <Link href="/tuyen-dung/" className="hover:text-[#5e8dd1] transition-colors no-underline">Tuyển dụng</Link>
           <span>/</span>
           <span className="text-[#111] truncate max-w-[260px]">{job.title}</span>
         </div>
@@ -82,13 +82,13 @@ export default async function JobDetailPage({ params }: Props) {
 
               {job.salary && (
                 <div className="flex items-center gap-2 mt-4">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff5901" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5e8dd1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="12" y1="1" x2="12" y2="23" />
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                   </svg>
                   <span className="text-[15px] text-[#111]">
                     <span className="text-gray-400 font-medium">Mức lương:</span>{' '}
-                    <span className="font-semibold text-[#ff5901]">{job.salary}</span>
+                    <span className="font-semibold text-[#5e8dd1]">{job.salary}</span>
                   </span>
                 </div>
               )}
@@ -116,22 +116,22 @@ export default async function JobDetailPage({ params }: Props) {
 
           {/* Sidebar CTA */}
           <div className="lg:sticky lg:top-[100px]">
-            <div className="bg-[#0f0f0f] rounded-2xl p-7 flex flex-col gap-5">
+            <div className="relative rounded-2xl border border-[#5e8dd1]/25 p-7 flex flex-col gap-5 shadow-[0_0_50px_-12px_rgba(94,141,209,0.4)]">
               <div>
-                <p className="text-white text-[18px] font-light leading-snug m-0">
+                <p className="text-[#111] text-[18px] font-light leading-snug m-0">
                   Quan tâm đến vị trí này?
                 </p>
-                <p className="text-white/50 text-[13px] mt-2 m-0 leading-relaxed">
+                <p className="text-gray-500 text-[13px] mt-2 m-0 leading-relaxed">
                   Liên hệ với chúng tôi để tìm hiểu thêm về vị trí này.
                 </p>
               </div>
 
-              <div className="w-full h-px bg-white/10" />
+              <div className="w-full h-px bg-gray-100" />
 
               <div className="flex flex-col gap-3">
                 <Link
                   href={`/contact/?jobId=${encodeURIComponent(job.id)}`}
-                  className="inline-flex items-center justify-center gap-2 bg-[#ff5901] text-white text-[14px] font-semibold px-6 py-3 rounded-full hover:bg-[#e04f00] active:scale-[0.98] transition-all no-underline text-center"
+                  className="inline-flex items-center justify-center gap-2 bg-[#5e8dd1] text-white text-[14px] font-semibold px-6 py-3 rounded-full hover:bg-[#356098] active:scale-[0.98] transition-all no-underline text-center"
                 >
                   Liên hệ ứng tuyển
                 </Link>
@@ -139,22 +139,22 @@ export default async function JobDetailPage({ params }: Props) {
                   href="https://zalo.me/0374864110"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-white/6 border border-white/12 text-white text-[14px] font-semibold px-6 py-3 rounded-full hover:bg-white/10 active:scale-[0.98] transition-all no-underline text-center"
+                  className="inline-flex items-center justify-center gap-2 bg-transparent border border-gray-200 text-[#111] text-[14px] font-semibold px-6 py-3 rounded-full hover:bg-gray-50 active:scale-[0.98] transition-all no-underline text-center"
                 >
                   Chat Zalo
                 </a>
               </div>
 
-              <div className="w-full h-px bg-white/10" />
+              <div className="w-full h-px bg-gray-100" />
 
-              <p className="text-white/30 text-[12px] m-0 leading-relaxed">
+              <p className="text-gray-400 text-[12px] m-0 leading-relaxed">
                 Bạn sẽ được chuyển đến trang liên hệ để gửi thông tin.
               </p>
             </div>
 
             <Link
               href="/tuyen-dung/"
-              className="flex items-center gap-2 mt-4 text-[13px] text-gray-400 hover:text-[#ff5901] transition-colors no-underline"
+              className="flex items-center gap-2 mt-4 text-[13px] text-gray-400 hover:text-[#5e8dd1] transition-colors no-underline"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M11.67 7H2.33M2.33 7L6.42 3M2.33 7L6.42 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

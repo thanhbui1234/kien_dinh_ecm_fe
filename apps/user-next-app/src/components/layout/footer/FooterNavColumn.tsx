@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { FooterNavLink } from '@/constants/footer';
 
-export const footerLinkClass = "block text-[14px] text-white font-normal no-underline mb-2.5 leading-[1.4] transition-colors duration-200 hover:text-[#ff5901]";
-export const footerHeadingClass = "text-[16px] font-bold text-[#ff5901] no-underline block mb-4 leading-[1.3] hover:text-[#ff5901]";
+export const footerLinkClass = "block text-[14px] text-white font-normal no-underline mb-2.5 leading-[1.4] transition-colors duration-200 hover:text-[#5e8dd1]";
+export const footerHeadingClass = "text-[16px] font-bold text-[#5e8dd1] no-underline block mb-4 leading-[1.3] hover:text-[#5e8dd1]";
 
 interface FooterNavGroup {
   heading: string;

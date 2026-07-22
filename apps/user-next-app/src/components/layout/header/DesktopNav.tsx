@@ -6,34 +6,39 @@ interface DesktopNavProps {
   navItems: NavItem[];
   activeDropdown: string | null;
   navTextClass: string;
-  handleNavClick: (label: string) => void;
+  onOpenDropdown: (label: string) => void;
+  onScheduleClose: () => void;
 }
 
-export const DesktopNav = ({ navItems, activeDropdown, navTextClass, handleNavClick }: DesktopNavProps) => {
+export const DesktopNav = ({
+  navItems,
+  activeDropdown,
+  navTextClass,
+  onOpenDropdown,
+  onScheduleClose,
+}: DesktopNavProps) => {
   return (
     <nav className="hidden lg:flex items-center gap-0">
       {navItems.map((item) => {
         const isActive = activeDropdown === item.label;
-        const textClass = isActive ? 'text-[#ff5901]' : navTextClass;
-        const borderClass = isActive ? 'border-[#ff5901]' : 'border-transparent';
+        const textClass = isActive ? 'text-[#5e8dd1]' : navTextClass;
+        const borderClass = isActive ? 'border-[#5e8dd1]' : 'border-transparent';
 
         return (
-          <div key={item.label} className="relative">
-            {item.children ? (
-              <button
-                onClick={() => handleNavClick(item.label)}
-                className={`flex items-center gap-1 px-[10px] h-[80px] text-[13px] font-normal bg-transparent border-none border-b-2 cursor-pointer whitespace-nowrap transition-colors duration-200 box-border hover:text-[#ff5901] ${textClass} ${borderClass}`}
-              >
-                {item.label}
-              </button>
-            ) : (
-              <Link
-                href={item.href}
-                className={`flex items-center gap-1 px-[10px] h-[80px] text-[13px] font-normal no-underline whitespace-nowrap border-b-2 border-transparent transition-colors duration-200 box-border hover:text-[#ff5901] ${navTextClass}`}
-              >
-                {item.label}
-              </Link>
-            )}
+          <div
+            key={item.label}
+            className="relative"
+            onMouseEnter={() => item.children && onOpenDropdown(item.label)}
+            onMouseLeave={() => item.children && onScheduleClose()}
+          >
+            <Link
+              href={item.href}
+              className={`flex items-center gap-1 px-[10px] h-[80px] text-[15px] font-semibold no-underline whitespace-nowrap border-b-2 transition-colors duration-200 box-border hover:text-[#5e8dd1] ${textClass} ${
+                item.children ? borderClass : 'border-transparent'
+              }`}
+            >
+              {item.label}
+            </Link>
           </div>
         );
       })}

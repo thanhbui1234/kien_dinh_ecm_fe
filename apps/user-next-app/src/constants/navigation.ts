@@ -1,6 +1,7 @@
 export interface NavChild {
   label: string;
   href: string;
+  imageUrl?: string | null;
 }
 
 export interface NavItem {

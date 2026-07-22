@@ -68,7 +68,7 @@ export function Sidebar() {
           <div className="flex items-center justify-center w-7 h-7 rounded-md bg-black">
             <Hexagon className="w-3.5 h-3.5 text-white" />
           </div>
-          <span className="text-sm font-semibold text-black tracking-tight">Kiến Định ECM</span>
+          <span className="text-sm font-semibold text-black tracking-tight">TB ADMIN ECM</span>
         </div>
       </div>
 

@@ -12,9 +12,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const baseStyles = "inline-flex items-center justify-center gap-2 font-semibold transition-colors rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed";
     
     const variants = {
-      primary: "bg-[#ff5901] text-white hover:bg-[#e04f00] focus:ring-[#ff5901]",
+      primary: "bg-[#5e8dd1] text-white hover:bg-[#356098] focus:ring-[#5e8dd1]",
       secondary: "bg-[#111] text-white hover:bg-gray-800 focus:ring-gray-800",
-      outline: "border border-gray-200 text-[#111] hover:border-[#ff5901] hover:text-[#ff5901] focus:ring-[#ff5901]",
+      outline: "border border-gray-200 text-[#111] hover:border-[#5e8dd1] hover:text-[#5e8dd1] focus:ring-[#5e8dd1]",
       ghost: "bg-transparent text-[#111] hover:bg-gray-100 focus:ring-gray-200"
     };
 

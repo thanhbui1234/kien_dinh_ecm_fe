@@ -21,7 +21,7 @@ export function NavButton({ direction, onClick, disabled, size = 36, ...props }:
         height: size,
         borderRadius: '50%',
         border: 'none',
-        backgroundColor: disabled ? 'rgba(255,89,1,0.35)' : '#ff5901',
+        backgroundColor: disabled ? 'rgba(94,141,209,0.35)' : '#5e8dd1',
         cursor: disabled ? 'default' : 'pointer',
         display: 'flex',
         alignItems: 'center',

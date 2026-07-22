@@ -32,13 +32,13 @@ export function FacilityCard({ facility }: { facility: Facility }) {
         {/* Orange accent bar slides in on hover */}
         <div
           aria-hidden="true"
-          className="absolute bottom-0 left-0 h-[3px] w-0 bg-[#ff5901] transition-[width] duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:w-full"
+          className="absolute bottom-0 left-0 h-[3px] w-0 bg-[#5e8dd1] transition-[width] duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:w-full"
         />
       </div>
 
       {/* Content */}
       <div className="p-5">
-        <h4 className="m-0 text-[15px] font-semibold leading-snug text-[#111] transition-colors duration-300 group-hover:text-[#ff5901]">
+        <h4 className="m-0 text-[15px] font-semibold leading-snug text-[#111] transition-colors duration-300 group-hover:text-[#5e8dd1]">
           {facility.name}
         </h4>
 
@@ -52,7 +52,7 @@ export function FacilityCard({ facility }: { facility: Facility }) {
         <div className="mt-4 border-t border-gray-100 pt-4">
           <a
             href={telHref}
-            className="flex items-center gap-2 text-[13px] font-medium text-[#ff5901] no-underline hover:underline"
+            className="flex items-center gap-2 text-[13px] font-medium text-[#5e8dd1] no-underline hover:underline"
           >
             <Phone className="h-3.5 w-3.5 shrink-0" />
             {facility.phone}

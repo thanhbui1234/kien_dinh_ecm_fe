@@ -72,13 +72,13 @@ export default async function ProductDetailPage({ params }: Props) {
     <div className="min-h-screen bg-white pt-[80px]">
       <div className="border-b border-gray-100">
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-3 flex items-center gap-2 text-[12px] text-gray-400">
-          <Link href="/" className="hover:text-[#ff5901] no-underline transition-colors">Trang chủ</Link>
+          <Link href="/" className="hover:text-[#5e8dd1] no-underline transition-colors">Trang chủ</Link>
           <span>/</span>
-          <Link href="/products/" className="hover:text-[#ff5901] no-underline transition-colors">Sản phẩm</Link>
+          <Link href="/products/" className="hover:text-[#5e8dd1] no-underline transition-colors">Sản phẩm</Link>
           {category && (
             <>
               <span>/</span>
-              <Link href={`/products/?category=${category.slug}`} className="hover:text-[#ff5901] no-underline transition-colors">
+              <Link href={`/products/?category=${category.slug}`} className="hover:text-[#5e8dd1] no-underline transition-colors">
                 {category.name}
               </Link>
             </>

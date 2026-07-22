@@ -51,9 +51,9 @@ export default async function ProjectDetailPage({ params }: Props) {
       {/* Breadcrumb */}
       <div className="pt-[80px] border-b border-gray-100">
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-3 flex items-center gap-2 text-[12px] text-gray-400">
-          <Link href="/" className="hover:text-[#ff5901] transition-colors">Trang chủ</Link>
+          <Link href="/" className="hover:text-[#5e8dd1] transition-colors">Trang chủ</Link>
           <span>/</span>
-          <Link href="/projects/" className="hover:text-[#ff5901] transition-colors">Dự án</Link>
+          <Link href="/projects/" className="hover:text-[#5e8dd1] transition-colors">Dự án</Link>
           <span>/</span>
           <span className="text-[#111] truncate max-w-[260px]">{project.name}</span>
         </div>

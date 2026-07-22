@@ -84,7 +84,7 @@ export default function ProjectGallery({ images }: ProjectGalleryProps) {
       <div className="flex items-baseline justify-between mb-8">
         <div>
           <h2 className="text-[22px] font-light text-[#111] m-0">Hình ảnh dự án</h2>
-          <div className="mt-2 w-10 h-[3px] bg-[#ff5901]" />
+          <div className="mt-2 w-10 h-[3px] bg-[#5e8dd1]" />
         </div>
         {total > 1 && (
           <button

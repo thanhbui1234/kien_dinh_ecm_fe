@@ -80,7 +80,7 @@ function ImageGallery({ images, thumbnail, name }: { images?: Product['images'];
             <button
               key={i}
               onClick={() => setActive(src)}
-              className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 bg-[#f5f5f5] ${active === src ? 'border-[#ff5901]' : 'border-transparent hover:border-gray-200'
+              className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 bg-[#f5f5f5] ${active === src ? 'border-[#5e8dd1]' : 'border-transparent hover:border-gray-200'
                 }`}
             >
               <Image src={src} alt="" width={64} height={64} className="object-contain w-full h-full p-1.5" />
@@ -148,10 +148,10 @@ function FeaturesSection({ features }: { features: object }) {
       <h2 className="text-[22px] font-light text-[#111] mb-8">Tính năng nổi bật</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {entries.map(([key, value]) => (
-          <div key={key} className="flex gap-4 p-5 rounded-xl bg-[#fafafa] border border-gray-100 hover:border-[#ff5901]/30 hover:bg-[#fff8f5] transition-all duration-200">
-            <div className="shrink-0 w-7 h-7 rounded-full bg-[#ff5901]/10 flex items-center justify-center mt-0.5">
+          <div key={key} className="flex gap-4 p-5 rounded-xl bg-[#fafafa] border border-gray-100 hover:border-[#5e8dd1]/30 hover:bg-[#f8fafd] transition-all duration-200">
+            <div className="shrink-0 w-7 h-7 rounded-full bg-[#5e8dd1]/10 flex items-center justify-center mt-0.5">
               <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8l3.5 3.5L13 4.5" stroke="#ff5901" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M3 8l3.5 3.5L13 4.5" stroke="#5e8dd1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
             <div className="min-w-0">
@@ -185,7 +185,7 @@ export default function ProductDetailClient({ product, category, relatedProducts
           {category && (
             <Link
               href={`/products/?category=${category.slug}`}
-              className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#ff5901] no-underline hover:opacity-70 transition-opacity w-fit"
+              className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#5e8dd1] no-underline hover:opacity-70 transition-opacity w-fit"
             >
               {category.name}
             </Link>
@@ -196,13 +196,13 @@ export default function ProductDetailClient({ product, category, relatedProducts
           </h1>
 
           {product.price != null ? (
-            <p className="text-[20px] font-semibold text-[#ff5901] m-0">
+            <p className="text-[20px] font-semibold text-[#5e8dd1] m-0">
               {product.price.toLocaleString('vi-VN')} ₫
             </p>
           ) : (
             <Link
               href={`/contact/?productId=${product.id}`}
-              className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#ff5901] bg-[#fff3ed] border border-[#ff5901]/20 px-4 py-2 rounded-full hover:bg-[#ffe8d8] hover:border-[#ff5901]/40 transition-colors no-underline w-fit"
+              className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#5e8dd1] bg-[#f2f6fb] border border-[#5e8dd1]/20 px-4 py-2 rounded-full hover:bg-[#e5edf7] hover:border-[#5e8dd1]/40 transition-colors no-underline w-fit"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -264,9 +264,9 @@ export default function ProductDetailClient({ product, category, relatedProducts
                       </svg>
                     </div>
                   )}
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff5901] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#5e8dd1] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                 </div>
-                <p className="text-[12px] text-[#111] leading-snug line-clamp-2 group-hover:text-[#ff5901] transition-colors duration-200">
+                <p className="text-[12px] text-[#111] leading-snug line-clamp-2 group-hover:text-[#5e8dd1] transition-colors duration-200">
                   {related.name}
                 </p>
               </Link>
@@ -277,7 +277,7 @@ export default function ProductDetailClient({ product, category, relatedProducts
 
       <div ref={bottomSectionRef} className="mt-16 bg-[#111] rounded-2xl px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
-          <p className="text-[#ff5901] text-[11px] font-semibold uppercase tracking-[0.22em] mb-2 m-0">
+          <p className="text-[#5e8dd1] text-[11px] font-semibold uppercase tracking-[0.22em] mb-2 m-0">
             Liên hệ với chúng tôi
           </p>
           <p className="text-white text-[22px] font-light m-0">
@@ -287,7 +287,7 @@ export default function ProductDetailClient({ product, category, relatedProducts
         <div className="flex flex-col sm:flex-row gap-3 shrink-0">
           <Link
             href={`/contact/?productId=${product.id}`}
-            className="inline-flex items-center justify-center gap-2 bg-[#ff5901] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#e04f00] transition-colors no-underline"
+            className="inline-flex items-center justify-center gap-2 bg-[#5e8dd1] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#356098] transition-colors no-underline"
           >
             {product.price != null ? 'Liên hệ tư vấn' : 'Báo giá ngay'}
           </Link>

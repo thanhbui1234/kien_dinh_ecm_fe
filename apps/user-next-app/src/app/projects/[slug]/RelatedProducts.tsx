@@ -31,8 +31,8 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
       >
         <div>
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-6 h-[2px] bg-[#ff5901]" />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#ff5901]">
+            <div className="w-6 h-[2px] bg-[#5e8dd1]" />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#5e8dd1]">
               Sản phẩm liên quan
             </span>
           </div>
@@ -71,9 +71,9 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
                   </div>
                 )}
                 {/* Orange reveal underline */}
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff5901] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#5e8dd1] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
               </div>
-              <p className="text-[12px] text-[#111] leading-snug line-clamp-2 group-hover:text-[#ff5901] transition-colors duration-200 m-0">
+              <p className="text-[12px] text-[#111] leading-snug line-clamp-2 group-hover:text-[#5e8dd1] transition-colors duration-200 m-0">
                 {p.name}
               </p>
             </Link>

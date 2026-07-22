@@ -46,13 +46,13 @@ export default async function ProductionFacilitiesPage() {
 
         {Array.from(grouped.entries()).map(([region, countryMap]) => (
           <div key={region}>
-            <h2 className="m-0 mt-10 border-b-2 border-[#ff5901] pb-2 text-[26px] font-light text-[#111]">
+            <h2 className="m-0 mt-10 border-b-2 border-[#5e8dd1] pb-2 text-[26px] font-light text-[#111]">
               {region}
             </h2>
 
             {Array.from(countryMap.entries()).map(([country, items]) => (
               <div key={country}>
-                <h3 className="m-0 mb-4 mt-6 text-[18px] font-light text-[#ff5901]">
+                <h3 className="m-0 mb-4 mt-6 text-[18px] font-light text-[#5e8dd1]">
                   {country}
                 </h3>
 

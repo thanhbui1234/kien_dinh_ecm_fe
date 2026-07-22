@@ -25,10 +25,10 @@ export default function ProjectMetaStrip({ project, formattedDate, readMins }: P
         >
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-gray-400">
             {project.isFeatured && (
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#ff5901]">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#5e8dd1]">
                 <span className="relative flex h-1.5 w-1.5 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff5901] opacity-50" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#ff5901]" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5e8dd1] opacity-50" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#5e8dd1]" />
                 </span>
                 Dự án tiêu biểu
               </span>
@@ -44,7 +44,7 @@ export default function ProjectMetaStrip({ project, formattedDate, readMins }: P
           </div>
           <Link
             href="/contact/"
-            className="inline-flex items-center bg-[#ff5901] text-white text-[12px] font-semibold px-4 py-2 rounded-full hover:bg-[#e04f00] active:scale-[0.98] transition-all no-underline shrink-0"
+            className="inline-flex items-center bg-[#5e8dd1] text-white text-[12px] font-semibold px-4 py-2 rounded-full hover:bg-[#356098] active:scale-[0.98] transition-all no-underline shrink-0"
           >
             Yêu cầu tư vấn
           </Link>
