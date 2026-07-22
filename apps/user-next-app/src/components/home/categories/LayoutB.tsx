@@ -97,7 +97,7 @@ export default function LayoutB({ categories }: Props) {
         </motion.ul>
 
         {/* Right panel — image showcase */}
-        <div className="md:w-[64%] relative bg-gray-900 overflow-hidden min-h-[400px]">
+        <div className="md:w-[64%] relative bg-white overflow-hidden min-h-[400px]">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeIndex}
@@ -112,7 +112,7 @@ export default function LayoutB({ categories }: Props) {
                   src={activeCategory.imageUrl}
                   alt={activeCategory.name}
                   fill
-                  className="object-cover"
+                  className="object-contain bg-white"
                   sizes="(max-width: 768px) 100vw, 64vw"
                 />
               ) : (

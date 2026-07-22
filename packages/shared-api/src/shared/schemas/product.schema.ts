@@ -40,7 +40,7 @@ export const CreateProductImageSchema = z.object({
 export const CreateProductSchema = z.object({
   name: z.string().min(1, 'Tên sản phẩm là bắt buộc'),
   slug: z.string().optional(),
-  price: z.number().optional(),
+  price: z.number().nullable().optional(),
   thumbnailUrl: z.string(),
   isFeatured: z.boolean().optional(),
   status: z.boolean().optional(),

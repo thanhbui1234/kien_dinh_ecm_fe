@@ -39,7 +39,7 @@ export default function ProductForm() {
   const updateMutation = useUpdateProduct();
   const { data: productData, isLoading: isLoadingDetail } = useProductDetail(id || '');
 
-  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting, isDirty }, watch, setValue } = useForm<FormValues>({
+  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting, isDirty, dirtyFields }, watch, setValue } = useForm<FormValues>({
     resolver: zodResolver(CreateProductSchema as any),
     defaultValues: { 
       name: '', price: undefined, thumbnailUrl: '', isFeatured: false, status: true, categoryId: '', contentDetail: '',
@@ -146,7 +146,20 @@ export default function ProductForm() {
     }
 
     if (isEdit && id) {
-      updateMutation.mutate({ id, data }, { onSuccess: () => { markSaved(); navigate('/products'); } });
+      const dirtyData: Partial<CreateProductInput> = {};
+      Object.keys(dirtyFields).forEach(key => {
+        if (key === 'specList') {
+          dirtyData.specifications = data.specifications || {};
+        } else if (key === 'featureList') {
+          dirtyData.features = data.features || {};
+        } else if (key === 'images') {
+          dirtyData.images = data.images || [];
+        } else {
+          (dirtyData as any)[key] = (data as any)[key];
+        }
+      });
+      
+      updateMutation.mutate({ id, data: dirtyData }, { onSuccess: () => { markSaved(); navigate('/products'); } });
     } else {
       createMutation.mutate(data, { onSuccess: () => { markSaved(); navigate('/products'); } });
     }
@@ -213,7 +226,7 @@ export default function ProductForm() {
                 </div>
                 <div>
                   <label className={labelCls}>Giá bán (VNĐ)</label>
-                  <input {...register('price', { setValueAs: (v) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })} type="number" placeholder="Để trống nếu liên hệ" className={inputCls} />
+                  <input {...register('price', { setValueAs: (v) => v === '' || Number.isNaN(Number(v)) ? null : Number(v) })} type="number" placeholder="Để trống nếu liên hệ" className={inputCls} />
                   {errors.price && <p className="text-xs font-medium text-red-500 mt-1.5">{errors.price?.message as any}</p>}
                 </div>
               </div>

@@ -18,9 +18,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const [productsRes, projectsRes, jobsRes] = await Promise.allSettled([
-    api.products.getProducts({ limit: '500' }),
-    api.projects.getProjects({ limit: '500' }),
-    api.jobs.getJobs({ limit: '500' }),
+    api.products.getProducts({ limit: '100' }),
+    api.projects.getProjects({ limit: '100' }),
+    api.jobs.getJobs({ limit: '100' }),
   ]);
 
   const productRoutes: MetadataRoute.Sitemap =

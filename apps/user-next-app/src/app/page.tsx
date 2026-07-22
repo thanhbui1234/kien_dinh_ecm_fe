@@ -38,8 +38,12 @@ async function HeroSection() {
 
 async function FeaturedProductsSection() {
   const res = await api.products
-    .getProducts({ isFeatured: "true", limit: "6" })
+    .getProducts(
+      { isFeatured: "true", limit: "6" },
+      { next: { revalidate: 3600, tags: ['products'] } }
+    )
     .catch(() => null);
+  console.log("res", res)
   return <ProductsSection products={res?.items ?? []} />;
 }
 
@@ -51,7 +55,10 @@ async function FeaturedCategoriesSection() {
 
 async function FeaturedProjectsWrapper() {
   const res = await api.projects
-    .getProjects({ isFeatured: "true", limit: "6" })
+    .getProjects(
+      { isFeatured: "true", limit: "6" },
+      { next: { revalidate: 3600, tags: ['projects'] } }
+    )
     .catch(() => null);
   return <FeaturedProjectsSection projects={res?.items ?? []} />;
 }

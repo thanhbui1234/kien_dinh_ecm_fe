@@ -12,6 +12,7 @@ import { CreateProjectSchema, CreateProjectInput } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 import { ProjectBasicInfoSection } from '@/components/projects/ProjectBasicInfoSection';
 import { ProductPickerSection } from '@/components/projects/ProductPickerSection';
+import { CategoryPickerSection } from '@/components/projects/CategoryPickerSection';
 import { GalleryImagesSection } from '@/components/projects/GalleryImagesSection';
 
 const Toggle = ({ checked, onToggle }: { checked: boolean; onToggle: () => void }) => (
@@ -52,6 +53,7 @@ export default function ProjectForm() {
   const statusValue = watch('status');
   const isFeaturedValue = watch('isFeatured' as any);
   const selectedProductIds = watch('productIds') || [];
+  const selectedCategoryIds = watch('categoryIds') || [];
 
   useEffect(() => {
     if (isEdit && projectData) {
@@ -122,6 +124,11 @@ export default function ProjectForm() {
           {/* Main */}
           <div className="col-span-2 space-y-5">
             <ProjectBasicInfoSection register={register} errors={errors} />
+
+            <CategoryPickerSection
+              selectedIds={selectedCategoryIds as string[]}
+              onChange={(ids) => setValue('categoryIds' as any, ids, { shouldDirty: true })}
+            />
 
             <ProductPickerSection
               selectedIds={selectedProductIds as string[]}

@@ -8,7 +8,7 @@ import { buildProjectMetadata } from '@/lib/seo';
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const res = await api.projects.getProjects({ limit: '200' }).catch(() => null);
+  const res = await api.projects.getProjects({ limit: '100' }).catch(() => null);
   return (res?.items ?? []).map((p) => ({ slug: p.slug }));
 }
 
@@ -37,14 +37,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProjectDetailPage({ params }: Props) {
   const { slug } = await params;
 
-  const project = await api.projects.getProjectDetail(slug, {
-    next: { revalidate: 3600 },
-  });
+  const [project, flatCategoriesResponse] = await Promise.all([
+    api.projects.getProjectDetail(slug, {
+      next: { revalidate: 3600 },
+    }),
+    api.categories.getCategories({
+      next: { revalidate: 3600 },
+    }),
+  ]);
 
   if (!project) notFound();
 
+  const flatCategories = flatCategoriesResponse ?? [];
+
   const galleryImages = project.images ?? [];
   const relatedProducts = project.relatedProducts ?? [];
+  const relatedCategories = flatCategories.filter(c => project.categoryIds?.includes(c.id));
 
   return (
     <div className="min-h-screen bg-white">
@@ -62,6 +70,7 @@ export default async function ProjectDetailPage({ params }: Props) {
       <ProjectDetailClient
         project={project}
         relatedProducts={relatedProducts}
+        relatedCategories={relatedCategories}
         galleryImages={galleryImages}
       />
     </div>

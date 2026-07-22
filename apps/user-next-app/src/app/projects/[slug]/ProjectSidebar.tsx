@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import type { Project, Product } from 'shared-api';
+import type { Project, Product, Category } from 'shared-api';
 
 const E = [0.16, 1, 0.3, 1] as const;
 
@@ -10,9 +10,10 @@ interface Props {
   project: Project;
   formattedDate: string;
   relatedProducts: Product[];
+  relatedCategories: Category[];
 }
 
-export default function ProjectSidebar({ project, formattedDate, relatedProducts }: Props) {
+export default function ProjectSidebar({ project, formattedDate, relatedProducts, relatedCategories }: Props) {
   return (
     <motion.aside
       className="lg:sticky lg:top-[88px] self-start"
@@ -55,8 +56,8 @@ export default function ProjectSidebar({ project, formattedDate, relatedProducts
           </motion.div>
         )}
 
-        {/* Products used */}
-        {relatedProducts.length > 0 && (
+        {/* Categories */}
+        {relatedCategories.length > 0 && (
           <motion.div
             className="py-5"
             initial={{ opacity: 0, x: 10 }}
@@ -65,16 +66,16 @@ export default function ProjectSidebar({ project, formattedDate, relatedProducts
             transition={{ duration: 0.45, ease: E, delay: 0.34 }}
           >
             <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-3">
-              Thiết bị sử dụng
+              Danh mục
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {relatedProducts.slice(0, 4).map((p) => (
+              {relatedCategories.map((c) => (
                 <Link
-                  key={p.id}
-                  href={`/products/${p.slug}`}
-                  className="inline-block text-[11px] font-medium text-[#111] border border-gray-200 px-2.5 py-1 rounded hover:border-[#5e8dd1] hover:text-[#5e8dd1] transition-colors no-underline"
+                  key={c.id}
+                  href={`/projects?category=${c.slug}`}
+                  className="inline-block text-[11px] font-medium text-[#111] bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-sm hover:bg-[#5e8dd1] hover:border-[#5e8dd1] hover:text-white transition-colors no-underline"
                 >
-                  {p.name}
+                  {c.name}
                 </Link>
               ))}
             </div>
