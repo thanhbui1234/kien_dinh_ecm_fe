@@ -31,6 +31,8 @@ No test framework is currently configured.
 
 ## Architecture
 
+> 💡 **Cache Strategy**: Read [docs/cache.md](docs/cache.md) for details on how Next.js Data Cache and On-Demand Revalidation work between the Admin and Client apps.
+
 ```
 apps/
   user-next-app/     → Next.js 15 (App Router), customer-facing wedding film site

@@ -4,6 +4,7 @@ import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { categoryKeys } from 'shared-api';
 import { Category, CreateCategoryInput, UpdateCategoryInput, PageMeta } from 'shared-api';
+import { triggerRevalidate } from '@/utils/revalidate';
 
 export const useCategories = (params?: Record<string, any>) => {
   const client = axiosInstance;
@@ -43,6 +44,7 @@ export const useCreateCategory = () => {
     onSuccess: () => {
       toast.success("Thêm danh mục thành công");
       queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      triggerRevalidate('categories');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -62,6 +64,7 @@ export const useUpdateCategory = () => {
       toast.success("Cập nhật danh mục thành công");
       queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: categoryKeys.detail(variables.id) });
+      triggerRevalidate('categories');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -80,6 +83,7 @@ export const useDeleteCategory = () => {
     onSuccess: () => {
       toast.success("Xóa danh mục thành công");
       queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      triggerRevalidate('categories');
     },
     onError: (error: any) => {
       toast.error(error);

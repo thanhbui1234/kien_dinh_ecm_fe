@@ -29,6 +29,7 @@ export const useUpdateSystemSetting = () => {
     onSuccess: () => {
       toast.success("Cập nhật cài đặt thành công");
       queryClient.invalidateQueries({ queryKey: settingKeys.system() });
+      triggerRevalidate('system-settings');
     },
     onError: (error: any) => {
       toast.error(error);
