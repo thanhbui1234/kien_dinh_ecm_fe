@@ -155,7 +155,7 @@ function Milestone({ item, index }: { item: CompanyHistoryEvent; index: number }
       {/* Center dot — absolute on the line, perfectly centered */}
       <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-8 z-10">
         <m.div
-          className="relative w-4 h-4 rounded-full bg-[#5e8dd1] ring-4 ring-[#f9f9f9] shadow-md"
+          className="relative w-4 h-4 rounded-full bg-[#5e8dd1] ring-4 ring-[#eef2f9] shadow-md"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: inView ? 1 : 0, opacity: inView ? 1 : 0 }}
           transition={{ duration: 0.3, ease: EXPO }}

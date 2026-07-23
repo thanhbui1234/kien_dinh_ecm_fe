@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Loader2, Plus, X } from 'lucide-react';
 import { useCompanyInfo, useCreateCompanyInfo, useUpdateCompanyInfo, useDeleteCompanyInfo } from '@/queries/about';
 import { CompanyInfoRow } from './CompanyInfoRow';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { inputCls, btnPrimary, btnGhost } from '@/utils/admin-styles';
 
 export function CompanyInfoTable() {
@@ -13,6 +14,7 @@ export function CompanyInfoTable() {
   const [addingRow, setAddingRow] = useState(false);
   const [newLabel, setNewLabel] = useState('');
   const [newValue, setNewValue] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const handleAdd = () => {
     if (!newLabel.trim()) return;
@@ -28,8 +30,8 @@ export function CompanyInfoTable() {
     );
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Xóa thông tin này?')) deleteMutation.mutate(id);
+  const handleConfirmDelete = () => {
+    if (deleteId) deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
   };
 
   return (
@@ -68,7 +70,7 @@ export function CompanyInfoTable() {
                 key={item.id}
                 item={item}
                 onUpdate={(id, data) => updateMutation.mutate({ id, data })}
-                onDelete={handleDelete}
+                onDelete={setDeleteId}
                 isDeleting={deleteMutation.isPending}
               />
             ))}
@@ -125,6 +127,15 @@ export function CompanyInfoTable() {
           </tbody>
         </table>
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Xóa thông tin"
+        description="Bạn có chắc chắn muốn xóa thông tin này? Hành động này không thể hoàn tác."
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

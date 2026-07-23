@@ -7,7 +7,7 @@ export interface CompanyInfoItem {
 
 export interface Facility {
   id: string;
-  region: string;
+  region?: string;
   country: string;
   name: string;
   address: string;

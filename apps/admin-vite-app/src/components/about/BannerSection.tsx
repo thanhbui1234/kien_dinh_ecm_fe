@@ -6,6 +6,7 @@ import { Banner } from 'shared-api';
 import { useBanners, useCreateBanner, useUpdateBanner, useDeleteBanner, useUpdateBannerOrders } from '@/queries/settings';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { BannerCard } from './BannerCard';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 
 export function BannerSection() {
   const { data, isLoading } = useBanners();
@@ -15,6 +16,7 @@ export function BannerSection() {
   const reorderMutation = useUpdateBannerOrders();
 
   const [items, setItems] = useState<Banner[]>([]);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (data) {
@@ -49,8 +51,8 @@ export function BannerSection() {
     updateMutation.mutate({ id, data: { status: !currentStatus } });
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa banner này?')) deleteMutation.mutate(id);
+  const handleConfirmDelete = () => {
+    if (deleteId) deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
   };
 
   return (
@@ -85,7 +87,7 @@ export function BannerSection() {
                       key={banner.id}
                       banner={banner}
                       onToggleStatus={handleToggleStatus}
-                      onDelete={handleDelete}
+                      onDelete={setDeleteId}
                       onUpdate={(id, data) => updateMutation.mutate({ id, data })}
                       isDeleting={deleteMutation.isPending}
                     />
@@ -100,6 +102,15 @@ export function BannerSection() {
           </div>
         </>
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Xóa banner"
+        description="Bạn có chắc chắn muốn xóa banner này? Hành động này không thể hoàn tác."
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { Loader2, Pencil, Trash2, Globe, Phone, Factory } from 'lucide-react';
+import { Loader2, Pencil, Trash2, MapPin, Phone, Factory } from 'lucide-react';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { inputCls, labelCls, btnGhost } from '@/utils/admin-styles';
 import type { Facility } from '@/types/about';
-
-const REGIONS = ['Châu ��', 'Bắc Mỹ', 'Trung và Nam Mỹ', 'Châu Âu', 'Khác'];
 
 interface Props {
   facility: Facility;
@@ -16,7 +14,6 @@ interface Props {
 export function FacilityCard({ facility, onUpdate, onDelete, isDeleting }: Props) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<Partial<Facility>>({
-    region: facility.region,
     country: facility.country,
     name: facility.name,
     address: facility.address,
@@ -34,26 +31,14 @@ export function FacilityCard({ facility, onUpdate, onDelete, isDeleting }: Props
   if (editing) {
     return (
       <div className="rounded-lg border border-blue-200 bg-blue-50/30 p-4 space-y-3">
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={labelCls}>Khu vực</label>
-            <select
-              value={form.region}
-              onChange={(e) => set('region', e.target.value)}
-              className={inputCls}
-            >
-              {REGIONS.map((r) => <option key={r}>{r}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className={labelCls}>Quốc gia</label>
-            <input
-              value={form.country}
-              onChange={(e) => set('country', e.target.value)}
-              className={inputCls}
-              placeholder="VD: Nhật Bản"
-            />
-          </div>
+        <div>
+          <label className={labelCls}>Quốc gia</label>
+          <input
+            value={form.country}
+            onChange={(e) => set('country', e.target.value)}
+            className={inputCls}
+            placeholder="VD: Nhật Bản"
+          />
         </div>
         <div>
           <label className={labelCls}>Tên cơ sở</label>
@@ -136,8 +121,8 @@ export function FacilityCard({ facility, onUpdate, onDelete, isDeleting }: Props
         </div>
 
         <div className="flex items-center gap-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wide">
-          <Globe className="h-3 w-3" />
-          {facility.region} · {facility.country}
+          <MapPin className="h-3 w-3" />
+          {facility.country}
         </div>
 
         <p className="text-[11px] text-gray-500 leading-relaxed line-clamp-2">{facility.address}</p>
