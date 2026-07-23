@@ -4,6 +4,7 @@ import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import type { CompanyProfile, UpdateCompanyProfileInput, CompanyHistoryEvent } from 'shared-api';
 import type { CompanyInfoItem, Facility } from '@/types/about';
+import { triggerRevalidate } from '@/utils/revalidate';
 
 const aboutKeys = {
   all: ['about'] as const,
@@ -35,6 +36,7 @@ export const useUpdateCompanyProfile = () => {
     onSuccess: () => {
       toast.success('Cap nhat thanh cong');
       queryClient.invalidateQueries({ queryKey: aboutKeys.profile() });
+      triggerRevalidate('about');
     },
     onError: (error: any) => toast.error(error),
   });
@@ -63,6 +65,7 @@ export const useCreateHistoryEvent = () => {
     onSuccess: () => {
       toast.success('Them cot moc thanh cong');
       queryClient.invalidateQueries({ queryKey: aboutKeys.historyEvents() });
+      triggerRevalidate('about');
     },
     onError: (error: any) => toast.error(error),
   });
@@ -81,6 +84,7 @@ export const useUpdateHistoryEvent = () => {
     onSuccess: () => {
       toast.success('Cap nhat thanh cong');
       queryClient.invalidateQueries({ queryKey: aboutKeys.historyEvents() });
+      triggerRevalidate('about');
     },
     onError: (error: any) => toast.error(error),
   });
@@ -98,6 +102,7 @@ export const useUpdateHistoryEventOrders = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: aboutKeys.historyEvents() });
+      triggerRevalidate('about');
     },
     onError: (error: any) => toast.error(error),
   });
@@ -115,6 +120,7 @@ export const useDeleteHistoryEvent = () => {
     onSuccess: () => {
       toast.success('Da xoa cot moc');
       queryClient.invalidateQueries({ queryKey: aboutKeys.historyEvents() });
+      triggerRevalidate('about');
     },
     onError: (error: any) => toast.error(error),
   });
@@ -143,6 +149,7 @@ export const useCreateCompanyInfo = () => {
     onSuccess: () => {
       toast.success('Them thong tin thanh cong');
       queryClient.invalidateQueries({ queryKey: aboutKeys.companyInfo() });
+      triggerRevalidate('about');
     },
     onError: (error: any) => toast.error(error),
   });
@@ -161,6 +168,7 @@ export const useUpdateCompanyInfo = () => {
     onSuccess: () => {
       toast.success('Cap nhat thanh cong');
       queryClient.invalidateQueries({ queryKey: aboutKeys.companyInfo() });
+      triggerRevalidate('about');
     },
     onError: (error: any) => toast.error(error),
   });
@@ -178,6 +186,7 @@ export const useDeleteCompanyInfo = () => {
     onSuccess: () => {
       toast.success('Da xoa');
       queryClient.invalidateQueries({ queryKey: aboutKeys.companyInfo() });
+      triggerRevalidate('about');
     },
     onError: (error: any) => toast.error(error),
   });
@@ -206,6 +215,7 @@ export const useCreateFacility = () => {
     onSuccess: () => {
       toast.success('Them co so thanh cong');
       queryClient.invalidateQueries({ queryKey: aboutKeys.facilities() });
+      triggerRevalidate('about');
     },
     onError: (error: any) => toast.error(error),
   });
@@ -224,6 +234,7 @@ export const useUpdateFacility = () => {
     onSuccess: () => {
       toast.success('Cap nhat co so thanh cong');
       queryClient.invalidateQueries({ queryKey: aboutKeys.facilities() });
+      triggerRevalidate('about');
     },
     onError: (error: any) => toast.error(error),
   });
@@ -241,6 +252,7 @@ export const useDeleteFacility = () => {
     onSuccess: () => {
       toast.success('Da xoa co so');
       queryClient.invalidateQueries({ queryKey: aboutKeys.facilities() });
+      triggerRevalidate('about');
     },
     onError: (error: any) => toast.error(error),
   });

@@ -3,6 +3,8 @@ import { toast } from '@/utils/toast';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS, productKeys, Product } from 'shared-api';
 
+import { triggerRevalidate } from '@/utils/revalidate';
+
 export const useCopyProduct = () => {
   const client = axiosInstance;
   const queryClient = useQueryClient();
@@ -17,6 +19,7 @@ export const useCopyProduct = () => {
     onSuccess: () => {
       toast.success('Sao chép sản phẩm thành công');
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      triggerRevalidate('products');
     },
     onError: (error: any) => {
       toast.error(error);

@@ -4,6 +4,7 @@ import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { jobKeys } from 'shared-api';
 import { Job, CreateJobInput, UpdateJobInput, PageMeta } from 'shared-api';
+import { triggerRevalidate } from '@/utils/revalidate';
 
 export const useJobs = (params?: Record<string, any>) => {
   const client = axiosInstance;
@@ -43,6 +44,7 @@ export const useCreateJob = () => {
     onSuccess: () => {
       toast.success("Thêm bài đăng thành công");
       queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
+      triggerRevalidate('jobs');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -62,6 +64,7 @@ export const useUpdateJob = () => {
       toast.success("Cập nhật bài đăng thành công");
       queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
       queryClient.invalidateQueries({ queryKey: jobKeys.detail(variables.id) });
+      triggerRevalidate('jobs');
     },
     onError: (error: any) => {
       toast.error(error);
@@ -80,6 +83,7 @@ export const useDeleteJob = () => {
     onSuccess: () => {
       toast.success("Xóa bài đăng thành công");
       queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
+      triggerRevalidate('jobs');
     },
     onError: (error: any) => {
       toast.error(error);
