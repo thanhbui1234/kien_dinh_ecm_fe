@@ -22,7 +22,7 @@ export default function CategoriesList() {
     {
       key: 'image', header: 'Hình ảnh',
       cell: (row) => (
-        <img src={row.imageUrl || 'https://placehold.co/36x36/f9fafb/6b7280?text=...'} alt={row.name}
+        <img src={row.imageUrl || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-size="10">...</text></svg>'} alt={row.name}
           className="w-8 h-8 rounded border border-gray-300 object-cover" />
       ),
     },

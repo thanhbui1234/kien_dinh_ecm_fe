@@ -35,7 +35,7 @@ export default function ProjectsList() {
     {
       key: 'image', header: 'Ảnh bìa',
       cell: (row) => (
-        <img src={row.coverImage || 'https://placehold.co/40x28/f9fafb/6b7280?text=...'} alt={row.name}
+        <img src={row.coverImage || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="28" viewBox="0 0 40 28"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-size="10">...</text></svg>'} alt={row.name}
           className="w-14 h-9 rounded border border-gray-300 object-cover" />
       ),
     },

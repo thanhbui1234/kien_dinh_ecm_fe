@@ -14,7 +14,7 @@ import type { CompanyHistoryEvent } from "shared-api";
 const EXPO = [0.16, 1, 0.3, 1] as const;
 
 // TODO: remove fallback once BE adds imageUrl to TimelineResponseDto
-const PLACEHOLDER_IMAGE = "https://placehold.co/480x300/111111/5e8dd1?text=Kiến+Đỉnh";
+const PLACEHOLDER_IMAGE = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='300' viewBox='0 0 480 300'><rect width='100%' height='100%' fill='%23111111'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%235e8dd1' font-size='20'>Kiến Đỉnh</text></svg>";
 
 function VerticalLine({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) {
   const { scrollYProgress } = useScroll({

@@ -1,5 +1,28 @@
 import { ENV } from '@/config/env';
 
+const cleanAndParseJSON = <T>(rawText: string): T => {
+  let cleaned = rawText.trim();
+  cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+
+  const startIdx = cleaned.indexOf('{');
+  const endIdx = cleaned.lastIndexOf('}');
+  if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+    cleaned = cleaned.substring(startIdx, endIdx + 1);
+  }
+
+  try {
+    return JSON.parse(cleaned) as T;
+  } catch (initialError) {
+    const sanitized = cleaned.replace(/[\u0000-\u001F]+/g, (match) => {
+      if (match === '\n') return '\\n';
+      if (match === '\r') return '\\r';
+      if (match === '\t') return '\\t';
+      return '';
+    });
+    return JSON.parse(sanitized) as T;
+  }
+};
+
 export interface AIProductGenerationResult {
   name: string;
   price?: number;
@@ -74,13 +97,8 @@ Hãy sinh ra JSON cấu hình sản phẩm theo đúng chuẩn đã yêu cầu. 
       }
 
       const data = await response.json();
-      let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-      
-      text = text.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
-      text = text.replace(/^```\n?/, '').replace(/\n?```$/, '').trim();
-
-      const parsed = JSON.parse(text);
-      return parsed as AIProductGenerationResult;
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+      return cleanAndParseJSON<AIProductGenerationResult>(text);
       
     } catch (err: any) {
       console.warn(`[AI Fallback] Thử gọi model thất bại:`, err.message);
@@ -158,13 +176,8 @@ Hãy sinh ra JSON thông tin dự án theo đúng chuẩn đã yêu cầu. Khôn
       }
 
       const data = await response.json();
-      let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-      
-      text = text.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
-      text = text.replace(/^```\n?/, '').replace(/\n?```$/, '').trim();
-
-      const parsed = JSON.parse(text);
-      return parsed as AIProjectGenerationResult;
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+      return cleanAndParseJSON<AIProjectGenerationResult>(text);
       
     } catch (err: any) {
       console.warn(`[AI Fallback] Thử gọi model thất bại:`, err.message);

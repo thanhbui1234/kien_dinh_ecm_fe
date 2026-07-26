@@ -96,7 +96,7 @@ export function ProductPickerSection({ selectedIds, onChange }: ProductPickerSec
               >
                 <div className="shrink-0 relative">
                   <img
-                    src={p.thumbnailUrl || 'https://placehold.co/32x32/f9fafb/6b7280?text=...'}
+                    src={p.thumbnailUrl || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-size="10">...</text></svg>'}
                     alt={p.name}
                     className="w-8 h-8 rounded-sm object-cover border border-gray-200"
                   />

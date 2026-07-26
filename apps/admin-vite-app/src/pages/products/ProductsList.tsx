@@ -54,7 +54,7 @@ export default function ProductsList() {
         // Tối ưu hóa ảnh thumbnail bằng Cloudinary: resize xuống 100x100, tự động format (WebP) và nén chất lượng
         const optimizedUrl = row.thumbnailUrl 
           ? row.thumbnailUrl.replace('/upload/', '/upload/c_thumb,w_100,h_100,f_auto,q_auto/') 
-          : 'https://placehold.co/40x40/f9fafb/6b7280?text=...';
+          : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-size="10">...</text></svg>';
           
         return (
           <img src={optimizedUrl} alt={row.name}
