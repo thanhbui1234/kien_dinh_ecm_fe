@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import type { Facility } from 'shared-api';
 import { api } from '@/lib/api';
 import { FacilityCard } from './production-facilities/FacilityCard';
+import { LocationSection } from './LocationSection';
 
 const CompanyHistoryTimeline = dynamic(
   () => import('./company-history/CompanyHistoryTimeline').then((m) => ({ default: m.CompanyHistoryTimeline }))
@@ -177,6 +178,9 @@ export default async function AboutUsPage() {
           </div>
         </section>
       )}
+
+      {/* ── VỊ TRÍ ───────────────────────────────────────────── */}
+      <LocationSection />
     </div>
   );
 }

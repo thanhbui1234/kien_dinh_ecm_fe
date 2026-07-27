@@ -25,7 +25,7 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'Trung tâm gia công đứng', href: '/products/#vertical' },
       { label: 'Trung tâm gia công ngang', href: '/products/#horizontal' },
       { label: 'Hàn khuấy ma sát (FSW)', href: '/products/fsw/' },
-      { label: 'Đầu kẹp dao Mazak', href: '/products/mazak-tool-holder/' },
+      { label: 'Đầu kẹp dao CNC', href: '/products/mazak-tool-holder/' },
       { label: 'Tự động hóa', href: '/products/#automation-machine-tool' },
       { label: 'Theo Ngành', href: '/products/#industry' },
     ],
