@@ -4,7 +4,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-    const clientSecret = process.env.APP_CLIENT_SECRET || 'KienDinhECM_Secure_Client_Secret_2026_Key';
+    const clientSecret = process.env.APP_CLIENT_SECRET || '';
 
     const response = await fetch(`${backendUrl}/api/v1/ai/chat`, {
       method: 'POST',
