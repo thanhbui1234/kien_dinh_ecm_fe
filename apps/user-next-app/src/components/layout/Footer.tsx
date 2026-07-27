@@ -1,11 +1,23 @@
-'use client';
-
-import { PRODUCTS_COL, TECHNOLOGY_GROUPS, SERVICE_GROUPS } from '@/constants/footer';
+import { CUSTOMER_SUPPORT_GROUP } from '@/constants/footer';
 import { FooterSocial } from './footer/FooterSocial';
 import { FooterCopyright } from './footer/FooterCopyright';
 import { FooterNavColumn } from './footer/FooterNavColumn';
+import { FooterContactColumn } from './footer/FooterContactColumn';
+import { api } from '@/lib/api';
 
-export default function Footer() {
+export default async function Footer() {
+  const res = await api.products.getProducts({ isFeatured: "true", limit: "10" }).catch(() => null);
+  const featuredProducts = res?.items || [];
+  
+  const productsGroup = {
+    heading: 'Các sản phẩm',
+    headingHref: '/products',
+    links: featuredProducts.map((p: any) => ({
+      label: p.name,
+      href: `/products/${p.slug}`,
+    })),
+  };
+
   return (
     <footer className="relative overflow-hidden text-[#cccccc] bg-gradient-to-b from-[#1a1a1a] from-0% via-[#1a1a1a] via-70% via-[#0a1b31] via-88% to-[#356098] to-100%">
       {/* Main footer content */}
@@ -15,13 +27,13 @@ export default function Footer() {
           <FooterSocial />
 
           {/* Column 2: Products */}
-          <FooterNavColumn groups={[PRODUCTS_COL]} />
+          <FooterNavColumn groups={[productsGroup]} />
 
-          {/* Column 3: Technology + News */}
-          <FooterNavColumn groups={TECHNOLOGY_GROUPS} />
+          {/* Column 3: Contact */}
+          <FooterContactColumn />
 
-          {/* Column 4: Service + About */}
-          <FooterNavColumn groups={SERVICE_GROUPS} />
+          {/* Column 4: Customer Support */}
+          <FooterNavColumn groups={[CUSTOMER_SUPPORT_GROUP]} />
         </div>
       </div>
 

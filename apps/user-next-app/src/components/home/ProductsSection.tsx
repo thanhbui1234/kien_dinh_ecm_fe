@@ -49,7 +49,7 @@ export default function ProductsSection({ products = [] }: ProductsSectionProps)
         </m.div>
 
         <m.div
-          className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-7 mb-14"
+          className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-7 mb-14 rounded-2xl"
           variants={container}
           initial={shouldReduceMotion ? false : "hidden"}
           animate={isInView ? "visible" : "hidden"}

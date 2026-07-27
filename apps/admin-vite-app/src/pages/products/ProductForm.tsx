@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronLeft, Loader2, Plus, Trash2, Sparkles, ZoomIn } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { AIGenerator } from '@/components/common/AIGenerator';
@@ -218,10 +219,24 @@ export default function ProductForm() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className={labelCls}>Danh mục <span className="text-red-500">*</span></label>
-                  <select {...register('categoryId')} className={inputCls}>
-                    <option value="">-- Chọn danh mục --</option>
-                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-                  </select>
+                  <Controller
+                    name="categoryId"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="-- Chọn danh mục --" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                   {errors.categoryId && <p className="text-xs font-medium text-red-500 mt-1.5">{(errors.categoryId as any).message}</p>}
                 </div>
                 <div>
@@ -344,43 +359,45 @@ export default function ProductForm() {
           </div>
 
           {/* Right sidebar */}
-          <div className="col-span-1 space-y-5">
-            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-              <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">ẢNH ĐẠI DIỆN</h2>
-              <Controller name="thumbnailUrl" control={control}
-                render={({ field }) => <FileUpload label="" value={field.value} onChange={field.onChange} bgOption="none" />}
-              />
-              {errors.thumbnailUrl && <p className="text-xs font-medium text-red-500">{errors.thumbnailUrl.message}</p>}
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-              <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">CÀI ĐẶT</h2>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-bold text-black">Hiển thị</p>
-                  <p className="text-xs font-medium text-gray-500">Hiện trên website</p>
-                </div>
-                <Toggle checked={!!statusValue} onToggle={() => setValue('status', !statusValue, { shouldDirty: true })} />
+          <div className="col-span-1">
+            <div className="sticky top-6 space-y-5">
+              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
+                <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">ẢNH ĐẠI DIỆN</h2>
+                <Controller name="thumbnailUrl" control={control}
+                  render={({ field }) => <FileUpload label="" value={field.value} onChange={field.onChange} bgOption="none" />}
+                />
+                {errors.thumbnailUrl && <p className="text-xs font-medium text-red-500">{errors.thumbnailUrl.message}</p>}
               </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-bold text-black">Nổi bật</p>
-                  <p className="text-xs font-medium text-gray-500">Trang chủ</p>
-                </div>
-                <Toggle checked={!!isFeaturedValue} onToggle={() => setValue('isFeatured', !isFeaturedValue, { shouldDirty: true })} />
-              </div>
-            </div>
 
-            <div className="flex flex-col gap-2.5">
-              <button type="submit" disabled={isSaving || !isDirty}
-                className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
-                {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {isEdit ? 'CẬP NHẬT' : 'TẠO SẢN PHẨM'}
-              </button>
-              <button type="button" onClick={() => navigate('/products')} disabled={isSaving}
-                className="h-10 px-4 rounded-md bg-white hover:bg-gray-50 border border-gray-300 text-black text-sm font-bold transition-colors shadow-sm">
-                HỦY
-              </button>
+              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
+                <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">CÀI ĐẶT</h2>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-black">Hiển thị</p>
+                    <p className="text-xs font-medium text-gray-500">Hiện trên website</p>
+                  </div>
+                  <Toggle checked={!!statusValue} onToggle={() => setValue('status', !statusValue, { shouldDirty: true })} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-black">Nổi bật</p>
+                    <p className="text-xs font-medium text-gray-500">Trang chủ</p>
+                  </div>
+                  <Toggle checked={!!isFeaturedValue} onToggle={() => setValue('isFeatured', !isFeaturedValue, { shouldDirty: true })} />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2.5">
+                <button type="submit" disabled={isSaving || !isDirty}
+                  className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
+                  {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {isEdit ? 'CẬP NHẬT' : 'TẠO SẢN PHẨM'}
+                </button>
+                <button type="button" onClick={() => navigate('/products')} disabled={isSaving}
+                  className="h-10 px-4 rounded-md bg-white hover:bg-gray-50 border border-gray-300 text-black text-sm font-bold transition-colors shadow-sm">
+                  HỦY
+                </button>
+              </div>
             </div>
           </div>
         </div>

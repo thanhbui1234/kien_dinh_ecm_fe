@@ -106,36 +106,38 @@ export default function CategoryForm() {
             </div>
           </div>
 
-          <div className="col-span-1 space-y-5">
-            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-              <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">ẢNH ĐẠI DIỆN</h2>
-              <Controller name="imageUrl" control={control}
-                render={({ field }) => <FileUpload label="" value={field.value} onChange={field.onChange} bgOption="none" />}
-              />
-              {errors.imageUrl && <p className="text-xs font-medium text-red-500">{errors.imageUrl.message}</p>}
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-              <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3 mb-4">CÀI ĐẶT</h2>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-bold text-black">Hiển thị</p>
-                  <p className="text-xs font-medium text-gray-500">Hiện trên website</p>
-                </div>
-                <Toggle checked={!!statusValue} onToggle={() => setValue('status', !statusValue, { shouldDirty: true })} />
+          <div className="col-span-1">
+            <div className="sticky top-6 space-y-5">
+              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
+                <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">ẢNH ĐẠI DIỆN</h2>
+                <Controller name="imageUrl" control={control}
+                  render={({ field }) => <FileUpload label="" value={field.value} onChange={field.onChange} bgOption="none" />}
+                />
+                {errors.imageUrl && <p className="text-xs font-medium text-red-500">{errors.imageUrl.message}</p>}
               </div>
-            </div>
 
-            <div className="flex flex-col gap-2.5">
-              <button type="submit" disabled={isSaving || !isDirty}
-                className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
-                {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {isEdit ? 'CẬP NHẬT' : 'TẠO DANH MỤC'}
-              </button>
-              <button type="button" onClick={() => navigate('/categories')} disabled={isSaving}
-                className="h-10 px-4 rounded-md bg-white hover:bg-gray-50 border border-gray-300 text-black text-sm font-bold transition-colors shadow-sm">
-                HỦY
-              </button>
+              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+                <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3 mb-4">CÀI ĐẶT</h2>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-black">Hiển thị</p>
+                    <p className="text-xs font-medium text-gray-500">Hiện trên website</p>
+                  </div>
+                  <Toggle checked={!!statusValue} onToggle={() => setValue('status', !statusValue, { shouldDirty: true })} />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2.5">
+                <button type="submit" disabled={isSaving || !isDirty}
+                  className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
+                  {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {isEdit ? 'CẬP NHẬT' : 'TẠO DANH MỤC'}
+                </button>
+                <button type="button" onClick={() => navigate('/categories')} disabled={isSaving}
+                  className="h-10 px-4 rounded-md bg-white hover:bg-gray-50 border border-gray-300 text-black text-sm font-bold transition-colors shadow-sm">
+                  HỦY
+                </button>
+              </div>
             </div>
           </div>
         </div>
