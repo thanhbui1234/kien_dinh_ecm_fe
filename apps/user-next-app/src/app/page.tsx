@@ -6,7 +6,7 @@ import CategoriesSection from "@/components/home/CategoriesSection";
 import FeaturedProjectsSection from "@/components/home/FeaturedProjectsSection";
 import ContactCTA from "@/components/home/ContactCTA";
 import ShowroomCTA from "@/components/home/ShowroomCTA";
-import { getCachedCategories, getCachedBanners } from "@/lib/cached-api";
+import { getCachedCategories, getCachedBanners, getCachedFeaturedProducts } from "@/lib/cached-api";
 import { api } from "@/lib/api";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -32,19 +32,16 @@ export const metadata: Metadata = {
 export const experimental_ppr = true;
 
 async function HeroSection() {
-  const banners = await getCachedBanners();
-  return <HeroCarousel banners={banners ?? []} />;
+  const [banners, featuredProducts] = await Promise.all([
+    getCachedBanners(),
+    getCachedFeaturedProducts(),
+  ]);
+  return <HeroCarousel banners={banners ?? []} fallbackProducts={featuredProducts} />;
 }
 
 async function FeaturedProductsSection() {
-  const res = await api.products
-    .getProducts(
-      { isFeatured: "true", limit: "6" },
-      { next: { revalidate: 3600, tags: ['products'] } }
-    )
-    .catch(() => null);
-  console.log("res", res)
-  return <ProductsSection products={res?.items ?? []} />;
+  const products = await getCachedFeaturedProducts();
+  return <ProductsSection products={products} />;
 }
 
 async function FeaturedCategoriesSection() {

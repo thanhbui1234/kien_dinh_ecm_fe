@@ -4,28 +4,60 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 // import Fade from "embla-carousel-fade";
-import { Banner } from "shared-api";
-import { defaultSlides, Slide, AUTO_ADVANCE_MS } from "@/constants/hero";
+import { Banner, Product } from "shared-api";
+import { Slide, AUTO_ADVANCE_MS } from "@/constants/hero";
+import { SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { HeroSlideBg } from "./hero/HeroSlideBg";
 import { HeroSlideContent } from "./hero/HeroSlideContent";
 import { HeroControls } from "./hero/HeroControls";
 
-export default function HeroCarousel({ banners }: { banners?: Banner[] | null }) {
+const FALLBACK_LOGO_SLIDE: Slide = {
+  type: "product",
+  image: DEFAULT_OG_IMAGE,
+  title: SITE_NAME,
+  description:
+    "Phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Việt Nam.",
+  link: "/products/",
+  linkText: "Xem sản phẩm",
+  darkText: true,
+};
+
+export default function HeroCarousel({
+  banners,
+  fallbackProducts,
+}: {
+  banners?: Banner[] | null;
+  fallbackProducts?: Product[] | null;
+}) {
   const [current, setCurrent] = useState(0);
 
   const displaySlides: Slide[] = useMemo(() => {
-    return banners && banners.length > 0
-      ? banners.map((b) => ({
-          type: "fullscreen",
-          image: b.imageUrl,
-          title: b.title || "",
-          description: b.description || "",
-          link: b.link || "#",
-          linkText: "Đọc thêm",
-          darkText: false,
-        }))
-      : defaultSlides;
-  }, [banners]);
+    if (banners && banners.length > 0) {
+      return banners.map((b) => ({
+        type: "fullscreen",
+        image: b.imageUrl,
+        title: b.title || "",
+        description: b.description || "",
+        link: b.link || "#",
+        linkText: "Đọc thêm",
+        darkText: false,
+      }));
+    }
+
+    if (fallbackProducts && fallbackProducts.length > 0) {
+      return fallbackProducts.map((p) => ({
+        type: "product",
+        image: p.thumbnailUrl,
+        title: p.name,
+        description: "Sản phẩm nổi bật tại Thanh Bằng",
+        link: `/products/${p.slug}/`,
+        linkText: "Đọc thêm",
+        darkText: true,
+      }));
+    }
+
+    return [FALLBACK_LOGO_SLIDE];
+  }, [banners, fallbackProducts]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 40 }, [
     Autoplay({ delay: AUTO_ADVANCE_MS, stopOnInteraction: false, stopOnMouseEnter: false }),
@@ -70,9 +102,9 @@ export default function HeroCarousel({ banners }: { banners?: Banner[] | null })
   return (
     <section
       aria-label="Hero carousel"
-      className="relative w-full h-[100vh] min-h-[720px] max-h-[1080px] bg-[#0a0a0a]"
+      className="relative flex flex-col md:block w-full h-[72vh] min-h-[560px] md:h-[100vh] md:min-h-[720px] md:max-h-[1080px] bg-[#0a0a0a]"
     >
-      <div className="overflow-hidden h-full" ref={emblaRef}>
+      <div className="overflow-hidden flex-1 min-h-0 md:h-full" ref={emblaRef}>
         <div className="flex h-full">
           {displaySlides.map((s, i) => {
             const active = i === current;

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { PageBreadcrumb } from 'shared-ui';
 import { api } from '@/lib/api';
 import { buildBaseMetadata } from '@/lib/seo';
 
@@ -42,16 +43,15 @@ export default async function JobDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white pt-[80px]">
-      {/* Breadcrumb */}
-      <div className="border-b border-gray-100">
-        <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-3 flex items-center gap-2 text-[12px] text-gray-400">
-          <Link href="/" className="hover:text-[#5e8dd1] transition-colors no-underline">Trang chủ</Link>
-          <span>/</span>
-          <Link href="/tuyen-dung/" className="hover:text-[#5e8dd1] transition-colors no-underline">Tuyển dụng</Link>
-          <span>/</span>
-          <span className="text-[#111] truncate max-w-[260px]">{job.title}</span>
-        </div>
-      </div>
+      <PageBreadcrumb
+        variant="light"
+        LinkComponent={Link}
+        items={[
+          { label: 'Trang chủ', href: '/' },
+          { label: 'Tuyển dụng', href: '/tuyen-dung/' },
+          { label: job.title },
+        ]}
+      />
 
       <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-12 lg:gap-16 items-start">

@@ -113,30 +113,51 @@ function SpecificationsTable({ specs }: { specs: object }) {
   }
 
   return (
-    <div className="flex flex-col gap-0 rounded-xl border border-gray-100 overflow-hidden">
-      {chunks.map((chunk, ci) => (
-        <table key={ci} className="w-full text-[13px] border-collapse">
-          <thead>
-            <tr className="bg-gray-50">
-              {chunk.map(([key]) => (
-                <th key={key} className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-400 border-b border-gray-100 border-r last:border-r-0">
-                  {key}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr className={ci < chunks.length - 1 ? 'border-b border-gray-100' : ''}>
-              {chunk.map(([key, value]) => (
-                <td key={key} className="px-4 py-3.5 text-[#111] font-medium border-r border-gray-50 last:border-r-0 align-top">
-                  {String(value)}
-                </td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
-      ))}
-    </div>
+    <>
+      {/* Mobile — stacked key-value rows; a 4-column table is unreadable at this width */}
+      <div className="md:hidden flex flex-col rounded-xl border border-gray-100 overflow-hidden">
+        {entries.map(([key, value], i) => (
+          <div
+            key={key}
+            className={`flex items-baseline justify-between gap-4 px-4 py-3 ${i % 2 === 1 ? 'bg-gray-50/60' : ''
+              } ${i < entries.length - 1 ? 'border-b border-gray-100' : ''}`}
+          >
+            <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-400 shrink-0">
+              {key}
+            </span>
+            <span className="text-[13px] text-[#111] font-medium text-right">
+              {String(value)}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop — unchanged 4-column chunked table */}
+      <div className="hidden md:flex flex-col gap-0 rounded-xl border border-gray-100 overflow-hidden">
+        {chunks.map((chunk, ci) => (
+          <table key={ci} className="w-full text-[13px] border-collapse">
+            <thead>
+              <tr className="bg-gray-50">
+                {chunk.map(([key]) => (
+                  <th key={key} className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-400 border-b border-gray-100 border-r last:border-r-0">
+                    {key}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr className={ci < chunks.length - 1 ? 'border-b border-gray-100' : ''}>
+                {chunk.map(([key, value]) => (
+                  <td key={key} className="px-4 py-3.5 text-[#111] font-medium border-r border-gray-50 last:border-r-0 align-top">
+                    {String(value)}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -231,8 +252,12 @@ export default function ProductDetailClient({ product, category, relatedProducts
         <div className="mt-16 pt-12 border-t border-gray-100">
           <h2 className="text-[22px] font-light text-[#111] mb-8">Mô tả sản phẩm</h2>
           <div
-            className="prose prose-sm max-w-none text-gray-600 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: product.detail.contentDetail }}
+            className="prose prose-sm max-w-none break-words text-gray-600 leading-relaxed"
+            dangerouslySetInnerHTML={{
+              // CMS content stores &nbsp; in place of regular spaces, which blocks line-breaking
+              // at every word boundary and forces the wrap to land mid-word instead.
+              __html: product.detail.contentDetail.replace(/&nbsp;|\u00A0/gi, ' '),
+            }}
           />
         </div>
       )}

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PageBreadcrumb } from 'shared-ui';
 import ContactForm from './ContactForm';
 import { api } from '@/lib/api';
 
@@ -55,6 +56,11 @@ export default async function ContactPage({
 
   return (
     <div className="min-h-screen bg-[#fafafa] pt-[80px]">
+      <PageBreadcrumb
+        variant="light"
+        LinkComponent={Link}
+        items={[{ label: 'Trang chủ', href: '/' }, { label: 'Liên hệ' }]}
+      />
       <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-12 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16">
           

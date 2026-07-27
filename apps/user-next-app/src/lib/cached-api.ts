@@ -12,3 +12,15 @@ export const getCachedCategories = cache(async () => {
 export const getCachedBanners = cache(async () => {
   return api.settings.getBanners({ next: { tags: ['banners'] } } as RequestInit).catch(() => []);
 });
+
+// getFeaturedProducts is called in page.tsx HeroSection (hero fallback) and FeaturedProductsSection —
+// both in the same request, so they share one network call instead of two.
+export const getCachedFeaturedProducts = cache(async () => {
+  const res = await api.products
+    .getProducts(
+      { isFeatured: "true", limit: "6" },
+      { next: { revalidate: 3600, tags: ["products"] } }
+    )
+    .catch(() => null);
+  return res?.items ?? [];
+});

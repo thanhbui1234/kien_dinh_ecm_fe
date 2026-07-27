@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { PageBreadcrumb } from 'shared-ui';
 import { api } from '@/lib/api';
 import { getCachedCategories } from '@/lib/cached-api';
 import ProductDetailClient from './ProductDetailClient';
@@ -70,23 +71,16 @@ export default async function ProductDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white pt-[80px]">
-      <div className="border-b border-gray-100">
-        <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-3 flex items-center gap-2 text-[12px] text-gray-400">
-          <Link href="/" className="hover:text-[#5e8dd1] no-underline transition-colors">Trang chủ</Link>
-          <span>/</span>
-          <Link href="/products/" className="hover:text-[#5e8dd1] no-underline transition-colors">Sản phẩm</Link>
-          {category && (
-            <>
-              <span>/</span>
-              <Link href={`/products/?category=${category.slug}`} className="hover:text-[#5e8dd1] no-underline transition-colors">
-                {category.name}
-              </Link>
-            </>
-          )}
-          <span>/</span>
-          <span className="text-[#111] truncate max-w-[220px]">{product.name}</span>
-        </div>
-      </div>
+      <PageBreadcrumb
+        variant="light"
+        LinkComponent={Link}
+        items={[
+          { label: 'Trang chủ', href: '/' },
+          { label: 'Sản phẩm', href: '/products/' },
+          ...(category ? [{ label: category.name, href: `/products/?category=${category.slug}` }] : []),
+          { label: product.name },
+        ]}
+      />
 
       <ProductDetailClient product={fullProduct} category={category} relatedProducts={relatedProducts} />
     </div>

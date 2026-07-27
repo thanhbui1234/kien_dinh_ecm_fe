@@ -3,6 +3,7 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
 import type { Facility } from 'shared-api';
+import { PageBreadcrumb } from 'shared-ui';
 import { api } from '@/lib/api';
 import { FacilityCard } from './production-facilities/FacilityCard';
 import { LocationSection } from './LocationSection';
@@ -58,14 +59,11 @@ export default async function AboutUsPage() {
 
   return (
     <div className="min-h-screen bg-white pt-[80px]">
-      {/* Breadcrumb */}
-      <div className="border-b border-gray-100">
-        <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-3 flex items-center gap-2 text-[12px] text-gray-400">
-          <Link href="/" className="hover:text-[#5e8dd1] transition-colors no-underline">Trang chủ</Link>
-          <span>/</span>
-          <span className="text-[#111]">Về chúng tôi</span>
-        </div>
-      </div>
+      <PageBreadcrumb
+        variant="light"
+        LinkComponent={Link}
+        items={[{ label: 'Trang chủ', href: '/' }, { label: 'Về chúng tôi' }]}
+      />
 
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="relative w-full h-[55vh] min-h-[420px] md:h-[72vh] md:min-h-[560px] overflow-hidden bg-[#111]">
