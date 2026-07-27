@@ -102,10 +102,10 @@ export default function Header({ categories = [] }: HeaderProps) {
 
   const isTransparent = isHomePage && !scrolled;
 
-  // Sync --mazak-header-height: 120px with utility bar, 80px compact
+  // Sync --site-header-height: 120px with utility bar, 80px compact
   useEffect(() => {
     document.documentElement.style.setProperty(
-      '--mazak-header-height',
+      '--site-header-height',
       isTransparent ? '120px' : '80px'
     );
   }, [isTransparent]);

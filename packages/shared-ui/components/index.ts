@@ -15,5 +15,5 @@ export * from "./ui/popover";
 export * from "./ui/spinner";
 export * from "./ui/skeleton";
 
-// mazak design system
-export * from "./mazak";
+// page shell components
+export * from "./page";

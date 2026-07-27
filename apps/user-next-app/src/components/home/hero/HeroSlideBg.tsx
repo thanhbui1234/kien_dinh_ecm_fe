@@ -50,7 +50,7 @@ export const HeroSlideBg = ({ type, image, title, isFirst, darkText }: HeroSlide
         {/* Committed dark→transparent overlay for text legibility */}
         <div
           aria-hidden="true"
-          className={`absolute inset-0 bg-gradient-to-r ${darkText ? 'from-white/70 via-white/35 to-transparent' : 'from-black/40 via-black/15 to-transparent'} via-50% to-80%`}
+          className={`absolute inset-0 bg-gradient-to-r ${darkText ? 'from-white/80 via-white/45 to-transparent' : 'from-black/55 via-black/25 to-transparent'} via-50% to-80%`}
         />
       </>
     );

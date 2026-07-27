@@ -4,6 +4,8 @@ export interface FooterNavLink {
   indent?: boolean;
 }
 
+export const COMPANY_ADDRESS = 'Công Ty Cổ Phần Thanh Bằng, Xuân Trường, Ninh Bình 420000, Việt Nam';
+
 export const CUSTOMER_SUPPORT_GROUP = {
   heading: 'HỖ TRỢ KHÁCH HÀNG',
   headingHref: '#',

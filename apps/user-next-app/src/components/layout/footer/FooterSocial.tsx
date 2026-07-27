@@ -34,7 +34,7 @@ export const FooterSocial = () => {
             <FacebookIcon />
           </a>
           <a
-            href="https://www.youtube.com/@yamazakimazakvietnam"
+            href="https://www.youtube.com/@congtythanhbang1735"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="YouTube Thanh Bằng"

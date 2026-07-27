@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { Store } from 'lucide-react';
 
 export default function ShowroomCTA() {
   return (
@@ -33,22 +33,7 @@ export default function ShowroomCTA() {
         }}
       >
         {/* Showroom icon */}
-        <div
-          style={{
-            width: '64px',
-            height: '64px',
-            position: 'relative',
-            filter: 'brightness(0) invert(1)',
-          }}
-        >
-          <Image
-            src="/images/showroom-icon.png"
-            alt="Showroom"
-            fill
-            style={{ objectFit: 'contain' }}
-            sizes="64px"
-          />
-        </div>
+        <Store size={64} strokeWidth={1.5} color="#fff" aria-hidden="true" />
 
         <p
           style={{
