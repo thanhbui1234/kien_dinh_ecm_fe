@@ -26,7 +26,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   ];
 
   return (
-    <div className="bg-white rounded-md [&_.quill]:flex [&_.quill]:flex-col [&_.quill]:h-[320px] [&_.ql-container]:flex-1 [&_.ql-container]:overflow-hidden [&_.ql-editor]:overflow-y-auto mb-2">
+    <div className="bg-white rounded-md mb-2 [&_.ql-editor]:min-h-[250px]">
       <ReactQuill 
         theme="snow"
         value={value || ''}

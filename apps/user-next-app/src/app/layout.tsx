@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import { getCachedCategories } from "@/lib/cached-api";
 import { notoSans, notoSansJP } from "@/lib/fonts";
 import MotionProvider from "@/components/ui/MotionProvider";
-import FloatingZaloWidget from "@/components/common/FloatingZaloWidget";
+import AIChatWidget from "@/components/common/AIChatWidget";
 import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -46,7 +46,7 @@ export default async function RootLayout({
           <Header categories={categories} />
           <main className="min-h-screen">{children}</main>
           <Footer />
-          <FloatingZaloWidget />
+          <AIChatWidget />
         </MotionProvider>
       </body>
     </html>

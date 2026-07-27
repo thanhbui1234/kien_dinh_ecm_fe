@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronLeft, Loader2, Plus, Trash2, Sparkles, ZoomIn } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { AIGenerator } from '@/components/common/AIGenerator';
@@ -218,10 +219,24 @@ export default function ProductForm() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className={labelCls}>Danh mục <span className="text-red-500">*</span></label>
-                  <select {...register('categoryId')} className={inputCls}>
-                    <option value="">-- Chọn danh mục --</option>
-                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-                  </select>
+                  <Controller
+                    name="categoryId"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="-- Chọn danh mục --" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                   {errors.categoryId && <p className="text-xs font-medium text-red-500 mt-1.5">{(errors.categoryId as any).message}</p>}
                 </div>
                 <div>
