@@ -446,43 +446,47 @@ export default function AIChatWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="mb-3 relative w-[260px] origin-bottom-right rounded-2xl border border-indigo-100 bg-gradient-to-br from-white to-indigo-50 shadow-[0_16px_40px_rgba(79,70,229,0.25)] overflow-hidden"
+            className="mb-3 relative w-[260px] origin-bottom-right rounded-2xl border border-indigo-100 shadow-[0_16px_40px_rgba(79,70,229,0.25)]"
             role="status"
           >
-            <button
-              type="button"
-              onClick={() => setShowTooltip(false)}
-              aria-label="Đóng gợi ý"
-              className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-
-            <div className="flex items-start gap-3 px-4 pt-4 pb-3.5">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-700 via-indigo-600 to-purple-600 flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/30">
-                <Bot className="w-4 h-4 text-white" />
-              </div>
-              <div className="pt-0.5 pr-4">
-                <p className="text-[13.5px] font-semibold text-slate-800 leading-snug m-0">
-                  Liên hệ với <span className="text-indigo-600">AI</span> để được tư vấn
-                </p>
-                <p className="text-[11.5px] text-slate-400 font-medium leading-snug m-0 mt-0.5">
-                  Phản hồi tức thì, miễn phí
-                </p>
-              </div>
-            </div>
-
-            {/* Countdown bar — mirrors the 10s auto-hide timer above */}
-            <div className="h-1 w-full bg-indigo-100">
-              <motion.div
-                initial={{ width: '100%' }}
-                animate={{ width: '0%' }}
-                transition={{ duration: 10, ease: 'linear' }}
-                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
-              />
-            </div>
-
+            {/* Tail sits behind the card body — only the tip below the body stays visible */}
             <div className="absolute -bottom-1.5 right-7 w-3 h-3 bg-white border-r border-b border-indigo-100 rotate-45" />
+
+            {/* Card body carries the fill so it covers the tail's upper half; clips the countdown bar's corners to the card radius */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-indigo-50">
+              <button
+                type="button"
+                onClick={() => setShowTooltip(false)}
+                aria-label="Đóng gợi ý"
+                className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+
+              <div className="flex items-start gap-3 px-4 pt-4 pb-3.5">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-700 via-indigo-600 to-purple-600 flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/30">
+                  <Bot className="w-4 h-4 text-white" />
+                </div>
+                <div className="pt-0.5 pr-4">
+                  <p className="text-[13.5px] font-semibold text-slate-800 leading-snug m-0">
+                    Liên hệ với <span className="text-indigo-600">AI</span> để được tư vấn
+                  </p>
+                  <p className="text-[11.5px] text-slate-400 font-medium leading-snug m-0 mt-0.5">
+                    Phản hồi tức thì, miễn phí
+                  </p>
+                </div>
+              </div>
+
+              {/* Countdown bar — mirrors the 10s auto-hide timer above */}
+              <div className="h-1 w-full bg-indigo-100">
+                <motion.div
+                  initial={{ width: '100%' }}
+                  animate={{ width: '0%' }}
+                  transition={{ duration: 10, ease: 'linear' }}
+                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
+                />
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -6,12 +6,12 @@ import { getCachedCategories } from "@/lib/cached-api";
 import { notoSans, notoSansJP } from "@/lib/fonts";
 import MotionProvider from "@/components/ui/MotionProvider";
 import AIChatWidget from "@/components/common/AIChatWidget";
+import JsonLd from "@/components/seo/JsonLd";
 import {
   SITE_NAME,
   SITE_URL,
   DEFAULT_OG_IMAGE,
   DEFAULT_KEYWORDS,
-  generateOrganizationSchema,
   generateWebSiteSearchSchema,
 } from "@/lib/seo";
 
@@ -25,6 +25,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: SITE_URL,
+  },
+  verification: {
+    google: "zWFWsnXX4PdKzZ3hvXo1Uig7xPxDv_7VWqXmVrg7UuE",
   },
   robots: {
     index: true,
@@ -62,16 +65,12 @@ export default async function RootLayout({
   const categoriesResponse = await getCachedCategories();
   const categories = (categoriesResponse || []).filter((c) => !c.parentId);
 
-  const orgSchema = generateOrganizationSchema();
   const searchSchema = generateWebSiteSearchSchema();
 
   return (
     <html lang="vi" suppressHydrationWarning className={`${notoSans.variable} ${notoSansJP.variable}`}>
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
-        />
+        <JsonLd />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(searchSchema) }}
@@ -88,4 +87,3 @@ export default async function RootLayout({
     </html>
   );
 }
-

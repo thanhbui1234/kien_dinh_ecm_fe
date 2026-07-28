@@ -16,18 +16,18 @@ export function PageBreadcrumb({ items, LinkComponent = 'a', variant = 'gray' }:
   if (variant === 'light') {
     return (
       <div className="border-b border-gray-100">
-        <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-3 flex items-center gap-2 text-[12px] text-gray-400">
+        <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-gray-400">
           {items.map((item, i) => (
-            <React.Fragment key={i}>
+            <span key={i} className="inline-flex items-center gap-2 min-w-0">
               {i > 0 && <span>/</span>}
               {item.href ? (
                 <LinkComponent href={item.href} className="hover:text-[#5e8dd1] no-underline transition-colors">
                   {item.label}
                 </LinkComponent>
               ) : (
-                <span className="text-[#111] truncate max-w-[220px]">{item.label}</span>
+                <span className="text-[#111] truncate max-w-[140px] sm:max-w-[500px]">{item.label}</span>
               )}
-            </React.Fragment>
+            </span>
           ))}
         </div>
       </div>
@@ -37,18 +37,24 @@ export function PageBreadcrumb({ items, LinkComponent = 'a', variant = 'gray' }:
   return (
     <div style={{ background: '#f5f5f5', padding: '24px 20px' }}>
       <div style={{ maxWidth: '1266px', margin: '0 auto' }}>
-        <nav aria-label="breadcrumb" style={{ fontSize: '12px', color: '#666' }}>
+        <nav
+          aria-label="breadcrumb"
+          className="flex flex-wrap items-center gap-y-1"
+          style={{ fontSize: '12px', color: '#666' }}
+        >
           {items.map((item, i) => (
-            <React.Fragment key={i}>
+            <span key={i} className="inline-flex items-center min-w-0">
               {i > 0 && <span style={{ margin: '0 6px' }}>&gt;</span>}
               {item.href ? (
                 <LinkComponent href={item.href} style={{ color: '#666', textDecoration: 'none' }}>
                   {item.label}
                 </LinkComponent>
               ) : (
-                <span style={{ color: '#333' }}>{item.label}</span>
+                <span className="truncate max-w-[160px] sm:max-w-none" style={{ color: '#333' }}>
+                  {item.label}
+                </span>
               )}
-            </React.Fragment>
+            </span>
           ))}
         </nav>
       </div>
