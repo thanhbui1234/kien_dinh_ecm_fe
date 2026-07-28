@@ -44,13 +44,21 @@ export const HeroSlideBg = ({ type, image, title, isFirst, darkText }: HeroSlide
           alt={title}
           fill
           priority={isFirst}
-          className="object-cover"
+          className="object-cover object-center"
           sizes="100vw"
         />
+
         {/* Committed dark→transparent overlay for text legibility */}
         <div
           aria-hidden="true"
           className={`absolute inset-0 bg-gradient-to-r ${darkText ? 'from-white/80 via-white/45 to-transparent' : 'from-black/55 via-black/25 to-transparent'} via-50% to-80%`}
+        />
+
+        {/* Top scrim — mobile only. Headline anchors to the top there instead of the
+            vertical center, so it needs its own legibility gradient regardless of photo. */}
+        <div
+          aria-hidden="true"
+          className={`absolute inset-x-0 top-0 h-2/5 md:hidden bg-gradient-to-b ${darkText ? 'from-white/70' : 'from-black/60'} to-transparent`}
         />
       </>
     );
@@ -58,14 +66,17 @@ export const HeroSlideBg = ({ type, image, title, isFirst, darkText }: HeroSlide
 
   return (
     <>
+      {/* Hexagon texture doubles as the mobile backdrop, so a contained product shot
+          never needs cropping or bare black bars — it's the same treatment desktop
+          already uses for the uncovered left panel, just extended to the full frame. */}
       <HexagonBg />
-      <div className="absolute right-0 top-0 w-[58%] h-full">
+      <div className="absolute inset-0 md:left-auto md:right-0 md:w-[58%]">
         <Image
           src={image}
           alt={title}
           fill
-          className="object-contain object-right"
-          sizes="60vw"
+          className="object-contain object-center md:object-right"
+          sizes="(min-width: 768px) 60vw, 100vw"
         />
       </div>
     </>

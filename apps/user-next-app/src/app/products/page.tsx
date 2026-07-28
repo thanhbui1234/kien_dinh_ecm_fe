@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
+import { PageBreadcrumb } from 'shared-ui';
 import { api } from '@/lib/api';
 import { getCachedCategories } from '@/lib/cached-api';
 import FilterDrawer from './FilterDrawer';
@@ -156,22 +157,18 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="min-h-screen bg-white pt-[80px]">
+      <PageBreadcrumb
+        variant="light"
+        LinkComponent={Link}
+        items={
+          activeCategoryName
+            ? [{ label: 'Trang chủ', href: '/' }, { label: 'Sản phẩm', href: '/products/' }, { label: activeCategoryName }]
+            : [{ label: 'Trang chủ', href: '/' }, { label: 'Sản phẩm' }]
+        }
+      />
       {/* Page header */}
       <div className="border-b border-gray-100">
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-6">
-          <div className="flex items-center gap-2 text-[14px] text-gray-400 mb-4">
-            <Link href="/" className="hover:text-[#5e8dd1] no-underline transition-colors">Trang chủ</Link>
-            <span>/</span>
-            {activeCategoryName ? (
-              <>
-                <Link href="/products/" className="hover:text-[#5e8dd1] no-underline transition-colors">Sản phẩm</Link>
-                <span>/</span>
-                <span className="text-[#111]">{activeCategoryName}</span>
-              </>
-            ) : (
-              <span className="text-[#111]">Sản phẩm</span>
-            )}
-          </div>
           <div className="flex items-end justify-between gap-4">
             <h1 className="text-[30px] md:text-[40px] font-light text-[#111] leading-none m-0">
               {activeCategoryName ?? 'Tất cả sản phẩm'}

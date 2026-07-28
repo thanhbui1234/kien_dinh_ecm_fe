@@ -6,7 +6,7 @@ import CategoriesSection from "@/components/home/CategoriesSection";
 import FeaturedProjectsSection from "@/components/home/FeaturedProjectsSection";
 import ContactCTA from "@/components/home/ContactCTA";
 import ShowroomCTA from "@/components/home/ShowroomCTA";
-import { getCachedCategories, getCachedBanners } from "@/lib/cached-api";
+import { getCachedCategories, getCachedBanners, getCachedFeaturedProducts } from "@/lib/cached-api";
 import { api } from "@/lib/api";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -37,14 +37,8 @@ async function HeroSection() {
 }
 
 async function FeaturedProductsSection() {
-  const res = await api.products
-    .getProducts(
-      { isFeatured: "true", limit: "6" },
-      { next: { revalidate: 3600, tags: ['products'] } }
-    )
-    .catch(() => null);
-  console.log("res", res)
-  return <ProductsSection products={res?.items ?? []} />;
+  const products = await getCachedFeaturedProducts();
+  return <ProductsSection products={products} />;
 }
 
 async function FeaturedCategoriesSection() {
