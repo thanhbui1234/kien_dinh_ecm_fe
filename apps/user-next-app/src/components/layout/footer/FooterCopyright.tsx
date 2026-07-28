@@ -10,7 +10,7 @@ export const FooterCopyright = () => {
         <span className="text-white/50">|</span>
         <Link href="/about-website/" className="text-white no-underline text-[12px]">Về trang web này</Link>
       </div>
-      <a href="https://www.xuantruongstack.com/" target="_blank" rel="noopener noreferrer">Copyright (C) 2626 https://www.xuantruongstack.com/</a>
+      <a href="https://www.xuantruongstack.com/" target="_blank" rel="noopener noreferrer">Copyright (C) 2626 https://www.xuantruongstack.com</a>
     </div>
   );
 };
