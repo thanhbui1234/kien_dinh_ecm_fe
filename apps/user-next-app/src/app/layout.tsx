@@ -6,6 +6,7 @@ import { getCachedCategories } from "@/lib/cached-api";
 import { notoSans, notoSansJP } from "@/lib/fonts";
 import MotionProvider from "@/components/ui/MotionProvider";
 import AIChatWidget from "@/components/common/AIChatWidget";
+import JsonLd from "@/components/seo/JsonLd";
 import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -44,6 +45,9 @@ export default async function RootLayout({
 
   return (
     <html lang="vi" suppressHydrationWarning className={`${notoSans.variable} ${notoSansJP.variable}`}>
+      <head>
+        <JsonLd />
+      </head>
       <body>
         <MotionProvider>
           <Header categories={categories} />
