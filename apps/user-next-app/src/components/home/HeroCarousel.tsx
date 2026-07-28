@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 // import Fade from "embla-carousel-fade";
-import { Banner, Product } from "shared-api";
+import { Banner } from "shared-api";
 import { Slide, AUTO_ADVANCE_MS } from "@/constants/hero";
 import { SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { HeroSlideBg } from "./hero/HeroSlideBg";
@@ -24,10 +24,8 @@ const FALLBACK_LOGO_SLIDE: Slide = {
 
 export default function HeroCarousel({
   banners,
-  fallbackProducts,
 }: {
   banners?: Banner[] | null;
-  fallbackProducts?: Product[] | null;
 }) {
   const [current, setCurrent] = useState(0);
 
@@ -44,20 +42,8 @@ export default function HeroCarousel({
       }));
     }
 
-    if (fallbackProducts && fallbackProducts.length > 0) {
-      return fallbackProducts.map((p) => ({
-        type: "product",
-        image: p.thumbnailUrl,
-        title: p.name,
-        description: "Sản phẩm nổi bật tại Thanh Bằng",
-        link: `/products/${p.slug}/`,
-        linkText: "Đọc thêm",
-        darkText: true,
-      }));
-    }
-
     return [FALLBACK_LOGO_SLIDE];
-  }, [banners, fallbackProducts]);
+  }, [banners]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 40 }, [
     Autoplay({ delay: AUTO_ADVANCE_MS, stopOnInteraction: false, stopOnMouseEnter: false }),

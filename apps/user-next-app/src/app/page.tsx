@@ -33,8 +33,7 @@ export const experimental_ppr = true;
 
 async function HeroSection() {
   const banners = await getCachedBanners();
-  const featuredProducts = banners?.length ? null : await getCachedFeaturedProducts();
-  return <HeroCarousel banners={banners ?? []} fallbackProducts={featuredProducts} />;
+  return <HeroCarousel banners={banners ?? []} />;
 }
 
 async function FeaturedProductsSection() {
