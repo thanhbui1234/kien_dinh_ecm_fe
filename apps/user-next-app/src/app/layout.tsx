@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   },
   description: "Thanh Bằng — Chuyên cung cấp phụ tùng, dụng cụ cắt gọt và máy công cụ CNC tại Việt Nam.",
   metadataBase: new URL(SITE_URL),
+  verification: {
+    google: "zWFWsnXX4PdKzZ3hvXo1Uig7xPxDv_7VWqXmVrg7UuE",
+  },
   openGraph: {
     title: SITE_NAME,
     description: "Thanh Bằng — Chuyên cung cấp phụ tùng, dụng cụ cắt gọt và máy công cụ CNC tại Việt Nam.",
