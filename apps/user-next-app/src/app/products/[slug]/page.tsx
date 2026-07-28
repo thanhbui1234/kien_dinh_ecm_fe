@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 import { getCachedCategories } from '@/lib/cached-api';
 import ProductDetailClient from './ProductDetailClient';
 import type { Metadata } from 'next';
-import { buildProductMetadata } from '@/lib/seo';
+import { buildProductMetadata, generateProductSchema, generateBreadcrumbSchema } from '@/lib/seo';
 
 export const revalidate = 3600;
 
@@ -20,15 +20,23 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = await api.products.getProductDetail(slug);
+  const [product, categories] = await Promise.all([
+    api.products.getProductDetail(slug),
+    getCachedCategories(),
+  ]);
+
   if (!product) {
     return { title: 'Sản phẩm' };
   }
+
+  const category = (categories ?? []).find((c) => c.id === product.categoryId);
+
   return buildProductMetadata({
     name: product.name,
     slug,
     thumbnailUrl: product.thumbnailUrl,
     seoMeta: product.detail?.seoMeta as Record<string, string> | undefined,
+    categoryName: category?.name,
   });
 }
 
@@ -69,20 +77,45 @@ export default async function ProductDetailPage({ params }: Props) {
   const categories = categoriesResponse ?? [];
   const category = categories.find((c) => c.id === product.categoryId);
 
+  const breadcrumbItems = [
+    { label: 'Trang chủ', href: '/' },
+    { label: 'Sản phẩm', href: '/products/' },
+    ...(category ? [{ label: category.name, href: `/products/?category=${category.slug}` }] : []),
+    { label: product.name },
+  ];
+
+  const imagesList = (fullProduct.images || []).map((img) => img.imageUrl);
+  const productSchema = generateProductSchema({
+    name: fullProduct.name,
+    description: fullProduct.detail?.contentDetail || fullProduct.name,
+    slug,
+    thumbnailUrl: fullProduct.thumbnailUrl,
+    images: imagesList,
+    sku: fullProduct.id,
+    categoryName: category?.name,
+  });
+
+  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+
   return (
     <div className="min-h-screen bg-white pt-[80px]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       <PageBreadcrumb
         variant="light"
         LinkComponent={Link}
-        items={[
-          { label: 'Trang chủ', href: '/' },
-          { label: 'Sản phẩm', href: '/products/' },
-          ...(category ? [{ label: category.name, href: `/products/?category=${category.slug}` }] : []),
-          { label: product.name },
-        ]}
+        items={breadcrumbItems}
       />
 
       <ProductDetailClient product={fullProduct} category={category} relatedProducts={relatedProducts} />
     </div>
   );
 }
+

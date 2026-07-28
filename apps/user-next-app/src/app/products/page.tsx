@@ -5,20 +5,46 @@ import { PageBreadcrumb } from 'shared-ui';
 import { api } from '@/lib/api';
 import { getCachedCategories } from '@/lib/cached-api';
 import FilterDrawer from './FilterDrawer';
+import { buildBaseMetadata, generateItemListSchema, generateBreadcrumbSchema } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Sản phẩm | Thanh Bằng',
-  description: 'Danh mục sản phẩm phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Thanh Bằng. Tìm kiếm và lọc theo danh mục.',
-  alternates: { canonical: 'https://thanhbang.com/products/' },
-  openGraph: {
-    title: 'Sản phẩm | Thanh Bằng',
-    description: 'Danh mục sản phẩm phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Thanh Bằng.',
-    url: 'https://thanhbang.com/products/',
-    siteName: 'Thanh Bằng',
-    locale: 'vi_VN',
-    type: 'website',
-  },
-};
+interface SearchParams {
+  category?: string;
+  page?: string;
+  search?: string;
+}
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParams> }): Promise<Metadata> {
+  const params = await searchParams;
+  const { category: categorySlug, search } = params;
+
+  let title = 'Sản phẩm — Phụ Tùng & Dụng Cụ CNC';
+  let description = 'Danh mục sản phẩm phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Thanh Bằng. Tìm kiếm và lựa chọn sản phẩm phù hợp.';
+
+  if (categorySlug) {
+    const categories = await getCachedCategories();
+    const matched = categories?.find((c) => c.slug === categorySlug);
+    if (matched) {
+      title = `${matched.name} — Phụ Tùng & Dụng Cụ CNC`;
+      description = `Danh mục ${matched.name} chính hãng tại Thanh Bằng. Cung cấp phụ tùng máy CNC và dụng cụ cắt gọt chất lượng cao.`;
+    }
+  } else if (search) {
+    title = `Tìm kiếm: "${search}" — Sản phẩm CNC`;
+    description = `Kết quả tìm kiếm cho từ khóa "${search}" tại Thanh Bằng.`;
+  }
+
+  const queryPath = categorySlug
+    ? `/products/?category=${categorySlug}`
+    : search
+    ? `/products/?search=${encodeURIComponent(search)}`
+    : '/products/';
+
+  return buildBaseMetadata({
+    title,
+    description,
+    path: queryPath,
+  });
+}
+
 
 interface SearchParams {
   category?: string;
@@ -155,23 +181,35 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const meta = filteredProducts?.meta;
   const categoryMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
 
+  const breadcrumbItems = activeCategoryName
+    ? [{ label: 'Trang chủ', href: '/' }, { label: 'Sản phẩm', href: '/products/' }, { label: activeCategoryName }]
+    : [{ label: 'Trang chủ', href: '/' }, { label: 'Sản phẩm' }];
+
+  const itemListSchema = generateItemListSchema(items.map((i) => ({ name: i.name, slug: i.slug })));
+  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+
   return (
     <div className="min-h-screen bg-white pt-[80px]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       <PageBreadcrumb
         variant="light"
         LinkComponent={Link}
-        items={
-          activeCategoryName
-            ? [{ label: 'Trang chủ', href: '/' }, { label: 'Sản phẩm', href: '/products/' }, { label: activeCategoryName }]
-            : [{ label: 'Trang chủ', href: '/' }, { label: 'Sản phẩm' }]
-        }
+        items={breadcrumbItems}
       />
       {/* Page header */}
       <div className="border-b border-gray-100">
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-6">
           <div className="flex items-end justify-between gap-4">
             <h1 className="text-[30px] md:text-[40px] font-light text-[#111] leading-none m-0">
-              {activeCategoryName ?? 'Tất cả sản phẩm'}
+              {activeCategoryName ?? (search ? `Tìm kiếm: "${search}"` : 'Tất cả sản phẩm')}
             </h1>
             {meta && <p className="text-gray-400 text-[13px] shrink-0 m-0">{meta.totalItems} sản phẩm</p>}
           </div>
@@ -211,3 +249,4 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     </div>
   );
 }
+
