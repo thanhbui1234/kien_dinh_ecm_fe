@@ -32,10 +32,8 @@ export const metadata: Metadata = {
 export const experimental_ppr = true;
 
 async function HeroSection() {
-  const [banners, featuredProducts] = await Promise.all([
-    getCachedBanners(),
-    getCachedFeaturedProducts(),
-  ]);
+  const banners = await getCachedBanners();
+  const featuredProducts = banners?.length ? null : await getCachedFeaturedProducts();
   return <HeroCarousel banners={banners ?? []} fallbackProducts={featuredProducts} />;
 }
 
