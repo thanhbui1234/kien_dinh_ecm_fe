@@ -72,7 +72,7 @@ function ProductCard({
             alt={product.name}
             fill
             className="object-contain p-6 transition-transform duration-500 ease-out group-hover:scale-110 mix-blend-multiply"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-gray-300">
@@ -207,19 +207,19 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
       {/* Page header */}
       <div className="border-b border-gray-100">
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-6">
-          <div className="flex items-end justify-between gap-4">
-            <h1 className="text-[30px] md:text-[40px] font-light text-[#111] leading-none m-0">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+            <h1 className="break-words text-[26px] sm:text-[30px] md:text-[40px] font-light text-[#111] leading-tight md:leading-none m-0">
               {activeCategoryName ?? (search ? `Tìm kiếm: "${search}"` : 'Tất cả sản phẩm')}
             </h1>
-            {meta && <p className="text-gray-400 text-[13px] shrink-0 m-0">{meta.totalItems} sản phẩm</p>}
+            {meta && <p className="text-gray-400 text-[13px] m-0">{meta.totalItems} sản phẩm</p>}
           </div>
         </div>
       </div>
 
       <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-8">
         {/* Toolbar with FilterDrawer */}
-        <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
-          <p className="text-gray-500 text-[14px] m-0">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-8 pb-4 border-b border-gray-100">
+          <p className="text-gray-500 text-[14px] m-0 shrink-0">
             Hiển thị <strong className="text-[#111] font-medium">{items.length}</strong> sản phẩm
           </p>
           <FilterDrawer categories={categories} activeSlug={categorySlug} />
@@ -230,7 +230,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           {items.length === 0 ? (
             <EmptyState />
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {items.map((product) => (
                 <ProductCard
                   key={product.id}

@@ -29,12 +29,12 @@ export default function FilterDrawer({ categories, activeSlug }: Props) {
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-full text-[14px] text-[#111] hover:border-[#5e8dd1] hover:text-[#5e8dd1] transition-all shadow-sm"
+        className="flex min-w-0 max-w-[220px] sm:max-w-none items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-full text-[14px] text-[#111] hover:border-[#5e8dd1] hover:text-[#5e8dd1] transition-all shadow-sm"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0">
           <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <span className="font-medium">
+        <span className="font-medium truncate">
           Bộ lọc {activeCategory ? `(${activeCategory.name})` : ''}
         </span>
       </button>

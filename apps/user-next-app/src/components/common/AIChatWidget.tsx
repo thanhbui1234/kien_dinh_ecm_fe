@@ -83,6 +83,7 @@ export default function AIChatWidget() {
   const [sessionId, setSessionId] = useState<string>('');
   const [unreadCount, setUnreadCount] = useState(1);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [mobilePanelStyle, setMobilePanelStyle] = useState<{ top: number; height: number } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Initialize session ID from localStorage or generate new uuid
@@ -128,6 +129,38 @@ export default function AIChatWidget() {
         document.body.style.overflow = '';
       };
     }
+  }, [isOpen]);
+
+  // Keep the mobile panel sized to the actual visible viewport so opening the
+  // on-screen keyboard doesn't leave a dead gap below the input bar (fixed
+  // top/bottom offsets are pinned to the layout viewport, which iOS/Android
+  // don't resize consistently when the keyboard appears).
+  useEffect(() => {
+    const isMobile = window.matchMedia('(max-width: 639px)').matches;
+    const vv = window.visualViewport;
+    if (!isOpen || !isMobile || !vv) {
+      setMobilePanelStyle(null);
+      return;
+    }
+
+    const TOP_OFFSET = 32; // matches top-8
+    const BOTTOM_MARGIN = 16; // matches bottom-4
+
+    const updateSize = () => {
+      setMobilePanelStyle({
+        top: vv.offsetTop + TOP_OFFSET,
+        height: vv.height - TOP_OFFSET - BOTTOM_MARGIN,
+      });
+    };
+
+    updateSize();
+    vv.addEventListener('resize', updateSize);
+    vv.addEventListener('scroll', updateSize);
+    return () => {
+      vv.removeEventListener('resize', updateSize);
+      vv.removeEventListener('scroll', updateSize);
+      setMobilePanelStyle(null);
+    };
   }, [isOpen]);
 
   // Auto scroll to bottom of message list
@@ -270,6 +303,7 @@ export default function AIChatWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 20 }}
             transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+            style={mobilePanelStyle ? { top: mobilePanelStyle.top, height: mobilePanelStyle.height, bottom: 'auto' } : undefined}
             className="fixed inset-x-3 top-8 bottom-4 z-50 rounded-3xl sm:static sm:inset-auto sm:mb-4 sm:h-[540px] sm:max-h-[82vh] sm:w-[350px] md:w-[385px] sm:rounded-2xl bg-white shadow-[0_12px_45px_rgba(79,70,229,0.22)] border border-indigo-100 flex flex-col origin-bottom-right overflow-hidden"
           >
             {/* Header - Indigo/Purple Gradient */}
