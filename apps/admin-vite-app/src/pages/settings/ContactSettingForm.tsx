@@ -126,18 +126,6 @@ export const ContactSettingForm: React.FC = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-black"
           />
         </div>
-
-        <div className="space-y-1.5 md:col-span-2">
-          <label className="text-xs font-semibold text-gray-700">Bản đồ Google Maps (URL / Thẻ nhúng iframe)</label>
-          <input
-            type="text"
-            {...register('mapUrl')}
-            placeholder="Dán thẻ <iframe src='...'> hoặc link nhúng https://www.google.com/maps/embed?pb=..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-black"
-          />
-          <p className="text-[11px] text-gray-400 mt-1">Hệ thống sẽ tự động bóc tách đường link nhúng src từ thẻ iframe nếu bạn dán nguyên đoạn mã iframe từ Google Maps.</p>
-        </div>
-
         <div className="space-y-1.5 md:col-span-2">
           <label className="text-xs font-semibold text-gray-700">Mô tả ngắn</label>
           <textarea

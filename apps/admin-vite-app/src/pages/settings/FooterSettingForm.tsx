@@ -80,11 +80,16 @@ export const FooterSettingForm: React.FC = () => {
       </div>
 
       <div className="space-y-6">
-        {/* Khối 1: Giới thiệu & MXH */}
+        {/* ── Nhóm 1: Cột 1 Footer – Logo + Giới thiệu + Mạng xã hội ── */}
         <div className="space-y-4">
-          <h3 className="text-xs font-bold text-gray-700 uppercase border-b border-gray-100 pb-1.5">Giới thiệu & Mạng xã hội</h3>
+          <div className="flex items-center gap-2 border-b border-gray-100 pb-1.5">
+            <h3 className="text-xs font-bold text-gray-700 uppercase">Cột 1 — Giới thiệu & Mạng xã hội</h3>
+            <span className="text-[10px] text-gray-400 italic">(hiển thị dưới Logo ở góc trái Footer)</span>
+          </div>
+
+          {/* Đoạn giới thiệu */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-gray-700">Đoạn giới thiệu ngắn ở Footer</label>
+            <label className="text-xs font-semibold text-gray-700">Đoạn giới thiệu ngắn</label>
             <textarea
               rows={3}
               {...register('introText')}
@@ -93,7 +98,8 @@ export const FooterSettingForm: React.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Social links + contact icons */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-gray-700">Facebook URL</label>
               <input
@@ -113,20 +119,37 @@ export const FooterSettingForm: React.FC = () => {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-700">Instagram URL</label>
+              <label className="text-xs font-semibold text-gray-700">
+                Email <span className="font-normal text-gray-400">(icon ✉ cạnh social)</span>
+              </label>
+              <input
+                type="email"
+                {...register('email')}
+                placeholder="Ví dụ: maygachbetongtb@gmail.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-black"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-700">
+                Số điện thoại <span className="font-normal text-gray-400">(icon 📞 cạnh social)</span>
+              </label>
               <input
                 type="text"
-                {...register('instagramUrl')}
-                placeholder="https://instagram.com/..."
+                {...register('phone')}
+                placeholder="Ví dụ: 0374864110"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-black"
               />
             </div>
           </div>
         </div>
 
-        {/* Khối 2: Hotline & Thông tin liên hệ */}
+        {/* ── Nhóm 2: Cột 3 Footer – Hỗ trợ tư vấn (Hotline + Địa chỉ) ── */}
         <div className="space-y-4 pt-4 border-t border-gray-100">
-          <h3 className="text-xs font-bold text-gray-700 uppercase border-b border-gray-100 pb-1.5">Hotline & Thông tin liên hệ Footer</h3>
+          <div className="flex items-center gap-2 border-b border-gray-100 pb-1.5">
+            <h3 className="text-xs font-bold text-gray-700 uppercase">Cột 3 — Hỗ trợ tư vấn</h3>
+            <span className="text-[10px] text-gray-400 italic">(địa chỉ, hotline hiển thị ở cột "HỖ TRỢ TƯ VẤN")</span>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-gray-700">Hotline Mua hàng</label>
@@ -155,26 +178,8 @@ export const FooterSettingForm: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-black"
               />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-700">Hotline chính (Social)</label>
-              <input
-                type="text"
-                {...register('phone')}
-                placeholder="Ví dụ: 0943676869"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-black"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-700">Email Footer</label>
-              <input
-                type="email"
-                {...register('email')}
-                placeholder="Ví dụ: maygachbetongtb@gmail.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-black"
-              />
-            </div>
             <div className="space-y-1.5 md:col-span-3">
-              <label className="text-xs font-semibold text-gray-700">Địa chỉ Footer</label>
+              <label className="text-xs font-semibold text-gray-700">Địa chỉ</label>
               <input
                 type="text"
                 {...register('address')}
@@ -185,10 +190,13 @@ export const FooterSettingForm: React.FC = () => {
           </div>
         </div>
 
-        {/* Khối 3: Đường dẫn Hỗ trợ khách hàng */}
+        {/* ── Nhóm 3: Cột 4 Footer – Hỗ trợ khách hàng (links) ── */}
         <div className="space-y-4 pt-4 border-t border-gray-100">
           <div className="flex items-center justify-between border-b border-gray-100 pb-1.5">
-            <h3 className="text-xs font-bold text-gray-700 uppercase">Cột Hỗ trợ khách hàng</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs font-bold text-gray-700 uppercase">Cột 4 — Hỗ trợ khách hàng</h3>
+              <span className="text-[10px] text-gray-400 italic">(danh sách link ở cột "HỖ TRỢ KHÁCH HÀNG")</span>
+            </div>
             <button
               type="button"
               onClick={() => append({ label: '', href: '' })}
@@ -199,7 +207,7 @@ export const FooterSettingForm: React.FC = () => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-gray-700">Tiêu đề cột Hỗ trợ khách hàng</label>
+            <label className="text-xs font-semibold text-gray-700">Tiêu đề cột</label>
             <input
               type="text"
               {...register('customerSupportTitle')}
