@@ -55,6 +55,15 @@ export const metadata: Metadata = {
     description: "Thanh Bằng — Chuyên cung cấp phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chất lượng cao tại Việt Nam.",
     images: [`${SITE_URL}${DEFAULT_OG_IMAGE}`],
   },
+  icons: {
+    icon: [
+      { url: '/images/logo_thanh_bang.png', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/images/logo_thanh_bang.png', type: 'image/png' },
+    ],
+    shortcut: '/images/logo_thanh_bang.png',
+  },
 };
 
 export default async function RootLayout({
