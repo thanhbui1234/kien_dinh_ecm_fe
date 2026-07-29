@@ -78,8 +78,7 @@ export function CompanyOutlineTab() {
         )}
       </div>
 
-      {/* ── Thông tin cấu hình văn bản ── */}
-      {!settingsLoading && textSettings.length > 0 && (
+      {/* {!settingsLoading && textSettings.length > 0 && (
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-6">
           <div className="border-b border-gray-100 pb-3">
             <h2 className="text-sm font-bold text-black">CẤU HÌNH THÔNG TIN HỆ THỐNG</h2>
@@ -96,10 +95,10 @@ export function CompanyOutlineTab() {
             ))}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* ── Các nội dung HTML khác ── */}
-      {otherHtmlSettings.length > 0 && (
+      {/* {otherHtmlSettings.length > 0 && (
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-6">
           <div className="border-b border-gray-100 pb-3">
             <h2 className="text-sm font-bold text-black">NỘI DUNG MỞ RỘNG</h2>
@@ -114,7 +113,7 @@ export function CompanyOutlineTab() {
             />
           ))}
         </div>
-      )}
+      )} */}
     </div>
   );
 }

@@ -1,8 +1,12 @@
-import { CompanyInfoResponseDto, FacilityResponseDto, CompanyHistoryEventResponseDto } from '../../docs/dto-api';
+import { CompanyInfoResponseDto, FacilityResponseDto, CompanyHistoryEventResponseDto, CompanyLocationResponseDto, CreateCompanyLocationDto, UpdateCompanyLocationDto } from '../../docs/dto-api';
 
 export type CompanyInfo = CompanyInfoResponseDto;
 export type Facility = FacilityResponseDto;
 export type CompanyHistoryEvent = CompanyHistoryEventResponseDto;
+export type CompanyLocation = CompanyLocationResponseDto;
+export type CreateCompanyLocationInput = CreateCompanyLocationDto;
+export type UpdateCompanyLocationInput = UpdateCompanyLocationDto;
+
 
 export interface CompanyProfile {
   id: string;

@@ -1,19 +1,19 @@
 import { useState } from 'react';
-import { Building2, History, Factory, Images, Megaphone } from 'lucide-react';
+import { Building2, History, Factory, Images, MapPin } from 'lucide-react';
 import { CompanyOutlineTab } from '@/components/about/CompanyOutlineTab';
 import { TimelineSection } from '@/components/about/TimelineSection';
 import { FacilitiesTab } from '@/components/about/FacilitiesTab';
 import { BannerSection } from '@/components/about/BannerSection';
-import { SloganSection } from '@/components/about/SloganSection';
+import { LocationSectionTab } from '@/components/about/LocationSectionTab';
 
-type Tab = 'outline' | 'history' | 'banners' | 'slogans' | 'facilities';
+type Tab = 'outline' | 'history' | 'banners' | 'facilities' | 'locations';
 
 const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: 'outline', label: 'Sơ lược công ty', icon: Building2 },
   { id: 'history', label: 'Lịch sử phát triển', icon: History },
   { id: 'banners', label: 'Banner trang chủ', icon: Images },
-  { id: 'slogans', label: 'Slogan', icon: Megaphone },
   { id: 'facilities', label: 'Cơ sở sản xuất', icon: Factory },
+  { id: 'locations', label: 'Vị trí công ty', icon: MapPin },
 ];
 
 export default function AboutPage() {
@@ -24,7 +24,7 @@ export default function AboutPage() {
       <div>
         <h1 className="text-xl font-bold text-black">Về doanh nghiệp</h1>
         <p className="text-xs font-medium text-gray-500 mt-0.5">
-          Quản lý thông tin giới thiệu, lịch sử, banner, slogan và cơ sở sản xuất hiển thị trên website
+          Quản lý thông tin giới thiệu, lịch sử, banner, cơ sở sản xuất và vị trí hiển thị trên website
         </p>
       </div>
 
@@ -49,8 +49,8 @@ export default function AboutPage() {
       {activeTab === 'outline' && <CompanyOutlineTab />}
       {activeTab === 'history' && <TimelineSection />}
       {activeTab === 'banners' && <BannerSection />}
-      {activeTab === 'slogans' && <SloganSection />}
       {activeTab === 'facilities' && <FacilitiesTab />}
+      {activeTab === 'locations' && <LocationSectionTab />}
     </div>
   );
 }

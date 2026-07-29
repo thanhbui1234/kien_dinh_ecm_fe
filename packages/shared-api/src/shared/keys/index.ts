@@ -5,3 +5,5 @@ export * from './projects.keys';
 export * from './jobs.keys';
 export * from './leads.keys';
 export * from './settings.keys';
+export * from './about.keys';
+

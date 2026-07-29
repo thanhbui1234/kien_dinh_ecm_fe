@@ -1,6 +1,6 @@
 import { FetchClient } from '@/lib/fetch-client';
 import { API_ENDPOINTS } from 'shared-api';
-import type { CompanyInfo, Facility, CompanyHistoryEvent, CompanyProfile } from 'shared-api';
+import type { CompanyInfo, Facility, CompanyHistoryEvent, CompanyProfile, CompanyLocation } from 'shared-api';
 import { createSimpleListResource } from './resource-factory';
 
 export const createAboutApi = (client: FetchClient) => ({
@@ -17,5 +17,9 @@ export const createAboutApi = (client: FetchClient) => ({
   getHistoryEvents: (options?: RequestInit) => {
     const listResource = createSimpleListResource<CompanyHistoryEvent>(client, API_ENDPOINTS.ABOUT.HISTORY_EVENTS);
     return listResource({ ...options, next: { tags: ['about'] } } as any);
+  },
+  getCompanyLocations: (options?: RequestInit) => {
+    const listResource = createSimpleListResource<CompanyLocation>(client, API_ENDPOINTS.ABOUT.LOCATIONS);
+    return listResource({ ...options, next: { tags: ['about-locations'] } } as any);
   },
 });

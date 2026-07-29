@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tansta
 import { toast } from '@/utils/toast';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
-import type { CompanyProfile, UpdateCompanyProfileInput, CompanyHistoryEvent } from 'shared-api';
+import type { CompanyProfile, UpdateCompanyProfileInput, CompanyHistoryEvent, CompanyLocation, CreateCompanyLocationInput, UpdateCompanyLocationInput } from 'shared-api';
 import type { CompanyInfoItem, Facility } from '@/types/about';
 import { triggerRevalidate } from '@/utils/revalidate';
 
@@ -12,6 +12,7 @@ const aboutKeys = {
   historyEvents: () => [...aboutKeys.all, 'history-events'] as const,
   companyInfo: () => [...aboutKeys.all, 'company-info'] as const,
   facilities: () => [...aboutKeys.all, 'facilities'] as const,
+  locations: () => [...aboutKeys.all, 'locations'] as const,
 };
 
 // Company Profile
@@ -257,3 +258,88 @@ export const useDeleteFacility = () => {
     onError: (error: any) => toast.error(error),
   });
 };
+
+// Company Locations
+
+export const useCompanyLocations = () => {
+  return useQuery({
+    queryKey: aboutKeys.locations(),
+    queryFn: async () => {
+      const res = await axiosInstance.get<any, { data: CompanyLocation[] }>(API_ENDPOINTS.ABOUT.LOCATIONS);
+      return res.data;
+    },
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useCreateCompanyLocation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: CreateCompanyLocationInput) => {
+      const res = await axiosInstance.post<any, { data: CompanyLocation }>(API_ENDPOINTS.ABOUT.LOCATIONS, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Thêm vị trí thành công');
+      queryClient.invalidateQueries({ queryKey: aboutKeys.locations() });
+      triggerRevalidate('about-locations');
+    },
+    onError: (error: any) => toast.error(error),
+  });
+};
+
+export const useUpdateCompanyLocation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateCompanyLocationInput }) => {
+      const res = await axiosInstance.patch<any, { data: CompanyLocation }>(
+        API_ENDPOINTS.ABOUT.LOCATION_DETAIL(id),
+        data
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Cập nhật vị trí thành công');
+      queryClient.invalidateQueries({ queryKey: aboutKeys.locations() });
+      triggerRevalidate('about-locations');
+    },
+    onError: (error: any) => toast.error(error),
+  });
+};
+
+export const useUpdateCompanyLocationOrders = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (locations: { id: string; orderIndex: number }[]) => {
+      const res = await axiosInstance.patch<any, { data: CompanyLocation[] }>(
+        API_ENDPOINTS.ABOUT.LOCATIONS_ORDER,
+        { locations }
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: aboutKeys.locations() });
+      triggerRevalidate('about-locations');
+    },
+    onError: (error: any) => toast.error(error),
+  });
+};
+
+export const useDeleteCompanyLocation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await axiosInstance.delete<any, { data: CompanyLocation }>(
+        API_ENDPOINTS.ABOUT.LOCATION_DETAIL(id)
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Đã xóa vị trí');
+      queryClient.invalidateQueries({ queryKey: aboutKeys.locations() });
+      triggerRevalidate('about-locations');
+    },
+    onError: (error: any) => toast.error(error),
+  });
+};
+

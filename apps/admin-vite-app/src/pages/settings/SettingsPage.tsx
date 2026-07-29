@@ -3,6 +3,8 @@ import { Loader2 } from 'lucide-react';
 import { SystemSetting } from 'shared-api';
 import { SettingTextItem } from '@/components/common/SettingTextItem';
 import { SettingHtmlItem } from '@/components/common/SettingHtmlItem';
+import { ContactSettingForm } from './ContactSettingForm';
+import { FooterSettingForm } from './FooterSettingForm';
 
 export default function SettingsPage() {
   const { data: settings, isLoading } = useSystemSettings();
@@ -30,8 +32,11 @@ export default function SettingsPage() {
         <p className="text-xs font-medium text-gray-500 mt-0.5">Quản lý cấu hình chung cho website</p>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-6">
-        <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">CẤU HÌNH THÔNG TIN</h2>
+      <ContactSettingForm />
+      <FooterSettingForm />
+
+      {/* <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-6">
+        <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">CẤU HÌNH THÔNG TIN CHUNG</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {textSettings.map((setting: SystemSetting) => (
@@ -57,7 +62,8 @@ export default function SettingsPage() {
             ))}
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
+

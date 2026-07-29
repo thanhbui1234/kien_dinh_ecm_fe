@@ -45,11 +45,13 @@ function groupFacilities(facilities: Facility[]) {
 }
 
 export default async function AboutUsPage() {
-  const [profile, companyInfo, historyEvents, facilities] = await Promise.all([
+  const [profile, companyInfo, historyEvents, facilities, contactSetting, companyLocations] = await Promise.all([
     api.about.getProfile({ next: { revalidate: 3600 } } as RequestInit),
     api.about.getCompanyInfo({ next: { revalidate: 3600 } } as RequestInit),
     api.about.getHistoryEvents({ next: { revalidate: 3600 } } as RequestInit),
     api.about.getFacilities({ next: { revalidate: 3600 } } as RequestInit),
+    api.settings.getContactSetting({ next: { tags: ['contact-setting'] } } as RequestInit).catch(() => null),
+    api.about.getCompanyLocations({ next: { tags: ['about-locations'] } } as RequestInit).catch(() => []),
   ]);
 
   const introHtml = profile?.introHtml ?? '';
@@ -178,7 +180,7 @@ export default async function AboutUsPage() {
       )}
 
       {/* ── VỊ TRÍ ───────────────────────────────────────────── */}
-      <LocationSection />
+      <LocationSection locations={companyLocations ?? []} address={contactSetting?.address} mapUrl={contactSetting?.mapUrl} />
     </div>
   );
 }

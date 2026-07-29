@@ -3,7 +3,7 @@ import { toast } from '@/utils/toast';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { settingKeys } from 'shared-api';
-import { SystemSetting, Banner, Timeline, Slogan, PageMeta, UpdateSettingInput } from 'shared-api';
+import { SystemSetting, Banner, Timeline, Slogan, PageMeta, UpdateSettingInput, ContactSetting, UpdateContactSettingInput, FooterSetting, UpdateFooterSettingInput } from 'shared-api';
 import { triggerRevalidate } from '@/utils/revalidate';
 
 // System Settings
@@ -314,3 +314,67 @@ export const useDeleteTimeline = () => {
     }
   });
 };
+
+// Contact Setting
+export const useContactSetting = () => {
+  const client = axiosInstance;
+  return useQuery({
+    queryKey: settingKeys.contact(),
+    queryFn: async () => {
+      const response = await client.get<any, { data: ContactSetting }>(API_ENDPOINTS.CONTACT_SETTING.BASE);
+      return response.data;
+    },
+  });
+};
+
+export const useUpdateContactSetting = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: UpdateContactSettingInput) => {
+      const response = await client.patch<any, { data: ContactSetting }>(API_ENDPOINTS.CONTACT_SETTING.BASE, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Cập nhật thông tin liên hệ thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.contact() });
+      triggerRevalidate('contact-setting');
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+// Footer Setting
+export const useFooterSetting = () => {
+  const client = axiosInstance;
+  return useQuery({
+    queryKey: settingKeys.footer(),
+    queryFn: async () => {
+      const response = await client.get<any, { data: FooterSetting }>(API_ENDPOINTS.FOOTER_SETTING.BASE);
+      return response.data;
+    },
+  });
+};
+
+export const useUpdateFooterSetting = () => {
+  const client = axiosInstance;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: UpdateFooterSettingInput) => {
+      const response = await client.patch<any, { data: FooterSetting }>(API_ENDPOINTS.FOOTER_SETTING.BASE, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Cập nhật cấu hình Footer thành công");
+      queryClient.invalidateQueries({ queryKey: settingKeys.footer() });
+      triggerRevalidate('footer-setting');
+    },
+    onError: (error: any) => {
+      toast.error(error);
+    }
+  });
+};
+
+

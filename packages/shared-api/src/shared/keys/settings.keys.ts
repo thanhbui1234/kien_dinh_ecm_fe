@@ -4,4 +4,6 @@ export const settingKeys = {
   banners: () => [...settingKeys.all, 'banners'] as const,
   timelines: () => [...settingKeys.all, 'timelines'] as const,
   slogans: () => [...settingKeys.all, 'slogans'] as const,
+  contact: () => [...settingKeys.all, 'contact'] as const,
+  footer: () => [...settingKeys.all, 'footer'] as const,
 };

@@ -45,6 +45,12 @@ export const API_ENDPOINTS = {
     BANNERS: '/api/v1/settings/banners',
     BANNERS_DETAIL: (id: string) => `/api/v1/settings/banners/${id}`,
   },
+  CONTACT_SETTING: {
+    BASE: '/api/v1/contact-setting',
+  },
+  FOOTER_SETTING: {
+    BASE: '/api/v1/footer-setting',
+  },
   ABOUT: {
     PROFILE: '/api/v1/about/profile',
     COMPANY_INFO: '/api/v1/about/company-info',
@@ -53,5 +59,8 @@ export const API_ENDPOINTS = {
     FACILITY_DETAIL: (id: string) => `/api/v1/about/facilities/${id}`,
     HISTORY_EVENTS: '/api/v1/about/history-events',
     HISTORY_EVENT_DETAIL: (id: string) => `/api/v1/about/history-events/${id}`,
+    LOCATIONS: '/api/v1/about/locations',
+    LOCATION_DETAIL: (id: string) => `/api/v1/about/locations/${id}`,
+    LOCATIONS_ORDER: '/api/v1/about/locations/order',
   },
 } as const;

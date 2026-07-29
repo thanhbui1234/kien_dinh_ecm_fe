@@ -1,6 +1,6 @@
 import { FetchClient } from '@/lib/fetch-client';
 import { API_ENDPOINTS } from 'shared-api';
-import { Banner, Timeline, Slogan, SystemSetting } from 'shared-api';
+import { Banner, Timeline, Slogan, SystemSetting, ContactSetting, FooterSetting } from 'shared-api';
 import { createSimpleListResource } from './resource-factory';
 
 export const createSettingsApi = (client: FetchClient) => ({
@@ -19,5 +19,17 @@ export const createSettingsApi = (client: FetchClient) => ({
   getSystemSettings: (options?: RequestInit) => {
     const listResource = createSimpleListResource<SystemSetting>(client, API_ENDPOINTS.SETTINGS.SYSTEM);
     return listResource({ ...options, next: { tags: ['system-settings'] } } as any);
+  },
+  getContactSetting: (options?: RequestInit) => {
+    return client.safeGet<ContactSetting>(API_ENDPOINTS.CONTACT_SETTING.BASE, {
+      ...options,
+      next: { tags: ['contact-setting'] },
+    } as any);
+  },
+  getFooterSetting: (options?: RequestInit) => {
+    return client.safeGet<FooterSetting>(API_ENDPOINTS.FOOTER_SETTING.BASE, {
+      ...options,
+      next: { tags: ['footer-setting'] },
+    } as any);
   },
 });

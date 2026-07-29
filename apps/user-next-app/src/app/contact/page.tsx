@@ -50,6 +50,26 @@ export default async function ContactPage({
     }
   }
 
+  let contactSetting = null;
+  try {
+    contactSetting = await api.settings.getContactSetting();
+  } catch (e) {
+    console.error('Failed to fetch contact setting', e);
+  }
+
+  const title = contactSetting?.title || 'Liên hệ với chúng tôi';
+  const description =
+    contactSetting?.description ||
+    'Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn về sản phẩm và dịch vụ. Hãy để lại thông tin, đội ngũ tư vấn sẽ liên hệ với bạn trong thời gian sớm nhất.';
+  const hotline = contactSetting?.hotline || '0374 864 110';
+  const zalo = contactSetting?.zalo || '0374 864 110';
+  const email = contactSetting?.email || 'info@kiendinhecm.com';
+  const address = contactSetting?.address;
+  const workingHours = contactSetting?.workingHours;
+
+  const cleanHotline = hotline.replace(/\s+/g, '');
+  const zaloHref = zalo.startsWith('http') ? zalo : `https://zalo.me/${zalo.replace(/\s+/g, '')}`;
+
   const defaultMessage = jobTitle
     ? `Xin chào, tôi muốn ứng tuyển vị trí: ${jobTitle}.`
     : undefined;
@@ -67,12 +87,20 @@ export default async function ContactPage({
           {/* Left Column: Contact Info */}
           <div className="lg:col-span-2 flex flex-col gap-8">
             <div>
-              <h1 className="text-[32px] md:text-[40px] font-light text-[#111] leading-tight m-0 mb-4">
-                Liên hệ với<br />
-                <span className="font-medium text-[#5e8dd1]">chúng tôi</span>
+              <h1 className="text-[32px] md:text-[40px] font-light text-[#111] leading-tight m-0 mb-4 whitespace-pre-line">
+                {title.includes('Liên hệ với') ? (
+                  <>
+                    Liên hệ với<br />
+                    <span className="font-medium text-[#5e8dd1]">
+                      {title.replace('Liên hệ với', '').trim() || 'chúng tôi'}
+                    </span>
+                  </>
+                ) : (
+                  <span className="font-medium text-[#111]">{title}</span>
+                )}
               </h1>
               <p className="text-gray-500 text-[15px] leading-relaxed">
-                Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn về sản phẩm và dịch vụ. Hãy để lại thông tin, đội ngũ tư vấn sẽ liên hệ với bạn trong thời gian sớm nhất.
+                {description}
               </p>
             </div>
 
@@ -86,8 +114,8 @@ export default async function ContactPage({
                 </div>
                 <div className="pt-1">
                   <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Hotline tư vấn</p>
-                  <a href="tel:0374864110" className="text-[20px] font-semibold text-[#111] hover:text-[#5e8dd1] transition-colors no-underline">
-                    0374 864 110
+                  <a href={`tel:${cleanHotline}`} className="text-[20px] font-semibold text-[#111] hover:text-[#5e8dd1] transition-colors no-underline">
+                    {hotline}
                   </a>
                 </div>
               </div>
@@ -103,8 +131,8 @@ export default async function ContactPage({
                 </div>
                 <div className="pt-1">
                   <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Chat Zalo</p>
-                  <a href="https://zalo.me/0374864110" target="_blank" rel="noopener noreferrer" className="text-[16px] font-medium text-[#111] hover:text-[#0068FF] transition-colors no-underline">
-                    Zalo: 0374 864 110
+                  <a href={zaloHref} target="_blank" rel="noopener noreferrer" className="text-[16px] font-medium text-[#111] hover:text-[#0068FF] transition-colors no-underline">
+                    {zalo.includes('Zalo:') ? zalo : `Zalo: ${zalo}`}
                   </a>
                 </div>
               </div>
@@ -121,11 +149,47 @@ export default async function ContactPage({
                 </div>
                 <div className="pt-1">
                   <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Email</p>
-                  <a href="mailto:info@kiendinhecm.com" className="text-[16px] font-medium text-[#111] hover:text-[#5e8dd1] transition-colors no-underline">
-                    info@kiendinhecm.com
+                  <a href={`mailto:${email}`} className="text-[16px] font-medium text-[#111] hover:text-[#5e8dd1] transition-colors no-underline">
+                    {email}
                   </a>
                 </div>
               </div>
+
+              {address && (
+                <>
+                  <div className="w-full h-px bg-gray-100" />
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center shrink-0">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                    </div>
+                    <div className="pt-1">
+                      <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Địa chỉ</p>
+                      <p className="text-[15px] font-medium text-[#111] m-0">{address}</p>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {workingHours && (
+                <>
+                  <div className="w-full h-px bg-gray-100" />
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center shrink-0">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                      </svg>
+                    </div>
+                    <div className="pt-1">
+                      <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Giờ làm việc</p>
+                      <p className="text-[15px] font-medium text-[#111] m-0">{workingHours}</p>
+                    </div>
+                  </div>
+                </>
+              )}
 
             </div>
           </div>

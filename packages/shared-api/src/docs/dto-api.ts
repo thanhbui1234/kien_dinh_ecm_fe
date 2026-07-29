@@ -389,11 +389,11 @@ export interface ProjectResponseDto {
    * @format date-time
    */
   createdAt: string;
-  /** Chi tiết bài viết */
+  /** Chi tiết nội dung */
   detail?: ProjectDetailResponseDto;
   /** Danh sách URL ảnh gallery */
   images?: string[];
-  /** Danh sách ID sản phẩm */
+  /** Danh sách ID sản phẩm (dùng cho admin) */
   productIds?: string[];
   /** Danh sách ID danh mục */
   categoryIds?: string[];
@@ -426,6 +426,8 @@ export interface CreateProjectDto {
   productIds?: string[];
   /** Danh sách ID danh mục liên quan */
   categoryIds?: string[];
+  /** Danh sách URL ảnh gallery dự án */
+  images?: string[];
 }
 
 export interface UpdateProjectDto {
@@ -453,6 +455,8 @@ export interface UpdateProjectDto {
   productIds?: string[];
   /** Danh sách ID danh mục liên quan */
   categoryIds?: string[];
+  /** Danh sách URL ảnh gallery dự án */
+  images?: string[];
 }
 
 export interface JobDetailResponseDto {
@@ -518,6 +522,11 @@ export interface UpdateJobDto {
   sections?: object[];
 }
 
+export interface LeadJobDto {
+  id: string;
+  title: string;
+}
+
 export interface LeadResponseDto {
   /** ID Lead */
   id: string;
@@ -535,7 +544,7 @@ export interface LeadResponseDto {
   adminNote?: string | null;
   /** ID Sản phẩm quan tâm */
   targetProductId?: string | null;
-  /** ID Vị trí tuyển dụng quan tâm */
+  /** ID Vị trí tuyển dụng */
   targetJobId?: string | null;
   /**
    * Ngày tạo
@@ -545,7 +554,7 @@ export interface LeadResponseDto {
   /** Thông tin sản phẩm */
   product?: ProductResponseDto;
   /** Thông tin vị trí tuyển dụng */
-  job?: JobResponseDto;
+  job?: LeadJobDto | null;
 }
 
 export interface CreateLeadDto {
@@ -562,7 +571,7 @@ export interface CreateLeadDto {
   message: string;
   /** ID Sản phẩm khách hàng quan tâm */
   targetProductId?: string;
-  /** ID Vị trí tuyển dụng khách hàng quan tâm */
+  /** ID Vị trí tuyển dụng khách hàng muốn ứng tuyển */
   targetJobId?: string;
 }
 
@@ -643,62 +652,6 @@ export interface UpdateSloganDto {
   orderIndex?: number;
 }
 
-export interface TimelineResponseDto {
-  /** Năm */
-  year: string;
-  /** Tiêu đề sự kiện */
-  title: string;
-  /** Mô tả chi tiết */
-  description: string;
-  /**
-   * Thứ tự hiển thị
-   * @default 0
-   */
-  orderIndex?: number;
-  /** ID */
-  id: string;
-}
-
-export interface TimelineDto {
-  /** Năm */
-  year: string;
-  /** Tiêu đề sự kiện */
-  title: string;
-  /** Mô tả chi tiết */
-  description: string;
-  /**
-   * Thứ tự hiển thị
-   * @default 0
-   */
-  orderIndex?: number;
-}
-
-export interface UpdateTimelineOrderDto {
-  /** ID của timeline */
-  id: string;
-  /** Thứ tự mới */
-  orderIndex: number;
-}
-
-export interface UpdateTimelineOrdersDto {
-  /** Danh sách timeline với thứ tự mới */
-  timelines: UpdateTimelineOrderDto[];
-}
-
-export interface UpdateTimelineDto {
-  /** Năm */
-  year?: string;
-  /** Tiêu đề sự kiện */
-  title?: string;
-  /** Mô tả chi tiết */
-  description?: string;
-  /**
-   * Thứ tự hiển thị
-   * @default 0
-   */
-  orderIndex?: number;
-}
-
 export interface BannerResponseDto {
   /** Tiêu đề banner */
   title?: string;
@@ -735,6 +688,18 @@ export interface BannerDto {
   orderIndex?: number;
 }
 
+export interface UpdateBannerOrderDto {
+  /** ID của banner */
+  id: string;
+  /** Thứ tự mới */
+  orderIndex: number;
+}
+
+export interface UpdateBannerOrdersDto {
+  /** Danh sách banner với thứ tự mới */
+  banners: UpdateBannerOrderDto[];
+}
+
 export interface UpdateBannerDto {
   /** Tiêu đề banner */
   title?: string;
@@ -753,16 +718,17 @@ export interface UpdateBannerDto {
   status?: boolean;
 }
 
-export interface UpdateBannerOrderDto {
-  /** ID của banner */
+export interface CompanyProfileResponseDto {
   id: string;
-  /** Thứ tự mới */
-  orderIndex: number;
+  introHtml: string;
+  thumbnailUrl?: string;
 }
 
-export interface UpdateBannerOrdersDto {
-  /** Danh sách banner với thứ tự mới */
-  banners: UpdateBannerOrderDto[];
+export interface UpdateCompanyProfileDto {
+  /** Nội dung HTML giới thiệu công ty */
+  introHtml?: string;
+  /** URL ảnh thumbnail trang About */
+  thumbnailUrl?: string;
 }
 
 export interface CompanyInfoResponseDto {
@@ -776,6 +742,8 @@ export interface CompanyInfoResponseDto {
    * @example "1919"
    */
   value: string;
+  /** URL ảnh minh họa */
+  imageUrl?: string;
   /**
    * Thứ tự hiển thị
    * @default 0
@@ -796,6 +764,8 @@ export interface CreateCompanyInfoDto {
    * @example "1919"
    */
   value: string;
+  /** URL ảnh minh họa */
+  imageUrl?: string;
   /**
    * Thứ tự hiển thị
    * @default 0
@@ -814,6 +784,8 @@ export interface UpdateCompanyInfoDto {
    * @example "1919"
    */
   value?: string;
+  /** URL ảnh minh họa */
+  imageUrl?: string;
   /**
    * Thứ tự hiển thị
    * @default 0
@@ -822,11 +794,6 @@ export interface UpdateCompanyInfoDto {
 }
 
 export interface FacilityResponseDto {
-  /**
-   * Khu vực / vùng lãnh thổ
-   * @example "Đông Nam Á"
-   */
-  region: string;
   /**
    * Quốc gia
    * @example "Việt Nam"
@@ -858,27 +825,7 @@ export interface FacilityResponseDto {
   id: string;
 }
 
-export interface CompanyHistoryEventResponseDto {
-  /** ID */
-  id: string;
-  /** Giai đoạn lịch sử, ví dụ "1919 - 1950" */
-  period: string;
-  /** Năm cụ thể, ví dụ "1919" */
-  year: string;
-  /** Nội dung sự kiện */
-  text: string;
-  /** URL hình ảnh minh họa */
-  imageUrl?: string;
-  /** Thứ tự hiển thị */
-  orderIndex?: number;
-}
-
 export interface CreateFacilityDto {
-  /**
-   * Khu vực / vùng lãnh thổ
-   * @example "Đông Nam Á"
-   */
-  region: string;
   /**
    * Quốc gia
    * @example "Việt Nam"
@@ -910,11 +857,6 @@ export interface CreateFacilityDto {
 
 export interface UpdateFacilityDto {
   /**
-   * Khu vực / vùng lãnh thổ
-   * @example "Đông Nam Á"
-   */
-  region?: string;
-  /**
    * Quốc gia
    * @example "Việt Nam"
    */
@@ -941,4 +883,333 @@ export interface UpdateFacilityDto {
    * @default 0
    */
   orderIndex?: number;
+}
+
+export interface CompanyHistoryEventResponseDto {
+  /**
+   * Giai đoạn
+   * @example "1919 - 1950"
+   */
+  period: string;
+  /**
+   * Năm
+   * @example "1919"
+   */
+  year: string;
+  /**
+   * Nội dung sự kiện
+   * @example "Thành lập công ty tại Nagoya."
+   */
+  text: string;
+  /** URL hình ảnh */
+  imageUrl?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+  /** ID */
+  id: string;
+}
+
+export interface CreateCompanyHistoryEventDto {
+  /**
+   * Giai đoạn
+   * @example "1919 - 1950"
+   */
+  period: string;
+  /**
+   * Năm
+   * @example "1919"
+   */
+  year: string;
+  /**
+   * Nội dung sự kiện
+   * @example "Thành lập công ty tại Nagoya."
+   */
+  text: string;
+  /** URL hình ảnh */
+  imageUrl?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+}
+
+export interface UpdateHistoryEventOrderDto {
+  /** ID của sự kiện lịch sử */
+  id: string;
+  /** Thứ tự mới */
+  orderIndex: number;
+}
+
+export interface UpdateHistoryEventOrdersDto {
+  /** Danh sách sự kiện với thứ tự mới */
+  events: UpdateHistoryEventOrderDto[];
+}
+
+export interface UpdateCompanyHistoryEventDto {
+  /**
+   * Giai đoạn
+   * @example "1919 - 1950"
+   */
+  period?: string;
+  /**
+   * Năm
+   * @example "1919"
+   */
+  year?: string;
+  /**
+   * Nội dung sự kiện
+   * @example "Thành lập công ty tại Nagoya."
+   */
+  text?: string;
+  /** URL hình ảnh */
+  imageUrl?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+}
+
+export interface CompanyLocationResponseDto {
+  /**
+   * Tiêu đề vị trí
+   * @example "Vị trí nhà máy"
+   */
+  title: string;
+  /**
+   * Nhãn địa chỉ
+   * @example "ĐỊA CHỈ NHÀ MÁY"
+   */
+  addressLabel: string;
+  /**
+   * Địa chỉ chi tiết
+   * @example "Công Ty Cổ Phần Thanh Bằng, Xuân Trường, Ninh Bình 420000, Việt Nam"
+   */
+  address: string;
+  /**
+   * Đường dẫn liên kết chỉ đường Google Maps
+   * @example "https://maps.google.com/?q=..."
+   */
+  directionsUrl?: string;
+  /**
+   * Đường dẫn URL nhúng bản đồ Google Maps (iframe src hoặc chuỗi HTML iframe)
+   * @example "https://www.google.com/maps/embed?pb=..."
+   */
+  mapUrl?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+  /** ID */
+  id: string;
+  /**
+   * Thời gian tạo
+   * @format date-time
+   */
+  createdAt: string;
+  /**
+   * Thời gian cập nhật
+   * @format date-time
+   */
+  updatedAt: string;
+}
+
+export interface CreateCompanyLocationDto {
+  /**
+   * Tiêu đề vị trí
+   * @example "Vị trí nhà máy"
+   */
+  title: string;
+  /**
+   * Nhãn địa chỉ
+   * @example "ĐỊA CHỈ NHÀ MÁY"
+   */
+  addressLabel: string;
+  /**
+   * Địa chỉ chi tiết
+   * @example "Công Ty Cổ Phần Thanh Bằng, Xuân Trường, Ninh Bình 420000, Việt Nam"
+   */
+  address: string;
+  /**
+   * Đường dẫn liên kết chỉ đường Google Maps
+   * @example "https://maps.google.com/?q=..."
+   */
+  directionsUrl?: string;
+  /**
+   * Đường dẫn URL nhúng bản đồ Google Maps (iframe src hoặc chuỗi HTML iframe)
+   * @example "https://www.google.com/maps/embed?pb=..."
+   */
+  mapUrl?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+}
+
+export interface UpdateCompanyLocationOrderDto {
+  /** ID của vị trí công ty */
+  id: string;
+  /** Thứ tự mới */
+  orderIndex: number;
+}
+
+export interface UpdateCompanyLocationOrdersDto {
+  /** Danh sách vị trí với thứ tự mới */
+  locations: UpdateCompanyLocationOrderDto[];
+}
+
+export interface UpdateCompanyLocationDto {
+  /**
+   * Tiêu đề vị trí
+   * @example "Vị trí nhà máy"
+   */
+  title?: string;
+  /**
+   * Nhãn địa chỉ
+   * @example "ĐỊA CHỈ NHÀ MÁY"
+   */
+  addressLabel?: string;
+  /**
+   * Địa chỉ chi tiết
+   * @example "Công Ty Cổ Phần Thanh Bằng, Xuân Trường, Ninh Bình 420000, Việt Nam"
+   */
+  address?: string;
+  /**
+   * Đường dẫn liên kết chỉ đường Google Maps
+   * @example "https://maps.google.com/?q=..."
+   */
+  directionsUrl?: string;
+  /**
+   * Đường dẫn URL nhúng bản đồ Google Maps (iframe src hoặc chuỗi HTML iframe)
+   * @example "https://www.google.com/maps/embed?pb=..."
+   */
+  mapUrl?: string;
+  /**
+   * Thứ tự hiển thị
+   * @default 0
+   */
+  orderIndex?: number;
+}
+
+export interface AiChatDto {
+  /**
+   * Câu hỏi hoặc tin nhắn gửi cho AI (Tối đa 300 ký tự)
+   * @maxLength 300
+   * @pattern ^(?!.*(<script|<iframe|javascript:|SELECT\s+|DROP\s+|DELETE\s+FROM|UNION\s+SELECT)).*$
+   * @example "Bên bạn có máy phay CNC nào giá dưới 1 tỷ không?"
+   */
+  message: string;
+  /**
+   * ID phiên hội thoại (UUID) giúp AI nhớ lịch sử câu hỏi trước đó
+   * @example "c9b4a123-4567-89ab-cdef-0123456789ab"
+   */
+  sessionId?: string;
+}
+
+export interface AiChatResponseDto {
+  /**
+   * Câu trả lời từ Trợ lý AI
+   * @example "Hiện tại Công ty Thanh Bằng có dòng máy phay CNC..."
+   */
+  reply: string;
+  /**
+   * Đánh dấu phản hồi được lấy từ Cache (nhanh hơn & tiết kiệm quota)
+   * @example false
+   */
+  cached: boolean;
+  /**
+   * ID phiên hội thoại được cấp hoặc duy trì
+   * @example "c9b4a123-4567-89ab-cdef-0123456789ab"
+   */
+  sessionId?: string;
+}
+
+export interface ContactSettingResponseDto {
+  /**
+   * ID singleton
+   * @example "singleton"
+   */
+  id: string;
+  /**
+   * Tiêu đề khối liên hệ
+   * @example "Liên hệ với chúng tôi"
+   */
+  title: string;
+  /** Mô tả ngắn khối liên hệ */
+  description: string;
+  /**
+   * Hotline tư vấn
+   * @example "0374 864 110"
+   */
+  hotline: string;
+  /**
+   * Chat Zalo
+   * @example "0374 864 110"
+   */
+  zalo: string;
+  /**
+   * Email liên hệ
+   * @example "info@kiendinhecm.com"
+   */
+  email: string;
+  /** Địa chỉ */
+  address?: string;
+  /** Thời gian làm việc */
+  workingHours?: string;
+  /** URL nhúng bản đồ Google Maps */
+  mapUrl?: string;
+  /**
+   * Thời gian cập nhật
+   * @format date-time
+   */
+  updatedAt: string;
+}
+
+export interface UpdateContactSettingDto {
+  /**
+   * Tiêu đề khối liên hệ
+   * @example "Liên hệ với chúng tôi"
+   */
+  title?: string;
+  /**
+   * Mô tả ngắn khối liên hệ
+   * @example "Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn về sản phẩm và dịch vụ. Hãy để lại thông tin, đội ngũ tư vấn sẽ liên hệ với bạn trong thời gian sớm nhất."
+   */
+  description?: string;
+  /**
+   * Số hotline tư vấn
+   * @example "0374 864 110"
+   */
+  hotline?: string;
+  /**
+   * Số hoặc liên kết Zalo
+   * @example "0374 864 110"
+   */
+  zalo?: string;
+  /**
+   * Địa chỉ Email liên hệ
+   * @example "info@kiendinhecm.com"
+   */
+  email?: string;
+  /**
+   * Địa chỉ công ty/văn phòng
+   * @example "Hà Nội, Việt Nam"
+   */
+  address?: string;
+  /**
+   * Thời gian làm việc
+   * @example "8:00 - 17:30 (Thứ 2 - Thứ 6)"
+   */
+  workingHours?: string;
+  /**
+   * Đường dẫn URL nhúng bản đồ Google Maps (src URL hoặc mã <iframe ...>)
+   * @example "https://www.google.com/maps/embed?pb=..."
+   */
+  mapUrl?: string;
 }
