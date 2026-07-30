@@ -12,7 +12,7 @@ interface MediaPickerModalProps {
 }
 
 export function MediaPickerModal({ isOpen, onOpenChange, onSelect }: MediaPickerModalProps) {
-  const { data, isLoading } = useGetFiles();
+  const { data, isLoading } = useGetFiles(undefined, isOpen);
   const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
 
   const formatFileSize = (bytes: number) => {

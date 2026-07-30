@@ -13,6 +13,7 @@ export const ProductDetailSchema = z.object({
   specifications: z.record(z.string(), z.any()),
   seoMeta: z.record(z.string(), z.any()).optional(),
   features: z.record(z.string(), z.any()).optional(),
+  videoUrls: z.array(z.string()).optional(),
 });
 
 export const ProductSchema = z.object({
@@ -51,6 +52,7 @@ export const CreateProductSchema = z.object({
   features: z.record(z.string(), z.any()).optional(),
   seoMeta: z.record(z.string(), z.any()).optional(),
   images: z.array(CreateProductImageSchema).optional(),
+  videoUrls: z.array(z.string()).optional(),
 });
 
 // Update schema can inherit and make partial

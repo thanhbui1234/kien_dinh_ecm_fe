@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { motion, AnimatePresence, useReducedMotion, type PanInfo } from 'framer-motion';
 import 'yet-another-react-lightbox/styles.css';
 import type { Product, Category } from 'shared-api';
 import ProductViewTracker from './ProductViewTracker';
@@ -17,7 +18,18 @@ interface Props {
   relatedProducts?: Product[];
 }
 
-function ImageGallery({ images, thumbnail, name }: { images?: Product['images']; thumbnail: string; name: string }) {
+// Accepts watch?v=, youtu.be/, embed/, shorts/ links, with or without extra
+// query params (?si=, &list=, &t=...) — admins paste whatever YouTube gives them.
+function getYoutubeId(url: string): string | null {
+  const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
+
+type MediaItem =
+  | { type: 'image'; src: string }
+  | { type: 'video'; src: string; youtubeId: string | null; directUrl: string };
+
+function ImageGallery({ images, thumbnail, name, videoUrls }: { images?: Product['images']; thumbnail: string; name: string; videoUrls?: string[] }) {
   const sorted = (images && images.length > 0)
     ? [...images].sort((a, b) => {
       if (a.isMain && !b.isMain) return -1;
@@ -32,28 +44,125 @@ function ImageGallery({ images, thumbnail, name }: { images?: Product['images'];
   const thumbList = sorted.length > 0
     ? (hasMain ? imageUrls : [thumbnail, ...imageUrls])
     : (thumbnail ? [thumbnail] : []);
-  const [active, setActive] = useState<string>(thumbList[0] ?? '');
+
+  const mediaItems: MediaItem[] = [
+    ...thumbList.map((src): MediaItem => ({ type: 'image', src })),
+    ...(videoUrls ?? []).map((url): MediaItem => {
+      const youtubeId = getYoutubeId(url);
+      return {
+        type: 'video',
+        src: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : url,
+        youtubeId,
+        directUrl: url,
+      };
+    }),
+  ];
+
+  const [[activeIndex, direction], setActive] = useState<[number, number]>([0, 0]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const shouldReduceMotion = useReducedMotion();
+  const lastDragOffsetX = useRef(0);
+  const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const slides = thumbList.map((src) => ({ src }));
+  const active = mediaItems[activeIndex];
+  const slides = mediaItems.map((item) =>
+    item.type === 'video' ? { src: item.src, youtubeId: item.youtubeId, directUrl: item.directUrl } : { src: item.src }
+  );
+
+  useEffect(() => {
+    thumbRefs.current[activeIndex]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }, [activeIndex]);
+
+  const goTo = (nextIndex: number) => {
+    if (nextIndex < 0 || nextIndex >= mediaItems.length || nextIndex === activeIndex) return;
+    setActive([nextIndex, nextIndex > activeIndex ? 1 : -1]);
+  };
 
   const openLightbox = () => {
-    const idx = thumbList.indexOf(active);
-    setLightboxIndex(idx >= 0 ? idx : 0);
+    setLightboxIndex(activeIndex);
     setLightboxOpen(true);
+  };
+
+  const handleDragEnd = (_: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
+    lastDragOffsetX.current = info.offset.x;
+    const swipePower = Math.abs(info.offset.x) * info.velocity.x;
+    if (swipePower < -6000) goTo(activeIndex + 1);
+    else if (swipePower > 6000) goTo(activeIndex - 1);
+  };
+
+  const handleMediaClick = () => {
+    // Suppress the tap-to-zoom click that follows a drag gesture.
+    if (Math.abs(lastDragOffsetX.current) > 5) {
+      lastDragOffsetX.current = 0;
+      return;
+    }
+    openLightbox();
+  };
+
+  const slideVariants = {
+    enter: (dir: number) => ({ x: shouldReduceMotion ? 0 : `${dir > 0 ? 100 : -100}%`, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: shouldReduceMotion ? 0 : `${dir > 0 ? -100 : 100}%`, opacity: 0 }),
   };
 
   return (
     <div className="flex flex-col gap-3 lg:sticky lg:top-[100px]">
-      {/* Main image — click to open lightbox */}
-      <button
-        onClick={openLightbox}
-        className="relative aspect-square bg-[#f5f5f5] rounded-2xl overflow-hidden cursor-zoom-in group/zoom w-full"
-        aria-label="Xem ảnh lớn"
+      {/* Main media — drag/swipe between items, click to open lightbox */}
+      <div
+        className="relative aspect-square bg-[#f5f5f5] rounded-2xl overflow-hidden group/zoom w-full"
+        role="group"
+        aria-roledescription="carousel"
+        aria-label={name}
       >
         {active ? (
-          <Image src={active} alt={name} fill className="object-contain p-8 transition-transform duration-300 group-hover/zoom:scale-[1.03]" sizes="(max-width: 768px) 100vw, 50vw" />
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.div
+              key={activeIndex}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ x: { type: 'spring', stiffness: 420, damping: 42 }, opacity: { duration: 0.15 } }}
+              drag={mediaItems.length > 1 ? 'x' : false}
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.4}
+              onDragEnd={handleDragEnd}
+              onClick={handleMediaClick}
+              className="absolute inset-0 cursor-zoom-in touch-pan-y"
+              aria-label={active.type === 'video' ? 'Phát video sản phẩm' : 'Xem ảnh lớn'}
+            >
+              <Image
+                src={active.src}
+                alt={name}
+                fill
+                draggable={false}
+                className="object-contain p-8 transition-transform duration-300 pointer-events-none select-none group-hover/zoom:scale-[1.03]"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority={activeIndex === 0}
+              />
+              {/* Video play affordance */}
+              {active.type === 'video' && (
+                <div className="absolute inset-0 bg-black/10 group-hover/zoom:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-white/90 group-hover/zoom:bg-[#5e8dd1] flex items-center justify-center transition-colors duration-300 shadow-sm">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M8 5v14l11-7z" className="fill-[#111] group-hover/zoom:fill-white transition-colors duration-300" />
+                    </svg>
+                  </div>
+                </div>
+              )}
+              {/* Zoom hint */}
+              {active.type === 'image' && (
+                <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/zoom:opacity-100 transition-opacity duration-200">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+                    <path d="M11 8v6M8 11h6" />
+                  </svg>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-gray-300">
             <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
@@ -62,28 +171,65 @@ function ImageGallery({ images, thumbnail, name }: { images?: Product['images'];
             </svg>
           </div>
         )}
-        {/* Zoom hint */}
-        {active && (
-          <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/zoom:opacity-100 transition-opacity duration-200">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
-              <path d="M11 8v6M8 11h6" />
-            </svg>
-          </div>
+
+        {/* Prev/next arrows — desktop pointer users; touch users swipe */}
+        {mediaItems.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => goTo(activeIndex - 1)}
+              disabled={activeIndex === 0}
+              aria-label="Ảnh/video trước"
+              className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full bg-white/90 shadow-sm text-[#111] opacity-0 group-hover/zoom:opacity-100 disabled:opacity-0 transition-opacity duration-200 hover:bg-white hover:text-[#5e8dd1] cursor-pointer"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo(activeIndex + 1)}
+              disabled={activeIndex === mediaItems.length - 1}
+              aria-label="Ảnh/video tiếp theo"
+              className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full bg-white/90 shadow-sm text-[#111] opacity-0 group-hover/zoom:opacity-100 disabled:opacity-0 transition-opacity duration-200 hover:bg-white hover:text-[#5e8dd1] cursor-pointer"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+
+            {/* Position indicator */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/20 backdrop-blur-sm">
+              {mediaItems.map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-1 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-4 bg-white' : 'w-1 bg-white/50'}`}
+                />
+              ))}
+            </div>
+          </>
         )}
-      </button>
+      </div>
 
       {/* Thumbnails */}
-      {thumbList.length > 1 && (
+      {mediaItems.length > 1 && (
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-          {thumbList.map((src, i) => (
+          {mediaItems.map((item, i) => (
             <button
               key={i}
-              onClick={() => setActive(src)}
-              className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 bg-[#f5f5f5] ${active === src ? 'border-[#5e8dd1]' : 'border-transparent hover:border-gray-200'
+              ref={(el) => { thumbRefs.current[i] = el; }}
+              onClick={() => goTo(i)}
+              className={`relative shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 bg-[#f5f5f5] ${activeIndex === i ? 'border-[#5e8dd1]' : 'border-transparent hover:border-gray-200'
                 }`}
             >
-              <Image src={src} alt="" width={64} height={64} className="object-contain w-full h-full p-1.5" />
+              <Image src={item.src} alt="" width={64} height={64} className="object-contain w-full h-full p-1.5" />
+              {item.type === 'video' && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              )}
             </button>
           ))}
         </div>
@@ -93,9 +239,31 @@ function ImageGallery({ images, thumbnail, name }: { images?: Product['images'];
       <Lightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
-        slides={slides}
+        slides={slides as any}
         index={lightboxIndex}
         on={{ view: ({ index }) => setLightboxIndex(index) }}
+        render={{
+          slide: ({ slide }: any) => {
+            if (slide.youtubeId === undefined) return undefined;
+            return slide.youtubeId ? (
+              <div className="w-full h-full flex items-center justify-center p-4 md:p-10">
+                <div className="w-full max-w-4xl aspect-video">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${slide.youtubeId}?autoplay=1&rel=0`}
+                    title="Video sản phẩm"
+                    className="w-full h-full rounded-lg"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center p-4 md:p-10">
+                <video src={slide.directUrl} controls autoPlay className="max-w-4xl w-full max-h-full rounded-lg" />
+              </div>
+            );
+          },
+        }}
       />
     </div>
   );
@@ -200,7 +368,7 @@ export default function ProductDetailClient({ product, category, relatedProducts
         bottomSectionRef={bottomSectionRef}
       />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-        <ImageGallery images={product.images} thumbnail={product.thumbnailUrl} name={product.name} />
+        <ImageGallery images={product.images} thumbnail={product.thumbnailUrl} name={product.name} videoUrls={product.detail?.videoUrls} />
 
         <div className="flex flex-col gap-6">
           {category && (

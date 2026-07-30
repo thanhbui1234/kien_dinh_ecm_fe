@@ -1,9 +1,9 @@
 import { type ChangeEvent, type DragEvent, useRef, useState, useEffect, useId } from 'react';
 import { ImagePlus, X, Image as ImageIcon, Loader2, FolderSearch, Scissors, Square } from 'lucide-react';
-import { useUpload } from '@/queries/upload/useUpload';
 import { toast } from '@/utils/toast';
+import { resetStrayScroll } from '@/utils/scroll';
 import imageCompression from 'browser-image-compression';
-import { removeBackground } from '@imgly/background-removal';
+import { getFileBgOption, setFileBgOption, type BgOption } from '@/utils/fileBgOption';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MediaPickerModal } from './MediaPickerModal';
 
@@ -14,50 +14,97 @@ const aiOptions = [
 ];
 
 interface FileUploadProps {
-  value?: string;
-  onChange?: (url: string) => void;
+  value?: string | File;
+  onChange?: (value: string | File) => void;
   label?: string;
-  bgOption?: 'none' | 'transparent' | 'cloudinary_white';
-  publicId?: string;
+  bgOption?: BgOption;
 }
 
-export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOption = 'none', publicId }: FileUploadProps) {
+export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOption = 'none' }: FileUploadProps) {
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [localBgOption, setLocalBgOption] = useState<'none' | 'transparent' | 'cloudinary_white'>(bgOption);
-  const [isProcessingAI, setIsProcessingAI] = useState(false);
+  const [valueObjectUrl, setValueObjectUrl] = useState<string | null>(null);
+  const [localBgOption, setLocalBgOption] = useState<BgOption>(bgOption);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadMutation = useUpload();
   const inputId = useId();
 
   const validFileTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
-  // Cleanup object URL
+  // Cleanup object URL for the transient (still-compressing) preview
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
 
-  const handleSelectFile = (selectedFile: File | undefined) => {
-    if (!selectedFile) return;
-    if (validFileTypes.includes(selectedFile.type)) {
-      setPendingFile(selectedFile);
-      setPreviewUrl(URL.createObjectURL(selectedFile));
-      setProgress(0);
+  // Preview a selected-but-not-yet-uploaded value (blob URL). Note: this can
+  // be a Blob rather than a true File instance, since browser-image-compression
+  // returns a Blob at runtime despite its .d.ts claiming Promise<File>.
+  useEffect(() => {
+    if (value && typeof value !== 'string') {
+      const url = URL.createObjectURL(value);
+      setValueObjectUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+    setValueObjectUrl(null);
+  }, [value]);
+
+  // The AI background-removal option is a per-file choice (applied later, at
+  // submit time) — keep the dropdown in sync with whichever file is current.
+  useEffect(() => {
+    if (value && typeof value !== 'string') {
+      setLocalBgOption(getFileBgOption(value));
     } else {
-      toast.error(null, 'Vui lòng chọn file ảnh hợp lệ (JPG, PNG, WEBP, GIF).');
+      setLocalBgOption(bgOption);
+    }
+  }, [value, bgOption]);
+
+  const displaySrc = typeof value === 'string' ? value : valueObjectUrl;
+
+  const handleBgOptionChange = (option: BgOption) => {
+    setLocalBgOption(option);
+    if (value && typeof value !== 'string') {
+      setFileBgOption(value, option);
     }
   };
 
-  const cancelPending = () => {
+  // Selecting a file commits it immediately — no separate confirm step.
+  // Only compression runs here; AI background removal (if chosen via the
+  // dropdown once the file is the current value) is deferred to submit time.
+  const handleSelectFile = async (selectedFile: File | undefined) => {
+    if (!selectedFile) return;
+    if (!validFileTypes.includes(selectedFile.type)) {
+      toast.error(null, 'Vui lòng chọn file ảnh hợp lệ (JPG, PNG, WEBP, GIF).');
+      return;
+    }
+
+    setPendingFile(selectedFile);
+    setPreviewUrl(URL.createObjectURL(selectedFile));
+
+    let fileToUse = selectedFile;
+    if (fileToUse.type !== 'image/gif') {
+      try {
+        setIsProcessing(true);
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+          fileType: fileToUse.type as string, // Preserve type
+        };
+        fileToUse = await imageCompression(fileToUse, options);
+      } catch (error) {
+        console.error('Lỗi nén ảnh:', error);
+        toast.error(null, 'Lỗi nén ảnh, hệ thống sẽ sử dụng ảnh gốc.');
+      }
+    }
+
+    setIsProcessing(false);
     setPendingFile(null);
     setPreviewUrl(null);
-    setProgress(0);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    onChange?.(fileToUse);
   };
 
   const handleSelectFromLibrary = (url: string) => {
@@ -65,97 +112,9 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
     setIsMediaPickerOpen(false);
   };
 
-  const handleConfirmUpload = async () => {
-    if (!pendingFile) return;
-
-    let fileToUpload = pendingFile;
-
-    if (localBgOption === 'transparent' || localBgOption === 'cloudinary_white') {
-      try {
-        setIsProcessingAI(true);
-        toast.info('Đang xử lý AI tách nền, vui lòng đợi một chút...');
-        
-        const blob = await removeBackground(pendingFile);
-        
-        if (localBgOption === 'cloudinary_white') {
-          const img = new Image();
-          img.src = URL.createObjectURL(blob);
-          await new Promise((r) => { img.onload = r; });
-          
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
-            const whiteBlob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/jpeg', 0.95));
-            if (whiteBlob) {
-              fileToUpload = new File([whiteBlob], pendingFile.name.replace(/\.[^/.]+$/, "") + "_white.jpg", { type: 'image/jpeg' });
-            }
-          }
-        } else {
-          fileToUpload = new File([blob], pendingFile.name.replace(/\.[^/.]+$/, "") + "_transparent.png", { type: 'image/png' });
-        }
-      } catch (error) {
-        console.error('Lỗi xóa nền AI:', error);
-        toast.error(null, 'Xử lý nền thất bại, hệ thống sẽ sử dụng ảnh gốc.');
-      } finally {
-        setIsProcessingAI(false);
-      }
-    }
-
-    if (fileToUpload.type !== 'image/gif') {
-      try {
-        const options = {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1920,
-          useWebWorker: true,
-          fileType: fileToUpload.type as string, // Preserve type
-        };
-        fileToUpload = await imageCompression(fileToUpload, options);
-      } catch (error) {
-        console.error('Lỗi nén ảnh:', error);
-        toast.error(null, 'Lỗi nén ảnh, hệ thống sẽ sử dụng ảnh gốc.');
-      }
-    }
-
-    setProgress(0);
-    
-    uploadMutation.mutate({
-      file: fileToUpload,
-      publicId,
-      onUploadProgress: (progressEvent: any) => {
-        if (progressEvent.total) {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setProgress(percentCompleted);
-        }
-      }
-    }, {
-      onSuccess: (res) => {
-        let url = res?.url || (res as any)?.data?.url || (res as any)?.secure_url || (res as any)?.data?.secure_url;
-        if (typeof res === 'string') {
-          url = res;
-        }
-        
-        if (url && typeof url === 'string') {
-           onChange?.(url);
-        } else {
-           console.error("Upload failed: Could not extract URL from response", res);
-           toast.error(null, 'Lỗi: Không nhận được đường dẫn ảnh từ server.');
-        }
-        cancelPending();
-      },
-      onError: () => {
-        toast.error(null, 'Lỗi tải ảnh lên server.');
-        setProgress(0);
-      }
-    });
-  };
-
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     handleSelectFile(event.target.files?.[0]);
+    resetStrayScroll();
   };
 
   const handleDrop = (event: DragEvent<HTMLLabelElement>) => {
@@ -164,8 +123,10 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
   };
 
   const resetFile = () => {
-    cancelPending();
-    onChange?.(''); 
+    setPendingFile(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    onChange?.('');
   };
 
   const formatFileSize = (bytes: number) => {
@@ -176,8 +137,6 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
     return Number.parseFloat((bytes / k ** i).toFixed(1)) + ' ' + sizes[i];
   };
 
-  const isUploading = uploadMutation.isPending || isProcessingAI;
-
   return (
     <div className="flex w-full flex-col">
       {label && (
@@ -186,96 +145,75 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
         </h3>
       )}
 
-      {/* Preview đã tải lên thành công */}
-      {value && !isUploading && !pendingFile && (
-        <div className="relative group rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
-          <img src={value} alt="Preview" className="max-h-56 w-auto object-contain" />
-          <div className="absolute inset-0 bg-white/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
-            <button
-              onClick={resetFile}
-              className="flex items-center gap-2 h-9 px-4 rounded-md bg-white border border-gray-300 text-black text-xs font-bold hover:bg-gray-50 hover:text-red-600 hover:border-red-200 transition-colors shadow-sm"
-            >
-              <X className="h-3.5 w-3.5" /> GỠ ẢNH
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Preview ảnh đang chờ upload */}
-      {pendingFile && (
-        <div className="flex flex-col gap-4">
-          <div className="relative group rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZjBmMGYwIi8+PHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIGZpbGw9IiNmMGYwZjAiLz48L3N2Zz4=')]">
-            <img src={previewUrl!} alt="Preview Pending" className="max-h-56 w-auto object-contain" />
-          </div>
-
-          {!isUploading ? (
-            <div className="flex flex-col gap-3 rounded-lg bg-gray-50 p-4 border border-gray-200">
-              <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Xử lý nền ảnh (AI)</label>
-                <Select value={localBgOption} onValueChange={(val: any) => setLocalBgOption(val)}>
-                  <SelectTrigger className="w-full h-10">
-                    <div className="flex items-center gap-2">
-                      {(() => {
-                        const SelectedIcon = aiOptions.find(o => o.value === localBgOption)?.icon || ImageIcon;
-                        return <SelectedIcon className="h-4 w-4 text-gray-500" />;
-                      })()}
-                      <SelectValue />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {aiOptions.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        <div className="flex items-center gap-2">
-                          <opt.icon className="h-4 w-4 text-gray-500" />
-                          <span className="font-medium text-black">{opt.label}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center gap-2 mt-2">
-                <button type="button" onClick={handleConfirmUpload} className="flex-1 h-9 bg-black text-white rounded-md text-sm font-bold hover:bg-gray-800 transition-colors shadow-sm">
-                  Xác nhận & Tải lên
-                </button>
-                <button type="button" onClick={cancelPending} className="px-4 h-9 bg-white border border-gray-300 text-black rounded-md text-sm font-bold hover:bg-gray-50 transition-colors shadow-sm">
-                  Hủy
-                </button>
-              </div>
+      {/* Ảnh đã chọn (chưa hoặc đã tải lên) */}
+      {value && !isProcessing && !pendingFile && (
+        <div className="flex flex-col gap-3">
+          <div className="relative group rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
+            <img src={displaySrc || undefined} alt="Preview" className="max-h-56 w-auto object-contain" />
+            <div className="absolute inset-0 bg-white/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
+              <button
+                onClick={resetFile}
+                className="flex items-center gap-2 h-9 px-4 rounded-md bg-white border border-gray-300 text-black text-xs font-bold hover:bg-gray-50 hover:text-red-600 hover:border-red-200 transition-colors shadow-sm"
+              >
+                <X className="h-3.5 w-3.5" /> GỠ ẢNH
+              </button>
             </div>
-          ) : (
-            <div className="relative flex flex-col gap-3 rounded-lg bg-white p-4 shadow-sm border border-gray-200">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-gray-50">
-                  <Loader2 className="h-5 w-5 text-black animate-spin" />
-                </span>
-                <div className="flex-1 min-w-0 pr-2">
-                  <p className="truncate font-bold text-black text-sm">
-                    {isProcessingAI ? 'Đang xử lý tách nền bằng AI...' : 'Đang tải lên server...'}
-                  </p>
-                  <p className="mt-0.5 text-gray-500 font-medium text-xs">
-                    {formatFileSize(pendingFile.size)}
-                  </p>
-                </div>
-              </div>
-              {!isProcessingAI && (
-                <div className="flex items-center gap-3">
-                  <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-black transition-all duration-300 ease-out" 
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                  <span className="text-black text-xs font-bold w-8 text-right">{progress}%</span>
-                </div>
+          </div>
+
+          {/* Ảnh chưa tải lên server — cho phép chọn xử lý nền AI, sẽ áp dụng khi lưu */}
+          {typeof value !== 'string' && (
+            <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Xử lý nền ảnh (AI)</label>
+              <Select value={localBgOption} onValueChange={handleBgOptionChange}>
+                <SelectTrigger className="w-full h-10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {aiOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      <div className="flex items-center gap-2">
+                        <opt.icon className="h-4 w-4 text-gray-500" />
+                        <span className="font-medium text-black">{opt.label}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {localBgOption !== 'none' && (
+                <p className="mt-2 text-[11px] text-gray-500">Ảnh sẽ được xử lý nền khi bạn lưu/tạo/cập nhật.</p>
               )}
             </div>
           )}
         </div>
       )}
 
+      {/* Đang nén ảnh vừa chọn */}
+      {pendingFile && (
+        <div className="flex flex-col gap-4">
+          <div className="relative group rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZmZmIi8+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZjBmMGYwIi8+PHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIGZpbGw9IiNmMGYwZjAiLz48L3N2Zz4=')]">
+            <img src={previewUrl!} alt="Preview Pending" className="max-h-56 w-auto object-contain" />
+          </div>
+
+          <div className="relative flex flex-col gap-3 rounded-lg bg-white p-4 shadow-sm border border-gray-200">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-gray-50">
+                <Loader2 className="h-5 w-5 text-black animate-spin" />
+              </span>
+              <div className="flex-1 min-w-0 pr-2">
+                <p className="truncate font-bold text-black text-sm">
+                  Đang nén ảnh...
+                </p>
+                <p className="mt-0.5 text-gray-500 font-medium text-xs">
+                  {formatFileSize(pendingFile.size)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Khu vực kéo thả */}
-      {!pendingFile && !isUploading && (
+      {!pendingFile && !isProcessing && (
         <div className={`flex flex-col gap-3 ${value ? 'mt-4' : ''}`}>
           <label
             htmlFor={inputId}
@@ -296,6 +234,7 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
               id={inputId}
               name={inputId}
               onChange={handleFileChange}
+              onFocus={resetStrayScroll}
               ref={fileInputRef}
               type="file"
             />
@@ -319,20 +258,20 @@ export function FileUpload({ value, onChange, label = 'Tải ảnh lên', bgOpti
             CHỌN TỪ THƯ VIỆN
           </button>
 
-          <MediaPickerModal 
-            isOpen={isMediaPickerOpen} 
-            onOpenChange={setIsMediaPickerOpen} 
-            onSelect={handleSelectFromLibrary} 
+          <MediaPickerModal
+            isOpen={isMediaPickerOpen}
+            onOpenChange={setIsMediaPickerOpen}
+            onSelect={handleSelectFromLibrary}
           />
         </div>
       )}
-      
+
       {/* Render modal outside conditional blocks to prevent unmounting issues */}
       {value && (
-        <MediaPickerModal 
-          isOpen={isMediaPickerOpen} 
-          onOpenChange={setIsMediaPickerOpen} 
-          onSelect={handleSelectFromLibrary} 
+        <MediaPickerModal
+          isOpen={isMediaPickerOpen}
+          onOpenChange={setIsMediaPickerOpen}
+          onSelect={handleSelectFromLibrary}
         />
       )}
     </div>

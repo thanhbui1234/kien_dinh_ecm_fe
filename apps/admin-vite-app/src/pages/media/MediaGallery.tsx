@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useGetFiles, useDeleteFile } from '@/queries/upload';
+import { uploadFileAndGetUrl } from '@/queries/upload/useUpload';
+import { toast } from '@/utils/toast';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { format } from 'date-fns';
@@ -18,6 +20,7 @@ export default function MediaGallery() {
   const [replaceId, setReplaceId] = useState<string | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleDelete = () => {
     if (deleteId) {
@@ -29,10 +32,27 @@ export default function MediaGallery() {
     }
   };
 
-  const handleUploadSuccess = () => {
-    setIsUploadModalOpen(false);
-    setReplaceId(null);
-    refetch(); // Reload the list
+  const handleFileSelected = async (value: string | File) => {
+    if (typeof value === 'string') {
+      // Already an uploaded URL (e.g. picked from library) - nothing to upload
+      setIsUploadModalOpen(false);
+      setReplaceId(null);
+      refetch();
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      await uploadFileAndGetUrl({ file: value, publicId: replaceId || undefined });
+      toast.success('Tải ảnh lên thành công');
+      setIsUploadModalOpen(false);
+      setReplaceId(null);
+      refetch();
+    } catch (error) {
+      toast.error(error, 'Lỗi tải ảnh lên server.');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const formatFileSize = (bytes: number) => {
@@ -166,11 +186,17 @@ export default function MediaGallery() {
             </div>
             
             <div className="py-2">
-              <FileUpload 
-                publicId={replaceId || undefined} 
-                onChange={handleUploadSuccess} 
-                label={replaceId ? "Chọn ảnh mới để ghi đè" : "Kéo thả ảnh để tải lên"}
-              />
+              {isUploading ? (
+                <div className="flex flex-col items-center justify-center gap-3 py-10">
+                  <RefreshCw className="h-6 w-6 text-black animate-spin" />
+                  <p className="text-sm font-medium text-gray-600">Đang tải ảnh lên server...</p>
+                </div>
+              ) : (
+                <FileUpload
+                  onChange={handleFileSelected}
+                  label={replaceId ? "Chọn ảnh mới để ghi đè" : "Kéo thả ảnh để tải lên"}
+                />
+              )}
             </div>
           </DialogPrimitive.Content>
         </DialogPrimitive.Portal>

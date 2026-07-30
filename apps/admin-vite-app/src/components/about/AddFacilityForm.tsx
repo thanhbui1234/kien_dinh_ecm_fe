@@ -2,10 +2,16 @@ import { useState } from 'react';
 import { Loader2, Plus, X } from 'lucide-react';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { useCreateFacility } from '@/queries/about';
+import { resolveImageValue } from '@/queries/upload/useUpload';
+import { toast } from '@/utils/toast';
 import { inputCls, labelCls, btnPrimary, btnGhost } from '@/utils/admin-styles';
 import type { Facility } from '@/types/about';
 
-const defaultForm: Omit<Facility, 'id'> = {
+// imageUrl may hold a File that hasn't been uploaded yet — upload is
+// deferred until submit — this is a form-only type, not the API's Facility DTO.
+type FacilityFormValues = Omit<Facility, 'id' | 'imageUrl'> & { imageUrl?: string | File };
+
+const defaultForm: FacilityFormValues = {
   country: '',
   name: '',
   address: '',
@@ -21,14 +27,27 @@ interface Props {
 
 export function AddFacilityForm({ onClose, orderIndex }: Props) {
   const createMutation = useCreateFacility();
-  const [form, setForm] = useState<Omit<Facility, 'id'>>({ ...defaultForm, orderIndex });
+  const [form, setForm] = useState<FacilityFormValues>({ ...defaultForm, orderIndex });
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
-  const set = (key: keyof Omit<Facility, 'id'>, val: string | number) =>
+  const set = (key: keyof FacilityFormValues, val: string | number | File) =>
     setForm((f) => ({ ...f, [key]: val }));
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.name.trim() || !form.country.trim()) return;
-    createMutation.mutate(form, { onSuccess: onClose });
+
+    let resolvedImageUrl: string;
+    try {
+      setIsUploadingImage(true);
+      resolvedImageUrl = await resolveImageValue(form.imageUrl);
+    } catch {
+      toast.error(null, 'Tải ảnh lên thất bại, vui lòng thử lại.');
+      setIsUploadingImage(false);
+      return;
+    }
+    setIsUploadingImage(false);
+
+    createMutation.mutate({ ...form, imageUrl: resolvedImageUrl }, { onSuccess: onClose });
   };
 
   return (
@@ -106,15 +125,15 @@ export function AddFacilityForm({ onClose, orderIndex }: Props) {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!form.name.trim() || !form.country.trim() || createMutation.isPending}
+          disabled={!form.name.trim() || !form.country.trim() || createMutation.isPending || isUploadingImage}
           className={btnPrimary}
         >
-          {createMutation.isPending ? (
+          {(createMutation.isPending || isUploadingImage) ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : (
             <Plus className="h-3.5 w-3.5" />
           )}
-          Thêm cơ sở
+          {isUploadingImage ? 'Đang tải ảnh lên...' : 'Thêm cơ sở'}
         </button>
       </div>
     </div>

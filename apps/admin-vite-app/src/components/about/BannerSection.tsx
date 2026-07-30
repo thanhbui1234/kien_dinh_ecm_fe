@@ -5,6 +5,8 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStr
 import { Banner } from 'shared-api';
 import { useBanners, useCreateBanner, useUpdateBanner, useDeleteBanner, useUpdateBannerOrders } from '@/queries/settings';
 import { FileUpload } from '@/components/upload/FileUpload';
+import { uploadFileAndGetUrl } from '@/queries/upload/useUpload';
+import { toast } from '@/utils/toast';
 import { BannerCard } from './BannerCard';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 
@@ -17,6 +19,7 @@ export function BannerSection() {
 
   const [items, setItems] = useState<Banner[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (data) {
@@ -43,8 +46,22 @@ export function BannerSection() {
     }
   };
 
-  const handleAddBanner = (url: string) => {
-    if (url) createMutation.mutate({ imageUrl: url, orderIndex: items.length });
+  const handleAddBanner = async (value: string | File) => {
+    if (!value) return;
+    if (typeof value === 'string') {
+      createMutation.mutate({ imageUrl: value, orderIndex: items.length });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const url = await uploadFileAndGetUrl({ file: value });
+      createMutation.mutate({ imageUrl: url, orderIndex: items.length });
+    } catch (error) {
+      toast.error(error, 'Lỗi tải ảnh lên server.');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleToggleStatus = (id: string, currentStatus: boolean) => {
@@ -98,7 +115,14 @@ export function BannerSection() {
           )}
 
           <div className="pt-4 border-t border-gray-100">
-            <FileUpload label="Tải thêm banner" value="" onChange={handleAddBanner} bgOption="none" />
+            {isUploading ? (
+              <div className="flex flex-col items-center justify-center gap-3 py-10">
+                <Loader2 className="h-6 w-6 text-black animate-spin" />
+                <p className="text-sm font-medium text-gray-600">Đang tải ảnh lên server...</p>
+              </div>
+            ) : (
+              <FileUpload label="Tải thêm banner" onChange={handleAddBanner} bgOption="none" />
+            )}
           </div>
         </>
       )}

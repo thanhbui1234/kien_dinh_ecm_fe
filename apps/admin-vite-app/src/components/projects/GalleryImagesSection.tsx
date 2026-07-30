@@ -1,13 +1,14 @@
 import { useId, useRef, useState } from 'react';
 import { ImageIcon, Loader2, Plus, X, FolderSearch } from 'lucide-react';
-import { useUpload } from '@/queries/upload/useUpload';
 import { MediaPickerModal } from '@/components/upload/MediaPickerModal';
 import { toast } from '@/utils/toast';
+import { resetStrayScroll } from '@/utils/scroll';
+import { useObjectUrlCache } from '@/hooks/useObjectUrlCache';
 import imageCompression from 'browser-image-compression';
 
 interface GalleryImagesSectionProps {
-  images: string[];
-  onChange: (images: string[]) => void;
+  images: (string | File)[];
+  onChange: (images: (string | File)[]) => void;
 }
 
 const MAX_IMAGES = 10;
@@ -16,9 +17,9 @@ const VALID_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 export function GalleryImagesSection({ images, onChange }: GalleryImagesSectionProps) {
   const fileInputId = useId();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
-  const uploadMutation = useUpload();
+  const getPreviewSrc = useObjectUrlCache(images);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -28,17 +29,17 @@ export function GalleryImagesSection({ images, onChange }: GalleryImagesSectionP
       return;
     }
 
-    const toUpload = Array.from(files).slice(0, remaining);
-    const invalid = toUpload.filter(f => !VALID_TYPES.includes(f.type));
+    const toAdd = Array.from(files).slice(0, remaining);
+    const invalid = toAdd.filter(f => !VALID_TYPES.includes(f.type));
     if (invalid.length) {
       toast.error(null, 'Chỉ hỗ trợ JPG, PNG, WEBP, GIF.');
       return;
     }
 
-    setUploading(true);
-    const urls: string[] = [];
+    setProcessing(true);
+    const processed: File[] = [];
 
-    for (const file of toUpload) {
+    for (const file of toAdd) {
       let toProcess = file;
       if (file.type !== 'image/gif') {
         try {
@@ -47,27 +48,11 @@ export function GalleryImagesSection({ images, onChange }: GalleryImagesSectionP
           // fallback to original
         }
       }
-
-      await new Promise<void>((resolve) => {
-        uploadMutation.mutate(
-          { file: toProcess },
-          {
-            onSuccess: (res) => {
-              const url = res?.url || (res as any)?.data?.url || (res as any)?.secure_url;
-              if (url) urls.push(url);
-              resolve();
-            },
-            onError: () => {
-              toast.error(null, `Lỗi tải lên: ${file.name}`);
-              resolve();
-            },
-          }
-        );
-      });
+      processed.push(toProcess);
     }
 
-    if (urls.length) onChange([...images, ...urls]);
-    setUploading(false);
+    onChange([...images, ...processed]);
+    setProcessing(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -84,7 +69,7 @@ export function GalleryImagesSection({ images, onChange }: GalleryImagesSectionP
     setMediaPickerOpen(false);
   };
 
-  const canAdd = images.length < MAX_IMAGES && !uploading;
+  const canAdd = images.length < MAX_IMAGES && !processing;
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-4">
@@ -106,12 +91,12 @@ export function GalleryImagesSection({ images, onChange }: GalleryImagesSectionP
       {/* Thumbnail grid */}
       {images.length > 0 ? (
         <div className="grid grid-cols-5 gap-2">
-          {images.map((url, idx) => (
+          {images.map((item, idx) => (
             <div
               key={idx}
               className="group relative aspect-square rounded-md overflow-hidden border border-gray-200 bg-gray-100"
             >
-              <img src={url} alt={`Ảnh ${idx + 1}`} className="w-full h-full object-cover" />
+              <img src={getPreviewSrc(item)} alt={`Ảnh ${idx + 1}`} className="w-full h-full object-cover" />
 
               {/* Delete button */}
               <button
@@ -144,12 +129,12 @@ export function GalleryImagesSection({ images, onChange }: GalleryImagesSectionP
             htmlFor={fileInputId}
             className="flex items-center gap-1.5 h-8 px-3 rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-xs font-bold text-black cursor-pointer transition-colors shadow-sm"
           >
-            {uploading ? (
+            {processing ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
               <Plus className="w-3.5 h-3.5" />
             )}
-            {uploading ? 'Đang tải...' : 'Thêm ảnh'}
+            {processing ? 'Đang xử lý...' : 'Thêm ảnh'}
           </label>
           <input
             id={fileInputId}
@@ -158,8 +143,9 @@ export function GalleryImagesSection({ images, onChange }: GalleryImagesSectionP
             accept="image/jpeg,image/png,image/webp,image/gif"
             multiple
             className="sr-only"
-            onChange={e => handleFiles(e.target.files)}
-            disabled={uploading}
+            onChange={e => { handleFiles(e.target.files); resetStrayScroll(); }}
+            onFocus={resetStrayScroll}
+            disabled={processing}
           />
 
           {/* Pick from library */}

@@ -7,6 +7,7 @@ import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { useCreateJob, useUpdateJob, useJobDetail } from '@/queries/jobs';
 import { CreateJobSchema, CreateJobInput } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
+import { toast } from '@/utils/toast';
 
 const inputCls = "w-full h-9 px-3 rounded-md bg-white border border-gray-300 text-sm font-medium text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all shadow-sm";
 const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2";
@@ -55,6 +56,13 @@ export default function JobForm() {
     }
   };
 
+  // Errors on "Nội dung chi tiết" render below a 250px-tall editor and can
+  // scroll out of view, making a blocked submit look like a no-op — surface
+  // a toast so the user knows to scroll down and fix the highlighted field.
+  const onInvalid = () => {
+    toast.error(null, 'Vui lòng kiểm tra lại các trường bắt buộc (được đánh dấu đỏ) trước khi lưu.');
+  };
+
   const isSaving = createMutation.isPending || updateMutation.isPending || isSubmitting;
 
   if (isEdit && isLoadingDetail) {
@@ -75,7 +83,7 @@ export default function JobForm() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit as any, onInvalid)} className="space-y-5">
         <div className="grid grid-cols-3 gap-5">
           <div className="col-span-2 space-y-5">
             <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">

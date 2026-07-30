@@ -36,14 +36,6 @@ export default function CategoriesList() {
       ),
     },
     {
-      key: 'order', header: 'Thứ tự',
-      cell: (row) => <span className="font-semibold text-black">{row.orderIndex}</span>,
-    },
-    {
-      key: 'parentId', header: 'Danh mục cha',
-      cell: (row) => <span className="text-xs font-medium text-gray-500">{row.parentId ? row.parentId.slice(0, 8) + '...' : '—'}</span>,
-    },
-    {
       key: 'status', header: 'Trạng thái',
       cell: (row) => (
         <div className="flex items-center gap-2">

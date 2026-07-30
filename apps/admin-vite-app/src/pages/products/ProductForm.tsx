@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft, Loader2, Plus, Trash2, Sparkles, ZoomIn } from 'lucide-react';
+import { z } from 'zod';
+import { ChevronLeft, Loader2, Plus, Trash2, Sparkles, ZoomIn, Play } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { FileUpload } from '@/components/upload/FileUpload';
@@ -10,9 +11,24 @@ import { AIGenerator } from '@/components/common/AIGenerator';
 import { generateProductContent } from '@/utils/ai';
 import { useCreateProduct, useUpdateProduct, useProductDetail } from '@/queries/products';
 import { useCategories } from '@/queries/categories';
-import { CreateProductSchema, CreateProductInput } from 'shared-api';
+import { resolveImageValue } from '@/queries/upload/useUpload';
+import { CreateProductSchema, CreateProductImageSchema, CreateProductInput } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
+import { useObjectUrlCache } from '@/hooks/useObjectUrlCache';
 import { ImageLightbox } from '@/components/common/ImageLightbox';
+import { toast } from '@/utils/toast';
+import { getYoutubeId } from '@/utils/youtube';
+
+// A pending image field may hold a File that hasn't been uploaded yet
+// (upload is deferred until submit) — extend the API schema locally so
+// form-level validation accepts that, without loosening the shared schema.
+// browser-image-compression's runtime output is a Blob, not a real File
+// instance (despite its .d.ts claiming otherwise), so validate against Blob.
+const fileOrString = z.union([z.string(), z.instanceof(Blob)]);
+const ProductFormSchema = CreateProductSchema.extend({
+  thumbnailUrl: fileOrString,
+  images: z.array(CreateProductImageSchema.extend({ imageUrl: fileOrString })).optional(),
+});
 
 const inputCls = "w-full h-9 px-3 rounded-md bg-white border border-gray-300 text-sm font-medium text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all shadow-sm";
 const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2";
@@ -24,9 +40,12 @@ const Toggle = ({ checked, onToggle }: { checked: boolean; onToggle: () => void 
   </button>
 );
 
-type FormValues = CreateProductInput & { 
+type FormValues = Omit<CreateProductInput, 'thumbnailUrl' | 'images' | 'videoUrls'> & {
+  thumbnailUrl: string | File;
+  images: { imageUrl: string | File; isMain: boolean; orderIndex: number }[];
   specList: { key: string, value: string }[];
   featureList: { key: string, value: string }[];
+  videoList: { url: string }[];
 };
 
 export default function ProductForm() {
@@ -41,16 +60,23 @@ export default function ProductForm() {
   const { data: productData, isLoading: isLoadingDetail } = useProductDetail(id || '');
 
   const { register, handleSubmit, control, reset, formState: { errors, isSubmitting, isDirty, dirtyFields }, watch, setValue } = useForm<FormValues>({
-    resolver: zodResolver(CreateProductSchema as any),
+    resolver: zodResolver(ProductFormSchema as any),
     defaultValues: { 
-      name: '', price: undefined, thumbnailUrl: '', isFeatured: false, status: true, categoryId: '', contentDetail: '',
+      name: '', price: null, thumbnailUrl: '', isFeatured: false, status: true, categoryId: '', contentDetail: '',
       specList: [{ key: '', value: '' }],
       featureList: [{ key: '', value: '' }],
-      images: []
+      images: [],
+      videoList: []
     },
   });
 
   const { UnsavedChangesModal, markSaved } = useLeaveConfirm(isDirty);
+  const [isFormReady, setIsFormReady] = useState(!isEdit);
+
+  useEffect(() => {
+    if (isEdit) setIsFormReady(false);
+  }, [id, isEdit]);
+
   const { fields, append, remove, replace } = useFieldArray({
     control,
     name: 'specList',
@@ -66,10 +92,18 @@ export default function ProductForm() {
     name: 'images',
   });
 
+  const { fields: videoFields, append: appendVideo, remove: removeVideo } = useFieldArray({
+    control,
+    name: 'videoList',
+  });
+
   const statusValue = watch('status');
   const isFeaturedValue = watch('isFeatured');
   const specListValue = watch('specList');
   const featureListValue = watch('featureList');
+  const videoListValue = watch('videoList');
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const getImagePreviewSrc = useObjectUrlCache(imageFields.map((f) => f.imageUrl));
 
   const [showAI, setShowAI] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -97,9 +131,11 @@ export default function ProductForm() {
       const features = productData.detail?.features || {};
       const featuresArray = Object.entries(features).map(([key, value]) => ({ key, value: String(value) }));
 
+      const videoUrls = (productData.detail as any)?.videoUrls || [];
+
       reset({
         name: productData.name,
-        price: productData.price || undefined,
+        price: productData.price ?? null,
         thumbnailUrl: productData.thumbnailUrl,
         isFeatured: productData.isFeatured,
         status: productData.status,
@@ -111,12 +147,14 @@ export default function ProductForm() {
           imageUrl: img.imageUrl,
           isMain: img.isMain || false,
           orderIndex: img.orderIndex || 0
-        }))
+        })),
+        videoList: videoUrls.map((url: string) => ({ url }))
       });
+      setIsFormReady(true);
     }
   }, [isEdit, productData, reset]);
 
-  const onSubmit = (validatedData: any) => {
+  const onSubmit = async (validatedData: any) => {
     const data: CreateProductInput = { ...validatedData };
 
     // Convert specList array to a JSON object for specifications
@@ -127,7 +165,7 @@ export default function ProductForm() {
         }
         return acc;
       }, {});
-      
+
       if (Object.keys(specsObj).length > 0) {
         data.specifications = specsObj;
       }
@@ -140,11 +178,30 @@ export default function ProductForm() {
         }
         return acc;
       }, {});
-      
+
       if (Object.keys(featuresObj).length > 0) {
         data.features = featuresObj;
       }
     }
+
+    if (videoListValue && videoListValue.length > 0) {
+      (data as any).videoUrls = videoListValue.map((item) => item.url.trim()).filter(Boolean);
+    }
+
+    try {
+      setIsUploadingImages(true);
+      data.thumbnailUrl = await resolveImageValue(validatedData.thumbnailUrl);
+      if (data.images) {
+        data.images = await Promise.all(
+          data.images.map(async (img: any) => ({ ...img, imageUrl: await resolveImageValue(img.imageUrl) }))
+        );
+      }
+    } catch {
+      toast.error(null, 'Tải ảnh lên thất bại, vui lòng thử lại.');
+      setIsUploadingImages(false);
+      return;
+    }
+    setIsUploadingImages(false);
 
     if (isEdit && id) {
       const dirtyData: Partial<CreateProductInput> = {};
@@ -155,6 +212,8 @@ export default function ProductForm() {
           dirtyData.features = data.features || {};
         } else if (key === 'images') {
           dirtyData.images = data.images || [];
+        } else if (key === 'videoList') {
+          (dirtyData as any).videoUrls = (data as any).videoUrls || [];
         } else {
           (dirtyData as any)[key] = (data as any)[key];
         }
@@ -166,9 +225,9 @@ export default function ProductForm() {
     }
   };
 
-  const isSaving = createMutation.isPending || updateMutation.isPending || isSubmitting;
+  const isSaving = createMutation.isPending || updateMutation.isPending || isSubmitting || isUploadingImages;
 
-  if (isEdit && isLoadingDetail) {
+  if (isEdit && (isLoadingDetail || !isFormReady)) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 text-black animate-spin" /></div>;
   }
 
@@ -223,7 +282,13 @@ export default function ProductForm() {
                     name="categoryId"
                     control={control}
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={(v) => {
+                          if (v === field.value) return;
+                          field.onChange(v);
+                        }}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="-- Chọn danh mục --" />
                         </SelectTrigger>
@@ -326,7 +391,7 @@ export default function ProductForm() {
                         onClick={() => { setLightboxIndex(index); setLightboxOpen(true); }}
                         className="w-full h-full cursor-zoom-in"
                       >
-                        <img src={field.imageUrl} alt={`Ảnh ${index + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+                        <img src={getImagePreviewSrc(field.imageUrl)} alt={`Ảnh ${index + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
                           <ZoomIn className="w-5 h-5 text-white" />
                         </div>
@@ -344,15 +409,15 @@ export default function ProductForm() {
               )}
               
               <div className="pt-2">
-                <FileUpload 
-                  label="Tải thêm ảnh vào thư viện" 
-                  value="" 
+                <FileUpload
+                  label="Tải thêm ảnh vào thư viện"
+                  value=""
                   onChange={(url) => {
                     if (url) {
                       appendImage({ imageUrl: url, isMain: false, orderIndex: imageFields.length });
                     }
-                  }} 
-                  bgOption="none" 
+                  }}
+                  bgOption="none"
                 />
               </div>
             </div>
@@ -367,6 +432,46 @@ export default function ProductForm() {
                   render={({ field }) => <FileUpload label="" value={field.value} onChange={field.onChange} bgOption="none" />}
                 />
                 {errors.thumbnailUrl && <p className="text-xs font-medium text-red-500">{errors.thumbnailUrl.message}</p>}
+              </div>
+
+              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
+                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                  <h2 className="text-sm font-bold text-black">VIDEO SẢN PHẨM</h2>
+                  <button type="button" onClick={() => appendVideo({ url: '' })}
+                    className="flex items-center gap-1.5 h-7 px-2.5 rounded border border-gray-300 text-xs font-bold text-black hover:bg-gray-50 transition-colors">
+                    <Plus className="h-3.5 w-3.5" /> Thêm video
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {videoFields.map((field, index) => {
+                    const youtubeId = getYoutubeId(videoListValue?.[index]?.url || '');
+                    return (
+                      <div key={field.id} className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <input {...register(`videoList.${index}.url` as const)} placeholder="Link YouTube..." className={`${inputCls} flex-1`} />
+                          <button type="button" onClick={() => removeVideo(index)}
+                            className="w-9 h-9 rounded border border-gray-200 text-gray-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 flex items-center justify-center transition-all shrink-0">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                        {youtubeId && (
+                          <div className="relative aspect-video rounded-md overflow-hidden border border-gray-200 bg-gray-50">
+                            <img src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`} alt="Xem trước video" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                              <div className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center">
+                                <Play className="h-4 w-4 text-black fill-black ml-0.5" />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {videoFields.length === 0 && (
+                    <p className="text-xs font-medium text-gray-500 text-center py-4">Chưa có video sản phẩm</p>
+                  )}
+                </div>
               </div>
 
               <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
@@ -391,7 +496,7 @@ export default function ProductForm() {
                 <button type="submit" disabled={isSaving || !isDirty}
                   className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
                   {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {isEdit ? 'CẬP NHẬT' : 'TẠO SẢN PHẨM'}
+                  {isUploadingImages ? 'ĐANG TẢI ẢNH LÊN...' : isEdit ? 'CẬP NHẬT' : 'TẠO SẢN PHẨM'}
                 </button>
                 <button type="button" onClick={() => navigate('/products')} disabled={isSaving}
                   className="h-10 px-4 rounded-md bg-white hover:bg-gray-50 border border-gray-300 text-black text-sm font-bold transition-colors shadow-sm">
@@ -406,7 +511,7 @@ export default function ProductForm() {
       <ImageLightbox
         open={lightboxOpen}
         index={lightboxIndex}
-        slides={imageFields.map((f) => ({ src: f.imageUrl }))}
+        slides={imageFields.map((f) => ({ src: getImagePreviewSrc(f.imageUrl) }))}
         onClose={() => setLightboxOpen(false)}
         onIndexChange={(i) => setLightboxIndex(i)}
       />
