@@ -10,6 +10,7 @@ export type UploadInput = {
 };
 
 export const useUpload = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ file, publicId, onUploadProgress }: UploadInput) => {
       const formData = new FormData();
@@ -32,6 +33,7 @@ export const useUpload = () => {
     },
     onSuccess: () => {
       toast.success("Tải ảnh lên thành công");
+      queryClient.invalidateQueries({ queryKey: ['upload-files'] });
     },
     onError: (error: any) => {
       toast.error(error);

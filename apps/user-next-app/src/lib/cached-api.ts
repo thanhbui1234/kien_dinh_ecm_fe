@@ -19,7 +19,7 @@ export const getCachedFeaturedProducts = cache(async () => {
   const res = await api.products
     .getProducts(
       { isFeatured: "true", limit: "6" },
-      { next: { revalidate: 3600, tags: ["products"] } }
+      { next: { revalidate: 300, tags: ["products"] } }
     )
     .catch(() => null);
   return res?.items ?? [];

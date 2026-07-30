@@ -5,7 +5,7 @@ import { PageBreadcrumb } from 'shared-ui';
 import { api } from '@/lib/api';
 import { buildBaseMetadata } from '@/lib/seo';
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -18,7 +18,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const job = await api.jobs.getJobDetail(slug, { next: { revalidate: 3600 } });
+  const job = await api.jobs.getJobDetail(slug, { next: { revalidate: 300 } });
   if (!job) return { title: 'Tuyển dụng' };
   return buildBaseMetadata({
     title: job.title,
@@ -36,7 +36,7 @@ type Section = { title: string; content: string };
 export default async function JobDetailPage({ params }: Props) {
   const { slug } = await params;
 
-  const job = await api.jobs.getJobDetail(slug, { next: { revalidate: 3600 } });
+  const job = await api.jobs.getJobDetail(slug, { next: { revalidate: 300 } });
   if (!job) notFound();
 
   const sections = ((job as any).sections ?? (job.detail as any)?.sections ?? []) as Section[];

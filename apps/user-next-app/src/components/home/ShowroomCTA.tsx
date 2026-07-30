@@ -20,7 +20,7 @@ export default function ShowroomCTA() {
         }}
       >
       <Link
-        href="/about-us/support-bases/"
+        href="/about-us"
         className="showroom-link"
         style={{
           display: 'flex',

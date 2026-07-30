@@ -151,7 +151,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
 
   const response = await api.projects.getProjects(
     { page: String(page), limit: '12' },
-    { next: { revalidate: 3600 } },
+    { next: { revalidate: 300 } },
   );
 
   const items = response?.items ?? [];

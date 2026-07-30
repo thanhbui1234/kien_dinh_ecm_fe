@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 import type { Metadata } from 'next';
 import { buildProjectMetadata } from '@/lib/seo';
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export async function generateStaticParams() {
   const res = await api.projects.getProjects({ limit: '100' }).catch(() => null);
@@ -20,7 +20,7 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const project = await api.projects.getProjectDetail(slug, {
-    next: { revalidate: 3600 },
+    next: { revalidate: 300 },
   });
 
   if (!project) {
@@ -40,10 +40,10 @@ export default async function ProjectDetailPage({ params }: Props) {
 
   const [project, flatCategoriesResponse] = await Promise.all([
     api.projects.getProjectDetail(slug, {
-      next: { revalidate: 3600 },
+      next: { revalidate: 300 },
     }),
     api.categories.getCategories({
-      next: { revalidate: 3600 },
+      next: { revalidate: 300 },
     }),
   ]);
 

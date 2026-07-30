@@ -3,7 +3,7 @@ import { SITE_URL } from '@/lib/seo';
 import { api } from '@/lib/api';
 import { getCachedCategories } from '@/lib/cached-api';
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
