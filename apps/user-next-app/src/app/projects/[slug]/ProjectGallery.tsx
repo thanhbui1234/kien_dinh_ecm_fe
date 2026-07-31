@@ -79,7 +79,7 @@ export default function ProjectGallery({ images }: ProjectGalleryProps) {
   const row2 = images.slice(2, 5);
 
   return (
-    <section ref={sectionRef} className="mt-16 pt-12 border-t border-gray-100">
+    <section ref={sectionRef} className="mt-4 pt-4 md:mt-16 md:pt-12 border-t border-gray-100">
       {/* Section header */}
       <div className="flex items-baseline justify-between mb-8">
         <div>

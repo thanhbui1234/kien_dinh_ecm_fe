@@ -14,7 +14,7 @@ export default function ProjectBottomCTA({ ctaRef }: Props) {
   return (
     <motion.div
       ref={ctaRef}
-      className="relative mt-16 mb-16 bg-[#0f0f0f] rounded-xl px-8 md:px-12 py-10 md:py-14 overflow-hidden"
+      className="relative mt-4 mb-4 md:mt-16 md:mb-16 bg-[#0f0f0f] rounded-xl px-8 md:px-12 py-10 md:py-14 overflow-hidden"
       initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}

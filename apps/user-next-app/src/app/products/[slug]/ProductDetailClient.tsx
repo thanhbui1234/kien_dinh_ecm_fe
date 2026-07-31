@@ -51,7 +51,8 @@ function ImageGallery({ images, thumbnail, name, videoUrls }: { images?: Product
       const youtubeId = getYoutubeId(url);
       return {
         type: 'video',
-        src: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : url,
+        // mqdefault is true 16:9 with no letterboxing baked in (hqdefault pads to 4:3 with black bars).
+        src: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg` : url,
         youtubeId,
         directUrl: url,
       };
@@ -133,12 +134,27 @@ function ImageGallery({ images, thumbnail, name, videoUrls }: { images?: Product
               className="absolute inset-0 cursor-zoom-in touch-pan-y"
               aria-label={active.type === 'video' ? 'Phát video sản phẩm' : 'Xem ảnh lớn'}
             >
+              {/* Blurred backdrop fill — lets the true 16:9 thumbnail show uncropped instead of being cover-cropped into the square stage */}
+              {active.type === 'video' && (
+                <>
+                  <Image
+                    src={active.src}
+                    alt=""
+                    aria-hidden
+                    fill
+                    draggable={false}
+                    className="object-cover scale-110 blur-2xl opacity-70 pointer-events-none select-none"
+                  />
+                  <div className="absolute inset-0 bg-black/45 pointer-events-none" />
+                </>
+              )}
               <Image
                 src={active.src}
                 alt={name}
                 fill
                 draggable={false}
-                className="object-contain p-8 transition-transform duration-300 pointer-events-none select-none group-hover/zoom:scale-[1.03]"
+                className={`transition-transform duration-300 pointer-events-none select-none group-hover/zoom:scale-[1.03] ${active.type === 'video' ? 'object-contain' : 'object-contain p-8'
+                  }`}
                 sizes="(max-width: 768px) 100vw, 50vw"
                 priority={activeIndex === 0}
               />
@@ -222,9 +238,15 @@ function ImageGallery({ images, thumbnail, name, videoUrls }: { images?: Product
               className={`relative shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 bg-[#f5f5f5] ${activeIndex === i ? 'border-[#5e8dd1]' : 'border-transparent hover:border-gray-200'
                 }`}
             >
-              <Image src={item.src} alt="" width={64} height={64} className="object-contain w-full h-full p-1.5" />
+              <Image
+                src={item.src}
+                alt=""
+                width={64}
+                height={64}
+                className="w-full h-full object-contain p-1.5"
+              />
               {item.type === 'video' && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
                     <path d="M8 5v14l11-7z" />
                   </svg>
