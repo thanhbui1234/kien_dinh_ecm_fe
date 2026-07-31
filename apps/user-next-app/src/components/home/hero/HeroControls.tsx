@@ -20,7 +20,7 @@ export const HeroControls = ({
 }: HeroControlsProps) => {
   return (
     <>
-      {/* Desktop — unchanged overlay: arrows + progress bars (left), slide counter (right) */}
+      {/* Desktop — 100% Original exact layout: arrows + progress bars (left), slide counter (right) */}
       <div className="hidden md:block absolute bottom-[clamp(40px,6vh,80px)] left-0 right-0 z-20 px-[clamp(24px,5vw,72px)] max-w-[1440px] mx-auto">
         <div className="flex items-center justify-between gap-6 max-[900px]:gap-4">
           <div className="flex items-center gap-6">
@@ -81,9 +81,29 @@ export const HeroControls = ({
         </div>
       </div>
 
-      {/* Mobile — plain strip below the image (Mazak-style): indicators only, no arrows/counter */}
-      <div className="md:hidden bg-white px-[clamp(24px,5vw,72px)] py-4">
-        <div role="tablist" aria-label="Slide indicators" className="flex items-center justify-center gap-2">
+      {/* Mobile ONLY — Floating Left & Right Action Arrows */}
+      {total > 1 && (
+        <div className="md:hidden">
+          <button
+            onClick={goPrev}
+            aria-label="Slide trước"
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full border border-white/20 bg-black/40 backdrop-blur-md text-white cursor-pointer inline-flex items-center justify-center shrink-0 transition-all active:scale-95 shadow-lg"
+          >
+            <ArrowLeft />
+          </button>
+          <button
+            onClick={goNext}
+            aria-label="Slide kế tiếp"
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full border border-white/20 bg-black/40 backdrop-blur-md text-white cursor-pointer inline-flex items-center justify-center shrink-0 transition-all active:scale-95 shadow-lg"
+          >
+            <ArrowRight />
+          </button>
+        </div>
+      )}
+
+      {/* Mobile ONLY — Transparent Overlay Dash Indicators floating at bottom inside the image */}
+      <div className="md:hidden absolute bottom-6 inset-x-0 z-20 flex justify-center items-center pointer-events-auto">
+        <div role="tablist" aria-label="Slide indicators" className="flex items-center justify-center gap-1.5 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
           {Array.from({ length: total }).map((_, i) => {
             const active = i === current;
             return (
@@ -93,9 +113,9 @@ export const HeroControls = ({
                 role="tab"
                 aria-selected={active}
                 aria-label={`Slide ${i + 1}`}
-                className="relative w-10 h-[2px] hover:h-[3px] border-none p-0 cursor-pointer overflow-hidden transition-[height] duration-200"
+                className="relative w-8 h-[3px] rounded-full border-none p-0 cursor-pointer overflow-hidden transition-all duration-200"
               >
-                <span className="absolute inset-0 bg-[#0a0a0a]/15" />
+                <span className="absolute inset-0 bg-white/30" />
                 <span
                   key={`fill-mobile-${i}-${current}`}
                   className={`absolute inset-0 bg-[#5e8dd1] origin-left ${active ? 'hero-progress-bar' : 'scale-x-0'}`}

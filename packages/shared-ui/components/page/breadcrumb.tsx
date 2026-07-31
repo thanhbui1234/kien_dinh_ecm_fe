@@ -13,12 +13,17 @@ interface PageBreadcrumbProps {
   variant?: 'gray' | 'light';
 }
 
-/** Native-app-style back button — mobile replaces the full trail with just a back icon. */
-function MobileBackLink({ items, LinkComponent, className }: { items: BreadcrumbItem[]; LinkComponent: React.ElementType; className: string }) {
+/** Native-app-style back button — mobile renders a sleek back pill badge with parent label (e.g. ← Sản phẩm / ← Dự án). */
+function MobileBackLink({ items, LinkComponent, className }: { items: BreadcrumbItem[]; LinkComponent: React.ElementType; className?: string }) {
   const parent = items.length >= 2 ? items[items.length - 2] : items[0];
   return (
-    <LinkComponent href={parent.href ?? '/'} aria-label={`Quay lại ${parent.label}`} className={className}>
-      <ArrowLeft className="w-5 h-5" strokeWidth={2} />
+    <LinkComponent
+      href={parent.href ?? '/'}
+      aria-label={`Quay lại ${parent.label}`}
+      className={`md:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100/90 hover:bg-gray-200 active:bg-gray-300 text-xs font-semibold text-gray-800 no-underline transition-all border border-gray-200/80 shadow-xs ${className || ''}`}
+    >
+      <ArrowLeft className="w-3.5 h-3.5 text-gray-600" strokeWidth={2.5} />
+      <span>{parent.label}</span>
     </LinkComponent>
   );
 }
@@ -27,11 +32,10 @@ export function PageBreadcrumb({ items, LinkComponent = 'a', variant = 'gray' }:
   if (variant === 'light') {
     return (
       <div className="border-b border-gray-100">
-        <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-3">
+        <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-2.5">
           <MobileBackLink
             items={items}
             LinkComponent={LinkComponent}
-            className="md:hidden inline-flex items-center justify-center w-11 h-11 rounded-full text-[#111] no-underline hover:bg-black/5 active:bg-black/10 transition-colors"
           />
           <div className="hidden md:flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-gray-400">
             {items.map((item, i) => (
@@ -58,7 +62,6 @@ export function PageBreadcrumb({ items, LinkComponent = 'a', variant = 'gray' }:
         <MobileBackLink
           items={items}
           LinkComponent={LinkComponent}
-          className="md:hidden inline-flex items-center justify-center w-11 h-11 rounded-full text-[#333] no-underline hover:bg-black/5 active:bg-black/10 transition-colors"
         />
         <nav
           aria-label="breadcrumb"

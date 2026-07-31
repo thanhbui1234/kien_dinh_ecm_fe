@@ -29,7 +29,7 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
   return (
     <div
       ref={heroRef}
-      className="relative w-full h-[55vh] min-h-[420px] md:h-[72vh] md:min-h-[560px] overflow-hidden bg-[#111]"
+      className="relative w-full min-h-[460px] md:h-[72vh] md:min-h-[560px] overflow-hidden bg-[#111]"
     >
       {/* Parallax image */}
       {project.coverImage && (
@@ -46,10 +46,10 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
       )}
 
       {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/20" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
 
-      {/* Bottom accent — orange line expands on load */}
+      {/* Bottom accent — blue line expands on load */}
       <motion.div
         className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#5e8dd1] via-[#5e8dd1]/60 to-transparent"
         initial={{ width: '0%' }}
@@ -58,10 +58,10 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
       />
 
       {/* Content */}
-      <div className="absolute inset-0 flex flex-col justify-end px-6 md:px-10 pb-12 md:pb-16 max-w-[1300px] mx-auto left-0 right-0">
+      <div className="relative z-10 flex flex-col justify-end px-6 md:px-10 pt-24 pb-8 md:pb-16 max-w-[1300px] mx-auto min-h-[460px] md:min-h-[560px] h-full">
         {project.isFeatured && (
           <motion.p
-            className="text-[#5e8dd1] text-[11px] font-semibold uppercase tracking-[0.22em] mb-3"
+            className="text-[#5e8dd1] text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.22em] mb-2 md:mb-3"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: EASE_EXPO, delay: 0.1 }}
@@ -71,7 +71,7 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
         )}
 
         <motion.h1
-          className="text-white text-[32px] md:text-[52px] lg:text-[60px] font-light leading-[1.1] tracking-[-0.02em] max-w-[800px] m-0"
+          className="text-white text-[24px] sm:text-[32px] md:text-[52px] lg:text-[60px] font-light leading-[1.2] md:leading-[1.1] tracking-[-0.02em] max-w-[800px] m-0"
           style={{ textWrap: 'balance' } as React.CSSProperties}
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -82,7 +82,7 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
 
         {project.description && (
           <motion.p
-            className="text-white/70 text-[15px] md:text-[17px] leading-relaxed mt-4 max-w-[600px] m-0"
+            className="text-white/80 text-[14px] md:text-[17px] leading-relaxed mt-3 md:mt-4 max-w-[600px] m-0 line-clamp-3 md:line-clamp-none"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: EASE_EXPO, delay: 0.35 }}

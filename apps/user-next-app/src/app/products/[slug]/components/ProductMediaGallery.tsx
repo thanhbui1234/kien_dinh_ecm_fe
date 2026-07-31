@@ -53,6 +53,7 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
   ];
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [playingVideoIndex, setPlayingVideoIndex] = useState<number | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -69,6 +70,10 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
     const newIndex = emblaApi.selectedScrollSnap();
     setActiveIndex(newIndex);
   }, [emblaApi]);
+
+  useEffect(() => {
+    setPlayingVideoIndex(null);
+  }, [activeIndex]);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -121,27 +126,53 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
                 className="relative flex-[0_0_100%] min-w-0 h-full bg-[#f8f9fa] flex items-center justify-center overflow-hidden"
               >
                 {item.type === 'video' ? (
-                  activeIndex === index ? (
-                    item.youtubeId ? (
-                      <iframe
-                        src={`https://www.youtube.com/embed/${item.youtubeId}?autoplay=0&controls=1&rel=0&enablejsapi=1`}
-                        title={name}
-                        className="w-full h-full border-0 relative z-30 pointer-events-auto"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                      />
-                    ) : (
-                      <video src={item.directUrl} controls className="w-full h-full object-contain bg-black relative z-30 pointer-events-auto" />
-                    )
+                  playingVideoIndex === index ? (
+                    <div className="relative w-full h-full">
+                      {item.youtubeId ? (
+                        <iframe
+                          src={`https://www.youtube.com/embed/${item.youtubeId}?autoplay=1&controls=1&rel=0&enablejsapi=1`}
+                          title={name}
+                          className="w-full h-full border-0 relative z-20"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <video src={item.directUrl} autoPlay controls className="w-full h-full object-contain bg-black relative z-20" />
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPlayingVideoIndex(null);
+                        }}
+                        className="absolute top-2 right-2 z-30 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-white text-[11px] font-bold shadow-md hover:bg-black transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        ✕ Thu nhỏ
+                      </button>
+                    </div>
                   ) : (
-                    <div className="relative w-full h-full flex items-center justify-center bg-gray-900 overflow-hidden">
+                    <div
+                      className="relative w-full h-full flex items-center justify-center bg-black group/play cursor-pointer overflow-hidden"
+                      onClick={() => setPlayingVideoIndex(index)}
+                    >
                       <Image
                         src={item.src}
                         alt={name}
                         fill
-                        className="object-cover"
+                        draggable={false}
+                        className="object-cover opacity-85 group-hover/play:opacity-95 transition-opacity duration-300"
                         sizes="(max-width: 768px) 100vw, 50vw"
                       />
+                      <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
+                        <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-red-600/90 shadow-xl flex items-center justify-center text-white transition-transform duration-300 group-hover/play:scale-110 group-hover/play:bg-red-600">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="ml-1">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-semibold flex items-center gap-1.5 pointer-events-none">
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> Chạm để phát Video
+                      </div>
                     </div>
                   )
                 ) : (
@@ -169,7 +200,7 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
           </div>
         </div>
 
-        {/* Prev/Next Navigation Arrows for Desktop (Always Visible) */}
+        {/* Prev/Next Navigation Arrows for Mobile and Desktop */}
         {mediaItems.length > 1 && (
           <>
             <button
@@ -177,7 +208,7 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
               onClick={scrollPrev}
               disabled={activeIndex === 0}
               aria-label="Ảnh/video trước"
-              className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center rounded-full bg-white/90 shadow-md text-gray-800 disabled:opacity-0 disabled:pointer-events-none transition-all duration-200 hover:bg-white hover:text-[#5e8dd1] cursor-pointer"
+              className="flex absolute left-2 md:left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 md:w-10 md:h-10 items-center justify-center rounded-full bg-white/90 shadow-md text-gray-800 disabled:opacity-0 disabled:pointer-events-none transition-all duration-200 hover:bg-white hover:text-[#5e8dd1] cursor-pointer"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 18l-6-6 6-6" />
@@ -188,7 +219,7 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
               onClick={scrollNext}
               disabled={activeIndex === mediaItems.length - 1}
               aria-label="Ảnh/video tiếp theo"
-              className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center rounded-full bg-white/90 shadow-md text-gray-800 disabled:opacity-0 disabled:pointer-events-none transition-all duration-200 hover:bg-white hover:text-[#5e8dd1] cursor-pointer"
+              className="flex absolute right-2 md:right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 md:w-10 md:h-10 items-center justify-center rounded-full bg-white/90 shadow-md text-gray-800 disabled:opacity-0 disabled:pointer-events-none transition-all duration-200 hover:bg-white hover:text-[#5e8dd1] cursor-pointer"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18l6-6-6-6" />

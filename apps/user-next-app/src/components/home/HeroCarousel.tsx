@@ -88,9 +88,9 @@ export default function HeroCarousel({
   return (
     <section
       aria-label="Hero carousel"
-      className="relative flex flex-col md:block w-full h-[72vh] min-h-[560px] md:h-[100vh] md:min-h-[720px] md:max-h-[1080px] bg-[#0a0a0a]"
+      className="relative w-full h-[100vh] h-[100dvh] min-h-[600px] md:h-[100vh] md:min-h-[720px] md:max-h-[1080px] bg-[#0a0a0a] overflow-hidden"
     >
-      <div className="overflow-hidden flex-1 min-h-0 md:h-full" ref={emblaRef}>
+      <div className="overflow-hidden w-full h-full" ref={emblaRef}>
         <div className="flex h-full">
           {displaySlides.map((s, i) => {
             const active = i === current;
@@ -134,6 +134,23 @@ export default function HeroCarousel({
         goTo={goTo}
         isDark={isDark}
       />
+
+      {/* Scroll Down Indicator button (Mobile only) */}
+      <button
+        type="button"
+        onClick={() => window.scrollTo({ top: window.innerHeight - 30, behavior: 'smooth' })}
+        aria-label="Cuộn xuống nội dung bên dưới"
+        className="md:hidden absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 text-white/80 hover:text-white transition-colors cursor-pointer group"
+      >
+        <span className="text-[9px] md:text-[10px] uppercase font-bold tracking-[0.2em] opacity-80 group-hover:opacity-100 drop-shadow-sm">
+          Khám phá tiếp
+        </span>
+        <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center animate-bounce shadow-md">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+      </button>
     </section>
   );
 }
