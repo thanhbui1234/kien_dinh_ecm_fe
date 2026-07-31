@@ -15,26 +15,67 @@ interface PageBreadcrumbProps {
   variant?: 'gray' | 'light';
 }
 
-/** Native-app-style back button — mobile & tablet render a sleek back pill badge with parent label (e.g. ← Sản phẩm / ← Dự án). */
+/** Native-app-style back button — mobile & tablet render a sleek back pill badge with parent label (e.g. ← Trang chủ / ← Sản phẩm / ← Dự án). */
 function MobileBackLink({ items, LinkComponent, className }: { items: BreadcrumbItem[]; LinkComponent: React.ElementType; className?: string }) {
-  const parent = items.length >= 2 ? items[items.length - 2] : items[0];
+  const defaultParent = items.length >= 2 ? items[items.length - 2] : items[0];
+  const [backLabel, setBackLabel] = React.useState<string>(defaultParent.label);
+  const [backHref, setBackHref] = React.useState<string>(defaultParent.href ?? '/');
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const prevPath = sessionStorage.getItem('app_prev_path');
+      if (prevPath === '/' || prevPath === '') {
+        setBackLabel('Trang chủ');
+        setBackHref('/');
+      } else if (prevPath && prevPath.startsWith('/products')) {
+        setBackLabel('Sản phẩm');
+        setBackHref(prevPath);
+      } else if (prevPath && prevPath.startsWith('/projects')) {
+        setBackLabel('Dự án');
+        setBackHref(prevPath);
+      } else if (prevPath && prevPath.startsWith('/tuyen-dung')) {
+        setBackLabel('Tuyển dụng');
+        setBackHref(prevPath);
+      }
+    }
+  }, [items]);
 
   const handleClick = (e: React.MouseEvent) => {
-    if (typeof window !== 'undefined' && window.history.length > 1 && document.referrer && document.referrer.includes(window.location.host)) {
-      e.preventDefault();
-      window.history.back();
+    if (typeof window !== 'undefined') {
+      const prevPath = sessionStorage.getItem('app_prev_path');
+
+      // If user came from Home page '/' -> back straight to Home
+      if (prevPath === '/' || prevPath === '') {
+        e.preventDefault();
+        window.location.href = '/';
+        return;
+      }
+
+      // If user has history in same browser tab -> back to previous page
+      if (window.history.length > 1) {
+        e.preventDefault();
+        window.history.back();
+        return;
+      }
+
+      // Fallback if direct URL access
+      if (prevPath) {
+        e.preventDefault();
+        window.location.href = prevPath;
+        return;
+      }
     }
   };
 
   return (
     <LinkComponent
-      href={parent.href ?? '/'}
+      href={backHref}
       onClick={handleClick}
-      aria-label={`Quay lại ${parent.label}`}
+      aria-label={`Quay lại ${backLabel}`}
       className={`lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100/90 hover:bg-gray-200 active:bg-gray-300 text-xs font-semibold text-gray-800 no-underline transition-all border border-gray-200/80 shadow-xs ${className || ''}`}
     >
       <ArrowLeft className="w-3.5 h-3.5 text-gray-600" strokeWidth={2.5} />
-      <span>{parent.label}</span>
+      <span>{backLabel}</span>
     </LinkComponent>
   );
 }
@@ -98,4 +139,3 @@ export function PageBreadcrumb({ items, LinkComponent = 'a', variant = 'gray' }:
     </div>
   );
 }
-

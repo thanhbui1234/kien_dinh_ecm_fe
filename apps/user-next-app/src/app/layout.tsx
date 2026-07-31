@@ -66,6 +66,9 @@ export const metadata: Metadata = {
   },
 };
 
+import { Suspense } from 'react';
+import RouteHistoryTracker from "@/components/layout/RouteHistoryTracker";
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -86,6 +89,9 @@ export default async function RootLayout({
         />
       </head>
       <body>
+        <Suspense fallback={null}>
+          <RouteHistoryTracker />
+        </Suspense>
         <MotionProvider>
           <Header categories={categories} />
           <main className="min-h-screen">{children}</main>
