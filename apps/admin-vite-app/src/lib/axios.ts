@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { API_ENDPOINTS } from 'shared-api';
+import { API_ENDPOINTS, ERROR_CODES, AUTH_REASONS } from 'shared-api';
 import { TokenService } from '@/utils/token';
 import { ENV } from "@/config/env";
 
@@ -52,6 +52,26 @@ axiosInstance.interceptors.response.use(
         window.location.href = '/login';
       }
       return Promise.reject(error);
+    }
+
+    const responseData = error.response?.data as any;
+    const errorCode = responseData?.errorCode;
+
+    if (error.response?.status === 401) {
+      if (errorCode === ERROR_CODES.ACCOUNT_LOCKED) {
+        TokenService.clearTokens();
+        if (window.location.pathname !== '/login') {
+          window.location.href = `/login?reason=${AUTH_REASONS.LOCKED}`;
+        }
+        return Promise.reject(error);
+      }
+      if (errorCode === ERROR_CODES.SESSION_REVOKED) {
+        TokenService.clearTokens();
+        if (window.location.pathname !== '/login') {
+          window.location.href = `/login?reason=${AUTH_REASONS.KICKED}`;
+        }
+        return Promise.reject(error);
+      }
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {

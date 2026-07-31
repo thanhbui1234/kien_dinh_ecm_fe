@@ -10,6 +10,35 @@
  * ---------------------------------------------------------------
  */
 
+export interface CreateAdminDto {
+  /**
+   * Email của Admin mới
+   * @format email
+   * @example "admin2@kiendinhecm.com"
+   */
+  email: string;
+  /**
+   * Mật khẩu khởi tạo
+   * @minLength 6
+   * @example "Password123!@#"
+   */
+  password: string;
+  /**
+   * Họ và tên
+   * @example "Nguyễn Văn Admin"
+   */
+  fullName: string;
+}
+
+export interface ResetPasswordDto {
+  /**
+   * Mật khẩu mới
+   * @minLength 6
+   * @example "NewSecurePass123!"
+   */
+  newPassword: string;
+}
+
 export interface ApiErrorResponseDto {
   /**
    * Trạng thái thành công
@@ -91,6 +120,16 @@ export interface TokenResponseDto {
 }
 
 export interface LoginDto {
+  /**
+   * Mã UUID thiết bị (LocalStorage)
+   * @example "uuid_12345678"
+   */
+  deviceId?: string;
+  /**
+   * Mã vân tay phần cứng FingerprintJS
+   * @example "fp_a8f9c2d1e3b4"
+   */
+  fingerprint?: string;
   /** @format email */
   email: string;
   /** @minLength 6 */
@@ -124,6 +163,31 @@ export interface UserProfileDto {
    * @example "SUPER_ADMIN"
    */
   role: string;
+}
+
+export interface SetupAdminDto {
+  /**
+   * Email quản trị viên
+   * @format email
+   * @example "admin@kiendinhecm.com"
+   */
+  email: string;
+  /**
+   * Mật khẩu tối thiểu 8 ký tự
+   * @minLength 8
+   * @example "Password123!"
+   */
+  password: string;
+  /**
+   * Họ và tên (Không bắt buộc)
+   * @example "Admin User"
+   */
+  fullName?: string;
+  /**
+   * Mã bí mật để cấp quyền tạo Admin
+   * @example "my-super-secret-key"
+   */
+  secretKey: string;
 }
 
 export interface UploadResponseDto {
@@ -325,6 +389,11 @@ export interface CreateProductDto {
   features?: object;
   /** Dữ liệu tối ưu SEO (Title, Description, Keywords) */
   seoMeta?: object;
+  /**
+   * Danh sách đường dẫn Video / YouTube
+   * @example ["https://www.youtube.com/watch?v=abc"]
+   */
+  videoUrls?: string[];
   /** Danh sách hình ảnh */
   images?: CreateProductImageDto[];
 }
@@ -360,6 +429,11 @@ export interface UpdateProductDto {
   features?: object;
   /** Dữ liệu tối ưu SEO (Title, Description, Keywords) */
   seoMeta?: object;
+  /**
+   * Danh sách đường dẫn Video / YouTube
+   * @example ["https://www.youtube.com/watch?v=abc"]
+   */
+  videoUrls?: string[];
   /** Danh sách hình ảnh */
   images?: CreateProductImageDto[];
 }
@@ -428,6 +502,11 @@ export interface CreateProjectDto {
   categoryIds?: string[];
   /** Danh sách URL ảnh gallery dự án */
   images?: string[];
+  /**
+   * Danh sách URL video / YouTube dự án
+   * @example ["https://www.youtube.com/watch?v=xyz"]
+   */
+  videoUrls?: string[];
 }
 
 export interface UpdateProjectDto {
@@ -457,6 +536,11 @@ export interface UpdateProjectDto {
   categoryIds?: string[];
   /** Danh sách URL ảnh gallery dự án */
   images?: string[];
+  /**
+   * Danh sách URL video / YouTube dự án
+   * @example ["https://www.youtube.com/watch?v=xyz"]
+   */
+  videoUrls?: string[];
 }
 
 export interface JobDetailResponseDto {
@@ -1212,4 +1296,114 @@ export interface UpdateContactSettingDto {
    * @example "https://www.google.com/maps/embed?pb=..."
    */
   mapUrl?: string;
+}
+
+export interface CustomerSupportLinkDto {
+  /**
+   * Nhãn liên kết
+   * @example "Tư vấn ngay"
+   */
+  label: string;
+  /**
+   * Đường dẫn URL
+   * @example "/contact"
+   */
+  href: string;
+}
+
+export interface FooterSettingResponseDto {
+  /**
+   * ID singleton
+   * @example "singleton"
+   */
+  id: string;
+  /** Nội dung giới thiệu công ty */
+  introText: string;
+  /** Facebook URL */
+  facebookUrl?: string;
+  /** YouTube URL */
+  youtubeUrl?: string;
+  /** Instagram URL */
+  instagramUrl?: string;
+  /** Số điện thoại chính */
+  phone?: string;
+  /** Email liên hệ */
+  email?: string;
+  /** Địa chỉ công ty */
+  address?: string;
+  /** Hotline Mua hàng */
+  salesPhone?: string;
+  /** Hotline Góp ý */
+  feedbackPhone?: string;
+  /** Hotline Bảo hành */
+  warrantyPhone?: string;
+  /** Tiêu đề cột Hỗ trợ khách hàng */
+  customerSupportTitle?: string;
+  /** Danh sách liên kết Hỗ trợ khách hàng */
+  customerSupportLinks?: CustomerSupportLinkDto[];
+  /**
+   * Thời gian cập nhật
+   * @format date-time
+   */
+  updatedAt: string;
+}
+
+export interface UpdateFooterSettingDto {
+  /**
+   * Đoạn giới thiệu công ty ở footer
+   * @example "Công ty Cổ Phần Thanh Bằng tự hào là một trong những công ty uy tín nhất hiện nay và sẵn sàng cam kết với khách hàng về các vấn đề chất lượng, nguồn gốc xuất xứ của sản phẩm cũng như các dịch vụ đi kèm khác."
+   */
+  introText?: string;
+  /**
+   * Trang Facebook
+   * @example "https://www.facebook.com/ThanhBangNamDinh"
+   */
+  facebookUrl?: string;
+  /**
+   * Kênh YouTube
+   * @example "https://www.youtube.com/@congtythanhbang1735"
+   */
+  youtubeUrl?: string;
+  /**
+   * Kênh Instagram
+   * @example "https://instagram.com/..."
+   */
+  instagramUrl?: string;
+  /**
+   * Số điện thoại hotline chính
+   * @example "0943676869"
+   */
+  phone?: string;
+  /**
+   * Địa chỉ Email liên hệ
+   * @example "maygachbetongtb@gmail.com"
+   */
+  email?: string;
+  /**
+   * Địa chỉ trụ sở/nhà máy
+   * @example "Công Ty Cổ Phần Thanh Bằng, Xuân Trường, Ninh Bình 420000, Việt Nam"
+   */
+  address?: string;
+  /**
+   * Số điện thoại liên hệ mua hàng
+   * @example "0943.67.68.69"
+   */
+  salesPhone?: string;
+  /**
+   * Số điện thoại đóng góp ý kiến
+   * @example "0914 161 122"
+   */
+  feedbackPhone?: string;
+  /**
+   * Số điện thoại bảo hành
+   * @example "0912 01 77 55"
+   */
+  warrantyPhone?: string;
+  /**
+   * Tiêu đề cột hỗ trợ khách hàng
+   * @example "HỖ TRỢ KHÁCH HÀNG"
+   */
+  customerSupportTitle?: string;
+  /** Danh sách đường dẫn hỗ trợ khách hàng */
+  customerSupportLinks?: CustomerSupportLinkDto[];
 }
