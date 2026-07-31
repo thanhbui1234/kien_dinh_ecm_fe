@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { ArrowLeft } from 'lucide-react';
 
@@ -13,14 +15,23 @@ interface PageBreadcrumbProps {
   variant?: 'gray' | 'light';
 }
 
-/** Native-app-style back button — mobile renders a sleek back pill badge with parent label (e.g. ← Sản phẩm / ← Dự án). */
+/** Native-app-style back button — mobile & tablet render a sleek back pill badge with parent label (e.g. ← Sản phẩm / ← Dự án). */
 function MobileBackLink({ items, LinkComponent, className }: { items: BreadcrumbItem[]; LinkComponent: React.ElementType; className?: string }) {
   const parent = items.length >= 2 ? items[items.length - 2] : items[0];
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (typeof window !== 'undefined' && window.history.length > 1 && document.referrer && document.referrer.includes(window.location.host)) {
+      e.preventDefault();
+      window.history.back();
+    }
+  };
+
   return (
     <LinkComponent
       href={parent.href ?? '/'}
+      onClick={handleClick}
       aria-label={`Quay lại ${parent.label}`}
-      className={`md:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100/90 hover:bg-gray-200 active:bg-gray-300 text-xs font-semibold text-gray-800 no-underline transition-all border border-gray-200/80 shadow-xs ${className || ''}`}
+      className={`lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100/90 hover:bg-gray-200 active:bg-gray-300 text-xs font-semibold text-gray-800 no-underline transition-all border border-gray-200/80 shadow-xs ${className || ''}`}
     >
       <ArrowLeft className="w-3.5 h-3.5 text-gray-600" strokeWidth={2.5} />
       <span>{parent.label}</span>
@@ -37,7 +48,7 @@ export function PageBreadcrumb({ items, LinkComponent = 'a', variant = 'gray' }:
             items={items}
             LinkComponent={LinkComponent}
           />
-          <div className="hidden md:flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-gray-400">
+          <div className="hidden lg:flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-gray-400">
             {items.map((item, i) => (
               <span key={i} className="inline-flex items-center gap-2 min-w-0">
                 {i > 0 && <span>/</span>}
@@ -57,7 +68,7 @@ export function PageBreadcrumb({ items, LinkComponent = 'a', variant = 'gray' }:
   }
 
   return (
-    <div style={{ background: '#f5f5f5', padding: '16px 20px' }} className="md:!py-6">
+    <div style={{ background: '#f5f5f5', padding: '16px 20px' }} className="lg:!py-6">
       <div style={{ maxWidth: '1266px', margin: '0 auto' }}>
         <MobileBackLink
           items={items}
@@ -65,7 +76,7 @@ export function PageBreadcrumb({ items, LinkComponent = 'a', variant = 'gray' }:
         />
         <nav
           aria-label="breadcrumb"
-          className="hidden md:flex flex-wrap items-center gap-y-1"
+          className="hidden lg:flex flex-wrap items-center gap-y-1"
           style={{ fontSize: '12px', color: '#666' }}
         >
           {items.map((item, i) => (
@@ -87,3 +98,4 @@ export function PageBreadcrumb({ items, LinkComponent = 'a', variant = 'gray' }:
     </div>
   );
 }
+

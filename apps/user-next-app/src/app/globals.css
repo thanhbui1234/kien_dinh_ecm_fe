@@ -127,8 +127,18 @@ body {
   overscroll-behavior: none;
 }
 
-html {
-  scroll-behavior: smooth;
+/* Desktop PC (>= 1024px) smooth scrolling */
+@media (min-width: 1024px) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Mobile & Tablet (< 1024px) instant scrolling to prevent scroll animation stutter on back navigation */
+@media (max-width: 1023px) {
+  html {
+    scroll-behavior: auto !important;
+  }
 }
 
 body {
