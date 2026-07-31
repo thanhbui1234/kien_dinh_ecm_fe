@@ -12,6 +12,8 @@ import ProjectArticleBody from './ProjectArticleBody';
 import ProjectSidebar from './ProjectSidebar';
 import ProjectBottomCTA from './ProjectBottomCTA';
 
+import ProjectVideoSection from './ProjectVideoSection';
+
 interface Props {
   project: Project;
   relatedProducts?: Product[];
@@ -46,6 +48,8 @@ export default function ProjectDetailClient({
     project.detail?.contentDetail || project.description || ''
   );
 
+  const projectVideos: string[] = (project.detail as any)?.videoUrls || (project as any).videoUrls || [];
+
   return (
     <MotionConfig reducedMotion="user">
       <>
@@ -66,6 +70,7 @@ export default function ProjectDetailClient({
           </div>
 
           {/* Full-width below the grid */}
+          <ProjectVideoSection videoUrls={projectVideos} />
           <ProjectGallery images={galleryImages} />
           <RelatedProducts products={relatedProducts} />
           <ProjectBottomCTA ctaRef={ctaRef} />

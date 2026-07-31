@@ -50,9 +50,21 @@ export default function JobForm() {
 
   const onSubmit = (data: CreateJobInput) => {
     if (isEdit && id) {
-      updateMutation.mutate({ id, data }, { onSuccess: () => { markSaved(); navigate('/jobs'); } });
+      updateMutation.mutate({ id, data }, { 
+        onSuccess: () => { 
+          markSaved(); 
+          toast.success('Cập nhật bài tuyển dụng thành công!');
+          navigate('/jobs'); 
+        } 
+      });
     } else {
-      createMutation.mutate(data, { onSuccess: () => { markSaved(); navigate('/jobs'); } });
+      createMutation.mutate(data, { 
+        onSuccess: () => { 
+          markSaved(); 
+          toast.success('Tạo bài tuyển dụng thành công!');
+          navigate('/jobs'); 
+        } 
+      });
     }
   };
 

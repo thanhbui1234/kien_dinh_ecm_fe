@@ -3,8 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ChevronLeft, Loader2, Plus, Trash2, Sparkles, ZoomIn, Play } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ChevronLeft, Loader2, Sparkles } from 'lucide-react';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { AIGenerator } from '@/components/common/AIGenerator';
@@ -17,34 +16,41 @@ import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 import { useObjectUrlCache } from '@/hooks/useObjectUrlCache';
 import { ImageLightbox } from '@/components/common/ImageLightbox';
 import { toast } from '@/utils/toast';
-import { getYoutubeId } from '@/utils/youtube';
+import { AdminPageHeader } from '@/components/common/AdminPageHeader';
+import { FormActionButtons } from '@/components/common/FormActionButtons';
+import { ProductBasicInfoSection } from '@/components/products/ProductBasicInfoSection';
+import { ProductSpecsSection } from '@/components/products/ProductSpecsSection';
+import { ProductFeaturesSection } from '@/components/products/ProductFeaturesSection';
+import { ProductVideoSection } from '@/components/products/ProductVideoSection';
+import { ProductGallerySection } from '@/components/products/ProductGallerySection';
 
-// A pending image field may hold a File that hasn't been uploaded yet
-// (upload is deferred until submit) — extend the API schema locally so
-// form-level validation accepts that, without loosening the shared schema.
-// browser-image-compression's runtime output is a Blob, not a real File
-// instance (despite its .d.ts claiming otherwise), so validate against Blob.
 const fileOrString = z.union([z.string(), z.instanceof(Blob)]);
 const ProductFormSchema = CreateProductSchema.extend({
   thumbnailUrl: fileOrString,
   images: z.array(CreateProductImageSchema.extend({ imageUrl: fileOrString })).optional(),
 });
 
-const inputCls = "w-full h-9 px-3 rounded-md bg-white border border-gray-300 text-sm font-medium text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all shadow-sm";
-const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2";
-
 const Toggle = ({ checked, onToggle }: { checked: boolean; onToggle: () => void }) => (
-  <button type="button" onClick={onToggle}
-    className={`relative inline-flex w-10 h-5 rounded-full transition-colors shadow-sm border ${checked ? 'bg-black border-black' : 'bg-gray-100 border-gray-300'}`}>
-    <span className={`absolute top-0.5 left-0.5 w-3.5 h-3.5 rounded-full shadow transition-transform ${checked ? 'translate-x-5 bg-white' : 'translate-x-0 bg-gray-400'}`} />
+  <button
+    type="button"
+    onClick={onToggle}
+    className={`relative inline-flex w-10 h-5 rounded-full transition-colors shadow-sm border ${
+      checked ? 'bg-black border-black' : 'bg-gray-100 border-gray-300'
+    }`}
+  >
+    <span
+      className={`absolute top-0.5 left-0.5 w-3.5 h-3.5 rounded-full shadow transition-transform ${
+        checked ? 'translate-x-5 bg-white' : 'translate-x-0 bg-gray-400'
+      }`}
+    />
   </button>
 );
 
 type FormValues = Omit<CreateProductInput, 'thumbnailUrl' | 'images' | 'videoUrls'> & {
   thumbnailUrl: string | File;
   images: { imageUrl: string | File; isMain: boolean; orderIndex: number }[];
-  specList: { key: string, value: string }[];
-  featureList: { key: string, value: string }[];
+  specList: { key: string; value: string }[];
+  featureList: { key: string; value: string }[];
   videoList: { url: string }[];
 };
 
@@ -59,16 +65,24 @@ export default function ProductForm() {
   const updateMutation = useUpdateProduct();
   const { data: productData, isLoading: isLoadingDetail } = useProductDetail(id || '');
 
-  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting, isDirty, dirtyFields }, watch, setValue } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(ProductFormSchema as any),
-    defaultValues: { 
-      name: '', price: null, thumbnailUrl: '', isFeatured: false, status: true, categoryId: '', contentDetail: '',
+    defaultValues: {
+      name: '',
+      price: null,
+      thumbnailUrl: '',
+      isFeatured: false,
+      status: true,
+      categoryId: '',
+      contentDetail: '',
       specList: [{ key: '', value: '' }],
       featureList: [{ key: '', value: '' }],
       images: [],
-      videoList: []
+      videoList: [],
     },
   });
+
+  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting, isDirty, dirtyFields }, watch, setValue } = form;
 
   const { UnsavedChangesModal, markSaved } = useLeaveConfirm(isDirty);
   const [isFormReady, setIsFormReady] = useState(!isEdit);
@@ -77,25 +91,10 @@ export default function ProductForm() {
     if (isEdit) setIsFormReady(false);
   }, [id, isEdit]);
 
-  const { fields, append, remove, replace } = useFieldArray({
-    control,
-    name: 'specList',
-  });
-
-  const { fields: featureFields, append: appendFeature, remove: removeFeature, replace: replaceFeature } = useFieldArray({
-    control,
-    name: 'featureList',
-  });
-
-  const { fields: imageFields, append: appendImage, remove: removeImage } = useFieldArray({
-    control,
-    name: 'images',
-  });
-
-  const { fields: videoFields, append: appendVideo, remove: removeVideo } = useFieldArray({
-    control,
-    name: 'videoList',
-  });
+  const specFieldArray = useFieldArray({ control, name: 'specList' });
+  const featureFieldArray = useFieldArray({ control, name: 'featureList' });
+  const imageFieldArray = useFieldArray({ control, name: 'images' });
+  const videoFieldArray = useFieldArray({ control, name: 'videoList' });
 
   const statusValue = watch('status');
   const isFeaturedValue = watch('isFeatured');
@@ -103,7 +102,7 @@ export default function ProductForm() {
   const featureListValue = watch('featureList');
   const videoListValue = watch('videoList');
   const [isUploadingImages, setIsUploadingImages] = useState(false);
-  const getImagePreviewSrc = useObjectUrlCache(imageFields.map((f) => f.imageUrl));
+  const getImagePreviewSrc = useObjectUrlCache(imageFieldArray.fields.map((f) => f.imageUrl));
 
   const [showAI, setShowAI] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -113,13 +112,13 @@ export default function ProductForm() {
     if (result.name) setValue('name', result.name, { shouldDirty: true });
     if (result.price !== undefined) setValue('price', result.price, { shouldDirty: true });
     if (result.contentDetail) setValue('contentDetail', result.contentDetail, { shouldDirty: true });
-    
+
     if (result.specs && result.specs.length > 0) {
-      replace(result.specs);
+      specFieldArray.replace(result.specs);
     }
-    
+
     if (result.features && result.features.length > 0) {
-      replaceFeature(result.features);
+      featureFieldArray.replace(result.features);
     }
   };
 
@@ -143,12 +142,12 @@ export default function ProductForm() {
         contentDetail: productData.detail?.contentDetail || '',
         specList: specsArray.length ? specsArray : [{ key: '', value: '' }],
         featureList: featuresArray.length ? featuresArray : [{ key: '', value: '' }],
-        images: (productData.images || []).map(img => ({
+        images: (productData.images || []).map((img) => ({
           imageUrl: img.imageUrl,
           isMain: img.isMain || false,
-          orderIndex: img.orderIndex || 0
+          orderIndex: img.orderIndex || 0,
         })),
-        videoList: videoUrls.map((url: string) => ({ url }))
+        videoList: videoUrls.map((url: string) => ({ url })),
       });
       setIsFormReady(true);
     }
@@ -157,7 +156,6 @@ export default function ProductForm() {
   const onSubmit = async (validatedData: any) => {
     const data: CreateProductInput = { ...validatedData };
 
-    // Convert specList array to a JSON object for specifications
     if (specListValue && specListValue.length > 0) {
       const specsObj = specListValue.reduce((acc: any, item) => {
         if (item.key && item.key.trim()) {
@@ -204,8 +202,8 @@ export default function ProductForm() {
     setIsUploadingImages(false);
 
     if (isEdit && id) {
-      const dirtyData: Partial<CreateProductInput> = {};
-      Object.keys(dirtyFields).forEach(key => {
+      const dirtyData: any = {};
+      Object.keys(dirtyFields).forEach((key) => {
         if (key === 'specList') {
           dirtyData.specifications = data.specifications || {};
         } else if (key === 'featureList') {
@@ -218,49 +216,79 @@ export default function ProductForm() {
           (dirtyData as any)[key] = (data as any)[key];
         }
       });
-      
-      updateMutation.mutate({ id, data: dirtyData }, { onSuccess: () => { markSaved(); navigate('/products'); } });
+
+      updateMutation.mutate(
+        { id, data: dirtyData },
+        {
+          onSuccess: () => {
+            markSaved();
+            toast.success('Cập nhật sản phẩm thành công!');
+          },
+        }
+      );
     } else {
-      createMutation.mutate(data, { onSuccess: () => { markSaved(); navigate('/products'); } });
+      createMutation.mutate(data, {
+        onSuccess: (res: any) => {
+          markSaved();
+          toast.success('Tạo sản phẩm thành công!');
+          const newId = res?.id || res?.data?.id;
+          if (newId) {
+            navigate(`/products/${newId}`);
+          } else {
+            navigate('/products');
+          }
+        },
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    if (isEdit) {
+      reset();
+    } else {
+      navigate('/products');
     }
   };
 
   const isSaving = createMutation.isPending || updateMutation.isPending || isSubmitting || isUploadingImages;
 
   if (isEdit && (isLoadingDetail || !isFormReady)) {
-    return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 text-black animate-spin" /></div>;
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-6 w-6 text-black animate-spin" />
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6 max-w-5xl pb-12">
       <UnsavedChangesModal />
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button type="button" onClick={() => navigate('/products')}
-            className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-gray-500 hover:text-black hover:bg-gray-50 transition-all shadow-sm">
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-black">{isEdit ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}</h1>
-            <p className="text-xs font-medium text-gray-500 mt-0.5">{isEdit ? 'Cập nhật thông tin sản phẩm' : 'Điền thông tin để tạo sản phẩm mới'}</p>
-          </div>
-        </div>
-        
-        {!isEdit && (
-          <button type="button" onClick={() => setShowAI(!showAI)} className="flex items-center gap-1.5 h-9 px-3 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors border border-indigo-200 shadow-sm">
-            <Sparkles className="w-3.5 h-3.5" /> Tạo tự động bằng AI
-          </button>
-        )}
-      </div>
+      <AdminPageHeader
+        title={isEdit ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}
+        subtitle={isEdit ? 'Cập nhật thông tin sản phẩm' : 'Điền thông tin để tạo sản phẩm mới'}
+        onBack={handleCancel}
+        clientUrl={isEdit && productData?.slug ? `/products/${productData.slug}` : undefined}
+        actions={
+          !isEdit ? (
+            <button
+              type="button"
+              onClick={() => setShowAI(!showAI)}
+              className="flex items-center gap-1.5 h-9 px-3 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors border border-indigo-200 shadow-sm cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Tạo tự động bằng AI
+            </button>
+          ) : undefined
+        }
+      />
 
       {showAI && !isEdit && (
-        <AIGenerator 
+        <AIGenerator
           title="Sinh dữ liệu sản phẩm tự động bằng AI"
           description="Nhập yêu cầu chi tiết để AI phân tích và tự điền Tên, Giá bán, Thông số kỹ thuật, Tính năng nổi bật và Nội dung mô tả."
           placeholder="Ví dụ: Tạo cho tôi sản phẩm Máy phay CNC 3 trục giá 500 triệu. Gồm thông số điện áp 220V, hành trình X Y Z. Viết mô tả thật chuyên nghiệp..."
           generateContent={generateProductContent}
-          onGenerateSuccess={handleAIGenerateSuccess} 
-          onClose={() => setShowAI(false)} 
+          onGenerateSuccess={handleAIGenerateSuccess}
+          onClose={() => setShowAI(false)}
         />
       )}
 
@@ -268,159 +296,34 @@ export default function ProductForm() {
         <div className="grid grid-cols-3 gap-5">
           {/* Main content */}
           <div className="col-span-2 space-y-5">
-            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-              <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">THÔNG TIN CƠ BẢN</h2>
-              <div>
-                <label className={labelCls}>Tên sản phẩm <span className="text-red-500">*</span></label>
-                <input {...register('name')} placeholder="Ví dụ: Máy phay CNC 3 trục" className={inputCls} />
-                {errors.name && <p className="text-xs font-medium text-red-500 mt-1.5">{errors.name.message}</p>}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelCls}>Danh mục <span className="text-red-500">*</span></label>
-                  <Controller
-                    name="categoryId"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value}
-                        onValueChange={(v) => {
-                          if (v === field.value) return;
-                          field.onChange(v);
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="-- Chọn danh mục --" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((cat) => (
-                            <SelectItem key={cat.id} value={cat.id}>
-                              {cat.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {errors.categoryId && <p className="text-xs font-medium text-red-500 mt-1.5">{(errors.categoryId as any).message}</p>}
-                </div>
-                <div>
-                  <label className={labelCls}>Giá bán (VNĐ)</label>
-                  <input {...register('price', { setValueAs: (v) => v === '' || Number.isNaN(Number(v)) ? null : Number(v) })} type="number" placeholder="Để trống nếu liên hệ" className={inputCls} />
-                  {errors.price && <p className="text-xs font-medium text-red-500 mt-1.5">{errors.price?.message as any}</p>}
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                <h2 className="text-sm font-bold text-black">THÔNG SỐ KỸ THUẬT</h2>
-                <button type="button" onClick={() => append({ key: '', value: '' })}
-                  className="flex items-center gap-1.5 h-7 px-2.5 rounded border border-gray-300 text-xs font-bold text-black hover:bg-gray-50 transition-colors">
-                  <Plus className="h-3.5 w-3.5" /> Thêm thông số
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                {fields.map((field, index) => (
-                  <div key={field.id} className="flex items-start gap-3 relative group">
-                    <div className="flex-1">
-                      <input {...register(`specList.${index}.key` as const)} placeholder="Tên thông số (VD: Điện áp)" className={inputCls} />
-                    </div>
-                    <div className="flex-[2]">
-                      <input {...register(`specList.${index}.value` as const)} placeholder="Giá trị (VD: 220V)" className={inputCls} />
-                    </div>
-                    <button type="button" onClick={() => remove(index)}
-                      className="w-9 h-9 rounded border border-gray-200 text-gray-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 flex items-center justify-center transition-all shrink-0">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-                {fields.length === 0 && (
-                  <p className="text-xs font-medium text-gray-500 text-center py-4">Chưa có thông số kỹ thuật</p>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                <h2 className="text-sm font-bold text-black">TÍNH NĂNG NỔI BẬT</h2>
-                <button type="button" onClick={() => appendFeature({ key: '', value: '' })}
-                  className="flex items-center gap-1.5 h-7 px-2.5 rounded border border-gray-300 text-xs font-bold text-black hover:bg-gray-50 transition-colors">
-                  <Plus className="h-3.5 w-3.5" /> Thêm tính năng
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                {featureFields.map((field, index) => (
-                  <div key={field.id} className="flex items-start gap-3 relative group">
-                    <div className="flex-1">
-                      <input {...register(`featureList.${index}.key` as const)} placeholder="Tên tính năng (VD: Động cơ)" className={inputCls} />
-                    </div>
-                    <div className="flex-[2]">
-                      <input {...register(`featureList.${index}.value` as const)} placeholder="Mô tả (VD: Hoạt động mạnh mẽ)" className={inputCls} />
-                    </div>
-                    <button type="button" onClick={() => removeFeature(index)}
-                      className="w-9 h-9 rounded border border-gray-200 text-gray-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 flex items-center justify-center transition-all shrink-0">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-                {featureFields.length === 0 && (
-                  <p className="text-xs font-medium text-gray-500 text-center py-4">Chưa có tính năng nổi bật</p>
-                )}
-              </div>
-            </div>
+            <ProductBasicInfoSection form={form} categories={categories} />
+            <ProductSpecsSection form={form} specFieldArray={specFieldArray} />
+            <ProductFeaturesSection form={form} featureFieldArray={featureFieldArray} />
 
             <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
               <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">NỘI DUNG CHI TIẾT</h2>
-              <Controller name="contentDetail" control={control}
-                render={({ field }) => <RichTextEditor value={field.value || ''} onChange={field.onChange} placeholder="Nhập mô tả chi tiết sản phẩm..." />}
+              <Controller
+                name="contentDetail"
+                control={control}
+                render={({ field }) => (
+                  <RichTextEditor
+                    value={field.value || ''}
+                    onChange={field.onChange}
+                    placeholder="Nhập mô tả chi tiết sản phẩm..."
+                  />
+                )}
               />
             </div>
 
-            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-              <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">THƯ VIỆN ẢNH SẢN PHẨM</h2>
-              
-              {imageFields.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {imageFields.map((field, index) => (
-                    <div key={field.id} className="relative aspect-square rounded-md border border-gray-200 overflow-hidden group bg-gray-50">
-                      <button
-                        type="button"
-                        onClick={() => { setLightboxIndex(index); setLightboxOpen(true); }}
-                        className="w-full h-full cursor-zoom-in"
-                      >
-                        <img src={getImagePreviewSrc(field.imageUrl)} alt={`Ảnh ${index + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                          <ZoomIn className="w-5 h-5 text-white" />
-                        </div>
-                      </button>
-                      <button type="button" onClick={() => removeImage(index)}
-                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-50 z-10">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 py-1 px-2">
-                         <p className="text-[10px] text-white font-medium truncate">Ảnh {index + 1}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              <div className="pt-2">
-                <FileUpload
-                  label="Tải thêm ảnh vào thư viện"
-                  value=""
-                  onChange={(url) => {
-                    if (url) {
-                      appendImage({ imageUrl: url, isMain: false, orderIndex: imageFields.length });
-                    }
-                  }}
-                  bgOption="none"
-                />
-              </div>
-            </div>
+            <ProductGallerySection
+              form={form}
+              imageFieldArray={imageFieldArray}
+              getImagePreviewSrc={getImagePreviewSrc}
+              onOpenLightbox={(idx) => {
+                setLightboxIndex(idx);
+                setLightboxOpen(true);
+              }}
+            />
           </div>
 
           {/* Right sidebar */}
@@ -428,51 +331,15 @@ export default function ProductForm() {
             <div className="sticky top-6 space-y-5">
               <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
                 <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">ẢNH ĐẠI DIỆN</h2>
-                <Controller name="thumbnailUrl" control={control}
+                <Controller
+                  name="thumbnailUrl"
+                  control={control}
                   render={({ field }) => <FileUpload label="" value={field.value} onChange={field.onChange} bgOption="none" />}
                 />
-                {errors.thumbnailUrl && <p className="text-xs font-medium text-red-500">{errors.thumbnailUrl.message}</p>}
+                {errors.thumbnailUrl && <p className="text-xs font-medium text-red-500">{(errors.thumbnailUrl as any).message}</p>}
               </div>
 
-              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                  <h2 className="text-sm font-bold text-black">VIDEO SẢN PHẨM</h2>
-                  <button type="button" onClick={() => appendVideo({ url: '' })}
-                    className="flex items-center gap-1.5 h-7 px-2.5 rounded border border-gray-300 text-xs font-bold text-black hover:bg-gray-50 transition-colors">
-                    <Plus className="h-3.5 w-3.5" /> Thêm video
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {videoFields.map((field, index) => {
-                    const youtubeId = getYoutubeId(videoListValue?.[index]?.url || '');
-                    return (
-                      <div key={field.id} className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <input {...register(`videoList.${index}.url` as const)} placeholder="Link YouTube..." className={`${inputCls} flex-1`} />
-                          <button type="button" onClick={() => removeVideo(index)}
-                            className="w-9 h-9 rounded border border-gray-200 text-gray-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 flex items-center justify-center transition-all shrink-0">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                        {youtubeId && (
-                          <div className="relative aspect-video rounded-md overflow-hidden border border-gray-200 bg-gray-50">
-                            <img src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`} alt="Xem trước video" className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                              <div className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center">
-                                <Play className="h-4 w-4 text-black fill-black ml-0.5" />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {videoFields.length === 0 && (
-                    <p className="text-xs font-medium text-gray-500 text-center py-4">Chưa có video sản phẩm</p>
-                  )}
-                </div>
-              </div>
+              <ProductVideoSection form={form} videoFieldArray={videoFieldArray} videoListValue={videoListValue} />
 
               <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
                 <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">CÀI ĐẶT</h2>
@@ -492,17 +359,13 @@ export default function ProductForm() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2.5">
-                <button type="submit" disabled={isSaving || !isDirty}
-                  className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
-                  {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {isUploadingImages ? 'ĐANG TẢI ẢNH LÊN...' : isEdit ? 'CẬP NHẬT' : 'TẠO SẢN PHẨM'}
-                </button>
-                <button type="button" onClick={() => navigate('/products')} disabled={isSaving}
-                  className="h-10 px-4 rounded-md bg-white hover:bg-gray-50 border border-gray-300 text-black text-sm font-bold transition-colors shadow-sm">
-                  HỦY
-                </button>
-              </div>
+              <FormActionButtons
+                isEdit={isEdit}
+                isSaving={isSaving}
+                isDirty={isDirty}
+                submitText={isUploadingImages ? 'ĐANG TẢI ẢNH LÊN...' : undefined}
+                onCancel={handleCancel}
+              />
             </div>
           </div>
         </div>
@@ -511,7 +374,7 @@ export default function ProductForm() {
       <ImageLightbox
         open={lightboxOpen}
         index={lightboxIndex}
-        slides={imageFields.map((f) => ({ src: getImagePreviewSrc(f.imageUrl) }))}
+        slides={imageFieldArray.fields.map((f) => ({ src: getImagePreviewSrc(f.imageUrl) }))}
         onClose={() => setLightboxOpen(false)}
         onIndexChange={(i) => setLightboxIndex(i)}
       />

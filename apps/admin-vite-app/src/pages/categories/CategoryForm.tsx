@@ -75,9 +75,21 @@ export default function CategoryForm() {
 
     const payload: CreateCategoryInput = { ...data, imageUrl: resolvedImageUrl };
     if (isEdit && id) {
-      updateMutation.mutate({ id, data: payload }, { onSuccess: () => { markSaved(); navigate('/categories'); } });
+      updateMutation.mutate({ id, data: payload }, { 
+        onSuccess: () => { 
+          markSaved(); 
+          toast.success('Cập nhật danh mục thành công!');
+          navigate('/categories'); 
+        } 
+      });
     } else {
-      createMutation.mutate(payload, { onSuccess: () => { markSaved(); navigate('/categories'); } });
+      createMutation.mutate(payload, { 
+        onSuccess: () => { 
+          markSaved(); 
+          toast.success('Tạo danh mục thành công!');
+          navigate('/categories'); 
+        } 
+      });
     }
   };
 

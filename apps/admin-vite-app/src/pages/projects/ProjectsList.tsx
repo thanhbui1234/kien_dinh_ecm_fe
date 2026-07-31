@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Edit, Trash2, Sparkles } from 'lucide-react';
+import { Plus, Edit, Trash2, Sparkles, ExternalLink } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useProjects, useDeleteProject, useUpdateProject } from '@/queries/projects';
 import { DataTable, ColumnDef } from '@/components/common/DataTable';
@@ -74,6 +74,15 @@ export default function ProjectsList() {
       key: 'actions', header: '',
       cell: (row) => (
         <div className="flex items-center justify-end gap-1">
+          <a
+            href={`http://localhost:3000/projects/${row.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Xem trực tiếp trên Website"
+            className="flex items-center justify-center w-7 h-7 rounded border border-transparent text-gray-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
           <Link to={`/projects/${row.id}/edit`}
             className="flex items-center justify-center w-7 h-7 rounded border border-transparent text-gray-400 hover:text-black hover:border-gray-300 hover:bg-gray-50 transition-all">
             <Edit className="h-3.5 w-3.5" />
