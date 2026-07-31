@@ -39,7 +39,13 @@ export default function ProjectForm() {
   const isEdit = !!id;
   const navigate = useNavigate();
   const [galleryImages, setGalleryImages] = useState<(string | File)[]>([]);
+  const [isGalleryDirty, setIsGalleryDirty] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+
+  const handleGalleryImagesChange = (images: (string | File)[]) => {
+    setGalleryImages(images);
+    setIsGalleryDirty(true);
+  };
 
   const createMutation = useCreateProject();
   const updateMutation = useUpdateProject();
@@ -53,7 +59,7 @@ export default function ProjectForm() {
     } as Partial<ProjectFormValues> as ProjectFormValues,
   });
 
-  const { UnsavedChangesModal, markSaved } = useLeaveConfirm(isDirty);
+  const { UnsavedChangesModal, markSaved } = useLeaveConfirm(isDirty || isGalleryDirty);
 
   const [showAI, setShowAI] = useState(false);
 
@@ -81,6 +87,7 @@ export default function ProjectForm() {
         categoryIds: (projectData as any).categoryIds || [],
       });
       setGalleryImages((projectData as any).images || []);
+      setIsGalleryDirty(false);
     }
   }, [isEdit, projectData, reset]);
 
@@ -169,7 +176,7 @@ export default function ProjectForm() {
               />
             </div>
 
-            <GalleryImagesSection images={galleryImages} onChange={setGalleryImages} />
+            <GalleryImagesSection images={galleryImages} onChange={handleGalleryImagesChange} />
           </div>
 
           {/* Right sidebar */}
@@ -202,7 +209,7 @@ export default function ProjectForm() {
               </div>
 
               <div className="flex flex-col gap-2.5">
-                <button type="submit" disabled={isSaving || !isDirty}
+                <button type="submit" disabled={isSaving || (!isDirty && !isGalleryDirty)}
                   className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
                   {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
                   {isUploadingImages ? 'ĐANG TẢI ẢNH LÊN...' : isEdit ? 'CẬP NHẬT' : 'TẠO DỰ ÁN'}

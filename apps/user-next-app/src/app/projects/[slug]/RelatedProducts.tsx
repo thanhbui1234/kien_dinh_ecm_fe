@@ -21,7 +21,7 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
   const shown = products.slice(0, 6);
 
   return (
-    <div ref={ref} className="mt-16 pt-12 border-t border-gray-100">
+    <div ref={ref} className="mt-4 pt-4 md:mt-16 md:pt-12 border-t border-gray-100">
       {/* Section header */}
       <motion.div
         className="flex items-end justify-between mb-10"
