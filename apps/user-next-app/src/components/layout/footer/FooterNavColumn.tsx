@@ -23,10 +23,10 @@ export const FooterNavColumn = ({ groups }: FooterNavColumnProps) => {
             {group.heading}
           </Link>
           <ul className="list-none m-0 p-0">
-            {group.links.map((link) => {
+            {group.links.map((link, index) => {
               const indentClass = link.indent ? 'pl-3 text-[13px] text-[#aaa]' : 'pl-0 text-[14px] text-white';
               return (
-                <li key={link.href}>
+                <li key={`${link.href}-${index}`}>
                   <Link
                     href={link.href}
                     className={`${footerLinkClass} ${indentClass}`}

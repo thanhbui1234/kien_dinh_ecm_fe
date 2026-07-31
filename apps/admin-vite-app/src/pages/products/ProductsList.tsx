@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Edit, Trash2, Eye, Copy, Loader2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Copy, Loader2, ExternalLink } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useProducts, useDeleteProduct, useCopyProduct, useUpdateProduct } from '@/queries/products';
 import { useCategories } from '@/queries/categories';
@@ -105,7 +105,17 @@ export default function ProductsList() {
       key: 'actions', header: '',
       cell: (row) => (
         <div className="flex items-center justify-end gap-1">
+          <a
+            href={`http://localhost:3000/products/${row.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Xem trực tiếp trên Website"
+            className="flex items-center justify-center w-7 h-7 rounded-md border border-transparent text-gray-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
           <Link to={`/products/${row.id}`}
+            title="Xem chi tiết nội bộ"
             className="flex items-center justify-center w-7 h-7 rounded-md border border-transparent text-gray-400 hover:text-black hover:border-gray-300 hover:bg-gray-50 transition-all">
             <Eye className="h-3.5 w-3.5" />
           </Link>

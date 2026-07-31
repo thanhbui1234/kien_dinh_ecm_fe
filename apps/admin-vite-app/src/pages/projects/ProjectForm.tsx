@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ChevronLeft, Loader2, Sparkles } from 'lucide-react';
+import { ChevronLeft, Loader2, Sparkles, ExternalLink } from 'lucide-react';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { AIGenerator } from '@/components/common/AIGenerator';
@@ -12,6 +12,10 @@ import { useCreateProject, useUpdateProject, useProjectDetail } from '@/queries/
 import { resolveImageValue, resolveImageValues } from '@/queries/upload/useUpload';
 import { CreateProjectSchema, CreateProjectInput } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
+import { ProductVideoSection } from '@/components/products/ProductVideoSection';
+import { useFieldArray } from 'react-hook-form';
+import { AdminPageHeader } from '@/components/common/AdminPageHeader';
+import { FormActionButtons } from '@/components/common/FormActionButtons';
 import { ProjectBasicInfoSection } from '@/components/projects/ProjectBasicInfoSection';
 import { ProductPickerSection } from '@/components/projects/ProductPickerSection';
 import { CategoryPickerSection } from '@/components/projects/CategoryPickerSection';
@@ -27,7 +31,7 @@ const Toggle = ({ checked, onToggle }: { checked: boolean; onToggle: () => void 
 
 // coverImage may hold a File that hasn't been uploaded yet — upload is
 // deferred until submit — so extend the API schema locally for form validation.
-type ProjectFormValues = Omit<CreateProjectInput, 'coverImage'> & { coverImage: string | File };
+type ProjectFormValues = Omit<CreateProjectInput, 'coverImage'> & { coverImage: string | File; videoList?: { url: string }[] };
 const ProjectFormSchema = CreateProjectSchema.extend({
   // browser-image-compression's runtime output is a Blob, not a real File
   // instance (despite its .d.ts claiming otherwise), so validate against Blob.
@@ -51,13 +55,17 @@ export default function ProjectForm() {
   const updateMutation = useUpdateProject();
   const { data: projectData, isLoading: isLoadingDetail } = useProjectDetail(id || '');
 
-  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm<ProjectFormValues>({
+  const form = useForm<ProjectFormValues>({
     resolver: zodResolver(ProjectFormSchema as any),
     defaultValues: {
       name: '', description: '', coverImage: '', status: true, isFeatured: false,
-      contentDetail: '', productIds: [], categoryIds: [],
+      contentDetail: '', productIds: [], categoryIds: [], videoList: [] as any
     } as Partial<ProjectFormValues> as ProjectFormValues,
   });
+  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = form;
+
+  const videoFieldArray = useFieldArray({ control, name: 'videoList' as any });
+  const videoListValue = (watch('videoList' as any) || []) as { url: string }[];
 
   const { UnsavedChangesModal, markSaved } = useLeaveConfirm(isDirty || isGalleryDirty);
 
@@ -76,6 +84,7 @@ export default function ProjectForm() {
 
   useEffect(() => {
     if (isEdit && projectData) {
+      const videoUrls = (projectData as any).detail?.videoUrls || (projectData as any).videoUrls || [];
       reset({
         name: projectData.name,
         description: projectData.description,
@@ -85,6 +94,7 @@ export default function ProjectForm() {
         contentDetail: (projectData as any).detail?.contentDetail || '',
         productIds: (projectData as any).productIds || [],
         categoryIds: (projectData as any).categoryIds || [],
+        videoList: videoUrls.map((url: string) => ({ url })) as any,
       });
       setGalleryImages((projectData as any).images || []);
       setIsGalleryDirty(false);
@@ -108,10 +118,40 @@ export default function ProjectForm() {
     setIsUploadingImages(false);
 
     const payload = { ...data, coverImage: resolvedCoverImage, images: resolvedImages } as any;
+    if (videoListValue && videoListValue.length > 0) {
+      payload.videoUrls = videoListValue.map((item) => item.url.trim()).filter(Boolean);
+    }
     if (isEdit && id) {
-      updateMutation.mutate({ id, data: payload }, { onSuccess: () => { markSaved(); navigate('/projects'); } });
+      updateMutation.mutate({ id, data: payload }, { 
+        onSuccess: () => { 
+          markSaved(); 
+          setIsGalleryDirty(false);
+          toast.success('Cập nhật dự án thành công!');
+        } 
+      });
     } else {
-      createMutation.mutate(payload, { onSuccess: () => { markSaved(); navigate('/projects'); } });
+      createMutation.mutate(payload, { 
+        onSuccess: (res: any) => { 
+          markSaved(); 
+          setIsGalleryDirty(false);
+          toast.success('Tạo dự án thành công!');
+          const newId = res?.id || res?.data?.id;
+          if (newId) {
+            navigate(`/projects/${newId}/edit`);
+          } else {
+            navigate('/projects');
+          }
+        } 
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    if (isEdit) {
+      reset();
+      setIsGalleryDirty(false);
+    } else {
+      navigate('/projects');
     }
   };
 
@@ -122,24 +162,23 @@ export default function ProjectForm() {
   return (
     <div className="space-y-6 max-w-5xl pb-12">
       <UnsavedChangesModal />
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button type="button" onClick={() => navigate('/projects')}
-            className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-gray-500 hover:text-black hover:bg-gray-50 transition-all shadow-sm">
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-black">{isEdit ? 'Chỉnh sửa dự án' : 'Thêm dự án mới'}</h1>
-            <p className="text-xs font-medium text-gray-500 mt-0.5">{isEdit ? 'Cập nhật thông tin dự án' : 'Điền thông tin để tạo dự án mới'}</p>
-          </div>
-        </div>
-
-        {!isEdit && (
-          <button type="button" onClick={() => setShowAI(!showAI)} className="flex items-center gap-1.5 h-9 px-3 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors border border-indigo-200 shadow-sm">
-            <Sparkles className="w-3.5 h-3.5" /> Tạo tự động bằng AI
-          </button>
-        )}
-      </div>
+      <AdminPageHeader
+        title={isEdit ? 'Chỉnh sửa dự án' : 'Thêm dự án mới'}
+        subtitle={isEdit ? 'Cập nhật thông tin dự án' : 'Điền thông tin để tạo dự án mới'}
+        onBack={handleCancel}
+        clientUrl={isEdit && projectData?.slug ? `/projects/${projectData.slug}` : undefined}
+        actions={
+          !isEdit ? (
+            <button
+              type="button"
+              onClick={() => setShowAI(!showAI)}
+              className="flex items-center gap-1.5 h-9 px-3 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors border border-indigo-200 shadow-sm cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Tạo tự động bằng AI
+            </button>
+          ) : undefined
+        }
+      />
 
       {showAI && !isEdit && (
       <AIGenerator
@@ -190,6 +229,8 @@ export default function ProjectForm() {
                 {errors.coverImage && <p className="text-xs font-medium text-red-500">{errors.coverImage.message}</p>}
               </div>
 
+              <ProductVideoSection form={form as any} videoFieldArray={videoFieldArray as any} videoListValue={videoListValue as any} />
+
               <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                 <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3 mb-4">CÀI ĐẶT</h2>
                 <div className="flex items-center justify-between">
@@ -208,17 +249,13 @@ export default function ProjectForm() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2.5">
-                <button type="submit" disabled={isSaving || (!isDirty && !isGalleryDirty)}
-                  className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
-                  {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {isUploadingImages ? 'ĐANG TẢI ẢNH LÊN...' : isEdit ? 'CẬP NHẬT' : 'TẠO DỰ ÁN'}
-                </button>
-                <button type="button" onClick={() => navigate('/projects')} disabled={isSaving}
-                  className="h-10 px-4 rounded-md bg-white hover:bg-gray-50 border border-gray-300 text-black text-sm font-bold transition-colors shadow-sm">
-                  HỦY
-                </button>
-              </div>
+              <FormActionButtons
+                isEdit={isEdit}
+                isSaving={isSaving}
+                isDirty={isDirty || isGalleryDirty}
+                submitText={isUploadingImages ? 'ĐANG TẢI ẢNH LÊN...' : undefined}
+                onCancel={handleCancel}
+              />
             </div>
           </div>
         </div>
