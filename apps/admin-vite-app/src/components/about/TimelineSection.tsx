@@ -5,6 +5,8 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStr
 import { CSS } from '@dnd-kit/utilities';
 import type { CompanyHistoryEvent } from 'shared-api';
 import { FileUpload } from '@/components/upload/FileUpload';
+import { resolveImageValue } from '@/queries/upload/useUpload';
+import { toast } from '@/utils/toast';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import {
   useHistoryEvents,
@@ -43,11 +45,23 @@ const TimelineCard = ({
   const [year, setYear] = useState(event.year || '');
   const [period, setPeriod] = useState(event.period || '');
   const [text, setText] = useState(event.text || '');
-  const [imageUrl, setImageUrl] = useState(event.imageUrl || '');
+  const [imageUrl, setImageUrl] = useState<string | File>(event.imageUrl || '');
   const [isEditing, setIsEditing] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
-  const handleSave = () => {
-    onUpdate(event.id, { year, period, text, imageUrl });
+  const handleSave = async () => {
+    let resolvedImageUrl: string;
+    try {
+      setIsUploadingImage(true);
+      resolvedImageUrl = await resolveImageValue(imageUrl);
+    } catch {
+      toast.error(null, 'Tải ảnh lên thất bại, vui lòng thử lại.');
+      setIsUploadingImage(false);
+      return;
+    }
+    setIsUploadingImage(false);
+
+    onUpdate(event.id, { year, period, text, imageUrl: resolvedImageUrl });
     setIsEditing(false);
   };
 
@@ -131,9 +145,10 @@ const TimelineCard = ({
             <button
               type="button"
               onClick={handleSave}
-              className="px-3 py-1.5 text-xs font-bold text-white bg-black rounded hover:bg-gray-800 transition-colors cursor-pointer"
+              disabled={isUploadingImage}
+              className="px-3 py-1.5 text-xs font-bold text-white bg-black rounded hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-50"
             >
-              Lưu lại
+              {isUploadingImage ? 'Đang tải ảnh lên...' : 'Lưu lại'}
             </button>
           </div>
         </div>
@@ -175,8 +190,9 @@ export function TimelineSection() {
   const [newYear, setNewYear] = useState('');
   const [newPeriod, setNewPeriod] = useState('');
   const [newText, setNewText] = useState('');
-  const [newImageUrl, setNewImageUrl] = useState('');
+  const [newImageUrl, setNewImageUrl] = useState<string | File>('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isUploadingNewImage, setIsUploadingNewImage] = useState(false);
 
   useEffect(() => {
     if (data) {
@@ -192,9 +208,20 @@ export function TimelineSection() {
     setShowNewForm(true);
   };
 
-  const handleCreateSubmit = () => {
+  const handleCreateSubmit = async () => {
+    let resolvedImageUrl: string;
+    try {
+      setIsUploadingNewImage(true);
+      resolvedImageUrl = await resolveImageValue(newImageUrl);
+    } catch {
+      toast.error(null, 'Tải ảnh lên thất bại, vui lòng thử lại.');
+      setIsUploadingNewImage(false);
+      return;
+    }
+    setIsUploadingNewImage(false);
+
     createMutation.mutate(
-      { year: newYear, period: newPeriod, text: newText, imageUrl: newImageUrl, orderIndex: items.length },
+      { year: newYear, period: newPeriod, text: newText, imageUrl: resolvedImageUrl, orderIndex: items.length },
       { onSuccess: () => setShowNewForm(false) }
     );
   };
@@ -264,8 +291,8 @@ export function TimelineSection() {
             <button type="button" onClick={() => setShowNewForm(false)} className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
               Hủy
             </button>
-            <button type="button" onClick={handleCreateSubmit} disabled={createMutation.isPending} className="px-3 py-1.5 text-xs font-bold text-white bg-black rounded hover:bg-gray-800 disabled:opacity-50 transition-colors cursor-pointer">
-              {createMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin inline" /> : 'Tạo cột mốc'}
+            <button type="button" onClick={handleCreateSubmit} disabled={createMutation.isPending || isUploadingNewImage} className="px-3 py-1.5 text-xs font-bold text-white bg-black rounded hover:bg-gray-800 disabled:opacity-50 transition-colors cursor-pointer">
+              {isUploadingNewImage ? 'Đang tải ảnh lên...' : createMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin inline" /> : 'Tạo cột mốc'}
             </button>
           </div>
         </div>

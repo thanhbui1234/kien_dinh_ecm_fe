@@ -32,6 +32,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "placehold.co",
       },
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
+      },
     ],
     // Cloudinary tự trả avif/webp qua f_auto — tắt Next.js re-encode để tránh double-transform
     // Nếu URL không đi qua f_auto thì bỏ dòng này

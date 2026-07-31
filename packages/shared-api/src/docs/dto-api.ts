@@ -398,6 +398,7 @@ export interface CreateProductDto {
   images?: CreateProductImageDto[];
 }
 
+
 export interface UpdateProductDto {
   /** Tên sản phẩm */
   name?: string;

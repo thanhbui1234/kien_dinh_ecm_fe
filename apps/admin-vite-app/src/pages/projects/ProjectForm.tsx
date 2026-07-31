@@ -2,18 +2,21 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { ChevronLeft, Loader2, Sparkles } from 'lucide-react';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { AIGenerator } from '@/components/common/AIGenerator';
 import { generateProjectContent } from '@/utils/ai';
 import { useCreateProject, useUpdateProject, useProjectDetail } from '@/queries/projects';
+import { resolveImageValue, resolveImageValues } from '@/queries/upload/useUpload';
 import { CreateProjectSchema, CreateProjectInput } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 import { ProjectBasicInfoSection } from '@/components/projects/ProjectBasicInfoSection';
 import { ProductPickerSection } from '@/components/projects/ProductPickerSection';
 import { CategoryPickerSection } from '@/components/projects/CategoryPickerSection';
 import { GalleryImagesSection } from '@/components/projects/GalleryImagesSection';
+import { toast } from '@/utils/toast';
 
 const Toggle = ({ checked, onToggle }: { checked: boolean; onToggle: () => void }) => (
   <button type="button" onClick={onToggle}
@@ -22,22 +25,32 @@ const Toggle = ({ checked, onToggle }: { checked: boolean; onToggle: () => void 
   </button>
 );
 
+// coverImage may hold a File that hasn't been uploaded yet — upload is
+// deferred until submit — so extend the API schema locally for form validation.
+type ProjectFormValues = Omit<CreateProjectInput, 'coverImage'> & { coverImage: string | File };
+const ProjectFormSchema = CreateProjectSchema.extend({
+  // browser-image-compression's runtime output is a Blob, not a real File
+  // instance (despite its .d.ts claiming otherwise), so validate against Blob.
+  coverImage: z.union([z.string().min(1, 'Ảnh bìa là bắt buộc'), z.instanceof(Blob)]),
+});
+
 export default function ProjectForm() {
   const { id } = useParams();
   const isEdit = !!id;
   const navigate = useNavigate();
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [galleryImages, setGalleryImages] = useState<(string | File)[]>([]);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
 
   const createMutation = useCreateProject();
   const updateMutation = useUpdateProject();
   const { data: projectData, isLoading: isLoadingDetail } = useProjectDetail(id || '');
 
-  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm<CreateProjectInput>({
-    resolver: zodResolver(CreateProjectSchema as any),
+  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm<ProjectFormValues>({
+    resolver: zodResolver(ProjectFormSchema as any),
     defaultValues: {
       name: '', description: '', coverImage: '', status: true, isFeatured: false,
       contentDetail: '', productIds: [], categoryIds: [],
-    } as Partial<CreateProjectInput> as CreateProjectInput,
+    } as Partial<ProjectFormValues> as ProjectFormValues,
   });
 
   const { UnsavedChangesModal, markSaved } = useLeaveConfirm(isDirty);
@@ -71,10 +84,23 @@ export default function ProjectForm() {
     }
   }, [isEdit, projectData, reset]);
 
-  const isSaving = createMutation.isPending || updateMutation.isPending || isSubmitting;
+  const isSaving = createMutation.isPending || updateMutation.isPending || isSubmitting || isUploadingImages;
 
-  const onSubmit = (data: CreateProjectInput) => {
-    const payload = { ...data, images: galleryImages } as any;
+  const onSubmit = async (data: ProjectFormValues) => {
+    let resolvedCoverImage: string;
+    let resolvedImages: string[];
+    try {
+      setIsUploadingImages(true);
+      resolvedCoverImage = await resolveImageValue(data.coverImage);
+      resolvedImages = await resolveImageValues(galleryImages);
+    } catch {
+      toast.error(null, 'Tải ảnh lên thất bại, vui lòng thử lại.');
+      setIsUploadingImages(false);
+      return;
+    }
+    setIsUploadingImages(false);
+
+    const payload = { ...data, coverImage: resolvedCoverImage, images: resolvedImages } as any;
     if (isEdit && id) {
       updateMutation.mutate({ id, data: payload }, { onSuccess: () => { markSaved(); navigate('/projects'); } });
     } else {
@@ -123,7 +149,7 @@ export default function ProjectForm() {
         <div className="grid grid-cols-3 gap-5">
           {/* Main */}
           <div className="col-span-2 space-y-5">
-            <ProjectBasicInfoSection register={register} errors={errors} />
+            <ProjectBasicInfoSection register={register as any} errors={errors as any} />
 
             <CategoryPickerSection
               selectedIds={selectedCategoryIds as string[]}
@@ -179,7 +205,7 @@ export default function ProjectForm() {
                 <button type="submit" disabled={isSaving || !isDirty}
                   className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
                   {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {isEdit ? 'CẬP NHẬT' : 'TẠO DỰ ÁN'}
+                  {isUploadingImages ? 'ĐANG TẢI ẢNH LÊN...' : isEdit ? 'CẬP NHẬT' : 'TẠO DỰ ÁN'}
                 </button>
                 <button type="button" onClick={() => navigate('/projects')} disabled={isSaving}
                   className="h-10 px-4 rounded-md bg-white hover:bg-gray-50 border border-gray-300 text-black text-sm font-bold transition-colors shadow-sm">

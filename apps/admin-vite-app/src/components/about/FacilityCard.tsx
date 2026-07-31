@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { Loader2, Pencil, Trash2, MapPin, Phone, Factory } from 'lucide-react';
 import { FileUpload } from '@/components/upload/FileUpload';
+import { resolveImageValue } from '@/queries/upload/useUpload';
+import { toast } from '@/utils/toast';
 import { inputCls, labelCls, btnGhost } from '@/utils/admin-styles';
 import type { Facility } from '@/types/about';
+
+// imageUrl may hold a File that hasn't been uploaded yet — upload is
+// deferred until "Lưu thay đổi" is clicked — form-only, not the API DTO.
+type FacilityFormState = Omit<Partial<Facility>, 'imageUrl'> & { imageUrl?: string | File };
 
 interface Props {
   facility: Facility;
@@ -13,18 +19,30 @@ interface Props {
 
 export function FacilityCard({ facility, onUpdate, onDelete, isDeleting }: Props) {
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState<Partial<Facility>>({
+  const [form, setForm] = useState<FacilityFormState>({
     country: facility.country,
     name: facility.name,
     address: facility.address,
     phone: facility.phone,
     imageUrl: facility.imageUrl || '',
   });
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
-  const set = (key: keyof Facility, val: string) => setForm((f) => ({ ...f, [key]: val }));
+  const set = (key: keyof FacilityFormState, val: string | File) => setForm((f) => ({ ...f, [key]: val }));
 
-  const handleSave = () => {
-    onUpdate(facility.id, form);
+  const handleSave = async () => {
+    let resolvedImageUrl: string;
+    try {
+      setIsUploadingImage(true);
+      resolvedImageUrl = await resolveImageValue(form.imageUrl);
+    } catch {
+      toast.error(null, 'Tải ảnh lên thất bại, vui lòng thử lại.');
+      setIsUploadingImage(false);
+      return;
+    }
+    setIsUploadingImage(false);
+
+    onUpdate(facility.id, { ...form, imageUrl: resolvedImageUrl });
     setEditing(false);
   };
 
@@ -73,9 +91,10 @@ export function FacilityCard({ facility, onUpdate, onDelete, isDeleting }: Props
           <button
             type="button"
             onClick={handleSave}
-            className="px-3 py-1.5 text-xs font-bold text-white bg-black rounded hover:bg-gray-800 transition-colors cursor-pointer"
+            disabled={isUploadingImage}
+            className="px-3 py-1.5 text-xs font-bold text-white bg-black rounded hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-50"
           >
-            Lưu thay đổi
+            {isUploadingImage ? 'Đang tải ảnh lên...' : 'Lưu thay đổi'}
           </button>
         </div>
       </div>

@@ -29,6 +29,7 @@ export default function ProductsList() {
   const copyMutation = useCopyProduct();
   const updateMutation = useUpdateProduct();
   const { data: categoriesData } = useCategories();
+  const categoryNameById = new Map((categoriesData || []).map((c: any) => [c.id, c.name]));
 
   const filterFields: FilterField[] = [
     { key: 'search', type: 'search', placeholder: 'Tìm tên sản phẩm, mã...' },
@@ -69,6 +70,12 @@ export default function ProductsList() {
           <div className="font-semibold text-black">{row.name}</div>
           <div className="text-xs text-gray-500 mt-0.5">{row.slug}</div>
         </div>
+      ),
+    },
+    {
+      key: 'category', header: 'Danh mục',
+      cell: (row) => (
+        <span className="text-sm text-gray-700">{categoryNameById.get(row.categoryId) || '—'}</span>
       ),
     },
     {

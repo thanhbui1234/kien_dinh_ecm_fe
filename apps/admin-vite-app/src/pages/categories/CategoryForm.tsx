@@ -1,12 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { ChevronLeft, Loader2 } from 'lucide-react';
 import { FileUpload } from '@/components/upload/FileUpload';
-import { useCreateCategory, useUpdateCategory, useCategoryDetail, useCategories } from '@/queries/categories';
+import { useCreateCategory, useUpdateCategory, useCategoryDetail } from '@/queries/categories';
+import { resolveImageValue } from '@/queries/upload/useUpload';
 import { CreateCategorySchema, CreateCategoryInput } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
+import { toast } from '@/utils/toast';
 
 const inputCls = "w-full h-9 px-3 rounded-md bg-white border border-gray-300 text-sm font-medium text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all shadow-sm";
 const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2";
@@ -18,6 +21,15 @@ const Toggle = ({ checked, onToggle }: { checked: boolean; onToggle: () => void 
   </button>
 );
 
+// imageUrl may hold a File that hasn't been uploaded yet — upload is
+// deferred until submit — so extend the API schema locally for form validation.
+type CategoryFormValues = Omit<CreateCategoryInput, 'imageUrl'> & { imageUrl?: string | File };
+const CategoryFormSchema = CreateCategorySchema.extend({
+  // browser-image-compression's runtime output is a Blob, not a real File
+  // instance (despite its .d.ts claiming otherwise), so validate against Blob.
+  imageUrl: z.union([z.string(), z.instanceof(Blob)]).optional(),
+});
+
 export default function CategoryForm() {
   const { id } = useParams();
   const isEdit = !!id;
@@ -26,15 +38,13 @@ export default function CategoryForm() {
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const { data: categoryData, isLoading: isLoadingDetail } = useCategoryDetail(id || '');
-  const { data: categoriesResponse } = useCategories({ limit: 100 });
 
-  const parentOptions = (categoriesResponse || []).filter(c => c.id !== id);
-
-  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm<CreateCategoryInput>({
-    resolver: zodResolver(CreateCategorySchema as any),
+  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm<CategoryFormValues>({
+    resolver: zodResolver(CategoryFormSchema as any),
     defaultValues: { name: '', slug: '', imageUrl: '', orderIndex: 0, status: true, parentId: '' },
   });
 
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const statusValue = watch('status');
   const { UnsavedChangesModal, markSaved } = useLeaveConfirm(isDirty);
 
@@ -51,15 +61,27 @@ export default function CategoryForm() {
     }
   }, [isEdit, categoryData, reset]);
 
-  const onSubmit = (data: CreateCategoryInput) => {
+  const onSubmit = async (data: CategoryFormValues) => {
+    let resolvedImageUrl: string;
+    try {
+      setIsUploadingImage(true);
+      resolvedImageUrl = await resolveImageValue(data.imageUrl);
+    } catch {
+      toast.error(null, 'Tải ảnh lên thất bại, vui lòng thử lại.');
+      setIsUploadingImage(false);
+      return;
+    }
+    setIsUploadingImage(false);
+
+    const payload: CreateCategoryInput = { ...data, imageUrl: resolvedImageUrl };
     if (isEdit && id) {
-      updateMutation.mutate({ id, data }, { onSuccess: () => { markSaved(); navigate('/categories'); } });
+      updateMutation.mutate({ id, data: payload }, { onSuccess: () => { markSaved(); navigate('/categories'); } });
     } else {
-      createMutation.mutate(data, { onSuccess: () => { markSaved(); navigate('/categories'); } });
+      createMutation.mutate(payload, { onSuccess: () => { markSaved(); navigate('/categories'); } });
     }
   };
 
-  const isSaving = createMutation.isPending || updateMutation.isPending || isSubmitting;
+  const isSaving = createMutation.isPending || updateMutation.isPending || isSubmitting || isUploadingImage;
 
   if (isEdit && isLoadingDetail) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 text-black animate-spin" /></div>;
@@ -89,20 +111,6 @@ export default function CategoryForm() {
                 <input {...register('name')} placeholder="Ví dụ: Máy gia công CNC" className={inputCls} />
                 {errors.name && <p className="text-xs font-medium text-red-500 mt-1.5">{errors.name.message}</p>}
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelCls}>Danh mục cha</label>
-                  <select {...register('parentId')} className={inputCls}>
-                    <option value="">-- Không có (Gốc) --</option>
-                    {parentOptions.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className={labelCls}>Thứ tự hiển thị</label>
-                  <input {...register('orderIndex', { valueAsNumber: true })} type="number" min="0" className={inputCls} />
-                </div>
-              </div>
             </div>
           </div>
 
@@ -131,7 +139,7 @@ export default function CategoryForm() {
                 <button type="submit" disabled={isSaving || !isDirty}
                   className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
                   {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {isEdit ? 'CẬP NHẬT' : 'TẠO DANH MỤC'}
+                  {isUploadingImage ? 'ĐANG TẢI ẢNH LÊN...' : isEdit ? 'CẬP NHẬT' : 'TẠO DANH MỤC'}
                 </button>
                 <button type="button" onClick={() => navigate('/categories')} disabled={isSaving}
                   className="h-10 px-4 rounded-md bg-white hover:bg-gray-50 border border-gray-300 text-black text-sm font-bold transition-colors shadow-sm">

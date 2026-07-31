@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useSystemSettings, useUpdateSystemSetting } from '@/queries/settings';
 import { SystemSetting } from 'shared-api';
 import { SettingTextItem } from '@/components/common/SettingTextItem';
 import { SettingHtmlItem } from '@/components/common/SettingHtmlItem';
 import { FileUpload } from '@/components/upload/FileUpload';
+import { uploadFileAndGetUrl } from '@/queries/upload/useUpload';
+import { toast } from '@/utils/toast';
 import { CompanyInfoTable } from './CompanyInfoTable';
 import { useCompanyProfile, useUpdateCompanyProfile } from '@/queries/about';
 
@@ -13,8 +16,30 @@ export function CompanyOutlineTab() {
 
   const { data: profile, isLoading: profileLoading } = useCompanyProfile();
   const updateProfileMutation = useUpdateCompanyProfile();
+  const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
 
   const isLoading = settingsLoading || profileLoading;
+
+  const handleThumbnailChange = async (value: string | File) => {
+    if (!value) {
+      updateProfileMutation.mutate({ thumbnailUrl: '' });
+      return;
+    }
+    if (typeof value === 'string') {
+      updateProfileMutation.mutate({ thumbnailUrl: value });
+      return;
+    }
+
+    setIsUploadingThumbnail(true);
+    try {
+      const url = await uploadFileAndGetUrl({ file: value });
+      updateProfileMutation.mutate({ thumbnailUrl: url });
+    } catch (error) {
+      toast.error(error, 'Lỗi tải ảnh lên server.');
+    } finally {
+      setIsUploadingThumbnail(false);
+    }
+  };
 
   const introHtmlSetting = { key: 'ABOUT_INTRO_HTML', value: profile?.introHtml ?? '' };
 
@@ -42,15 +67,18 @@ export function CompanyOutlineTab() {
             Ảnh đại diện hiển thị trên trang <code className="bg-gray-100 px-1 rounded">/about-us</code> — section Sơ lược công ty.
           </p>
         </div>
-        {profileLoading ? (
-          <div className="flex justify-center py-8">
+        {profileLoading || isUploadingThumbnail ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-8">
             <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+            {isUploadingThumbnail && (
+              <p className="text-sm font-medium text-gray-600">Đang tải ảnh lên server...</p>
+            )}
           </div>
         ) : (
           <FileUpload
             label="Tải ảnh thumbnail lên"
             value={profile?.thumbnailUrl ?? ''}
-            onChange={(url) => updateProfileMutation.mutate({ thumbnailUrl: url })}
+            onChange={handleThumbnailChange}
             bgOption="none"
           />
         )}

@@ -8,6 +8,11 @@ interface RichTextEditorProps {
 }
 
 export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+  const handleChange = (content: string, _delta: unknown, source: string) => {
+    if (source !== 'user') return;
+    onChange(content);
+  };
+
   const modules = {
     toolbar: [
       [{ 'header': [1, 2, 3, false] }],
@@ -30,7 +35,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
       <ReactQuill 
         theme="snow"
         value={value || ''}
-        onChange={onChange}
+        onChange={handleChange}
         modules={modules}
         formats={formats}
         placeholder={placeholder || "Nhập nội dung chi tiết..."}
