@@ -63,4 +63,11 @@ export const API_ENDPOINTS = {
     LOCATION_DETAIL: (id: string) => `/api/v1/about/locations/${id}`,
     LOCATIONS_ORDER: '/api/v1/about/locations/order',
   },
+  USERS: {
+    BASE: '/api/v1/users',
+    ADMIN: '/api/v1/users/admin',
+    RESET_PASSWORD: (id: string) => `/api/v1/users/${id}/reset-password`,
+    KICK: (id: string) => `/api/v1/users/${id}/kick`,
+    DELETE: (id: string) => `/api/v1/users/${id}`,
+  },
 } as const;

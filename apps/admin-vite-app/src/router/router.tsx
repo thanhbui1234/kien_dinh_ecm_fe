@@ -20,6 +20,8 @@ const LeadsList = lazy(() => import('@/pages/leads/LeadsList'));
 const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage'));
 const MediaGallery = lazy(() => import('@/pages/media/MediaGallery'));
 const AboutPage = lazy(() => import('@/pages/about/AboutPage'));
+const UsersList = lazy(() => import('@/pages/users/UsersList'));
+import { SuperAdminRoute } from '@/components/layout/SuperAdminRoute';
 
 // Simple loading fallback
 const PageLoader = () => (
@@ -89,6 +91,12 @@ export const router = createBrowserRouter([
       { path: 'media', element: withSuspense(MediaGallery) },
       { path: 'about-us', element: withSuspense(AboutPage) },
           { path: 'settings', element: withSuspense(SettingsPage) },
+          {
+            element: <SuperAdminRoute />,
+            children: [
+              { path: 'users', element: withSuspense(UsersList) },
+            ],
+          },
         ],
       }
     ]
