@@ -40,10 +40,12 @@ const withSuspense = (Component: React.ComponentType) => (
 const RootErrorBoundary = () => {
   const error = useRouteError() as Error;
   
-  // If it's a dynamic import error (chunk load failed due to new deployment), force a reload
+  // Auto-reload on dynamic import chunk load failures or Google Translate DOM removeChild errors
   if (
     error?.message?.includes('Failed to fetch dynamically imported module') ||
-    error?.message?.includes('Importing a module script failed')
+    error?.message?.includes('Importing a module script failed') ||
+    error?.message?.includes('removeChild') ||
+    error?.message?.includes('not a child of this node')
   ) {
     window.location.reload();
     return <PageLoader />;
