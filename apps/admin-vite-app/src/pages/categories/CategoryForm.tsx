@@ -39,7 +39,7 @@ export default function CategoryForm() {
   const updateMutation = useUpdateCategory();
   const { data: categoryData, isLoading: isLoadingDetail } = useCategoryDetail(id || '');
 
-  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm<CategoryFormValues>({
+  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty, dirtyFields } } = useForm<CategoryFormValues>({
     resolver: zodResolver(CategoryFormSchema as any),
     defaultValues: { name: '', slug: '', imageUrl: '', orderIndex: 0, status: true, parentId: '' },
   });
@@ -75,7 +75,16 @@ export default function CategoryForm() {
 
     const payload: CreateCategoryInput = { ...data, imageUrl: resolvedImageUrl };
     if (isEdit && id) {
-      updateMutation.mutate({ id, data: payload }, { 
+      const dirtyData: any = {};
+      Object.keys(dirtyFields).forEach((key) => {
+        if (key === 'imageUrl') {
+          dirtyData.imageUrl = resolvedImageUrl;
+        } else {
+          dirtyData[key] = (payload as any)[key];
+        }
+      });
+
+      updateMutation.mutate({ id, data: dirtyData }, { 
         onSuccess: () => { 
           markSaved(); 
           toast.success('Cập nhật danh mục thành công!');

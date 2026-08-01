@@ -28,7 +28,7 @@ export default function JobForm() {
   const updateMutation = useUpdateJob();
   const { data: jobData, isLoading: isLoadingDetail } = useJobDetail(id || '');
 
-  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = useForm<CreateJobInput>({
+  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty, dirtyFields } } = useForm<CreateJobInput>({
     resolver: zodResolver(CreateJobSchema as any),
     defaultValues: { title: '', salary: '', status: true, sections: [{ title: 'Mô tả công việc', content: '' }] as any },
   });
@@ -50,7 +50,12 @@ export default function JobForm() {
 
   const onSubmit = (data: CreateJobInput) => {
     if (isEdit && id) {
-      updateMutation.mutate({ id, data }, { 
+      const dirtyData: any = {};
+      Object.keys(dirtyFields).forEach((key) => {
+        dirtyData[key] = (data as any)[key];
+      });
+
+      updateMutation.mutate({ id, data: dirtyData }, { 
         onSuccess: () => { 
           markSaved(); 
           toast.success('Cập nhật bài tuyển dụng thành công!');

@@ -8,6 +8,7 @@ import { StatusSwitch } from '@/components/common/StatusSwitch';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { Project } from 'shared-api';
 import { Link } from 'react-router-dom';
+import { ENV } from '@/config/env';
 
 export default function ProjectsList() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -75,7 +76,7 @@ export default function ProjectsList() {
       cell: (row) => (
         <div className="flex items-center justify-end gap-1">
           <a
-            href={`http://localhost:3000/projects/${row.slug}`}
+            href={`${ENV.FRONTEND_URL}/projects/${row.slug}`}
             target="_blank"
             rel="noopener noreferrer"
             title="Xem trực tiếp trên Website"

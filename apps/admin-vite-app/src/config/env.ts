@@ -1,6 +1,6 @@
 export const ENV = {
-  API_URL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
-  FRONTEND_URL: import.meta.env.VITE_FRONTEND_URL || 'http://localhost:3000',
+  API_URL: (import.meta.env.VITE_API_URL || 'http://localhost:8080').replace(/\/$/, ''),
+  FRONTEND_URL: (import.meta.env.VITE_FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, ''),
   REVALIDATE_SECRET: import.meta.env.VITE_REVALIDATE_SECRET || '',
   GEMINI_API_KEY: import.meta.env.VITE_GEMINI_API_KEY || '',
   GEMINI_FALLBACK_MODELS: import.meta.env.VITE_GEMINI_FALLBACK_MODELS || '',

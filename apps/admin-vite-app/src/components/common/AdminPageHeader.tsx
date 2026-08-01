@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ChevronLeft, ExternalLink } from 'lucide-react';
+import { ENV } from '@/config/env';
 
 interface AdminPageHeaderProps {
   title: string;
@@ -13,7 +14,7 @@ export function AdminPageHeader({ title, subtitle, onBack, clientUrl, actions }:
   const fullClientUrl = clientUrl
     ? clientUrl.startsWith('http')
       ? clientUrl
-      : `http://localhost:3000${clientUrl.startsWith('/') ? clientUrl : `/${clientUrl}`}`
+      : `${ENV.FRONTEND_URL}${clientUrl.startsWith('/') ? clientUrl : `/${clientUrl}`}`
     : undefined;
 
   return (

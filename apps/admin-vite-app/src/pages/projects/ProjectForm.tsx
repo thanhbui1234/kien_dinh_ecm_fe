@@ -62,7 +62,7 @@ export default function ProjectForm() {
       contentDetail: '', productIds: [], categoryIds: [], videoList: [] as any
     } as Partial<ProjectFormValues> as ProjectFormValues,
   });
-  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty } } = form;
+  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty, dirtyFields } } = form;
 
   const videoFieldArray = useFieldArray({ control, name: 'videoList' as any });
   const videoListValue = (watch('videoList' as any) || []) as { url: string }[];
@@ -122,7 +122,21 @@ export default function ProjectForm() {
       payload.videoUrls = videoListValue.map((item) => item.url.trim()).filter(Boolean);
     }
     if (isEdit && id) {
-      updateMutation.mutate({ id, data: payload }, { 
+      const dirtyData: any = {};
+      Object.keys(dirtyFields).forEach((key) => {
+        if (key === 'coverImage') {
+          dirtyData.coverImage = resolvedCoverImage;
+        } else if (key === 'videoList') {
+          dirtyData.videoUrls = payload.videoUrls || [];
+        } else {
+          dirtyData[key] = (payload as any)[key];
+        }
+      });
+      if (isGalleryDirty) {
+        dirtyData.images = resolvedImages;
+      }
+
+      updateMutation.mutate({ id, data: dirtyData }, { 
         onSuccess: () => { 
           markSaved(); 
           setIsGalleryDirty(false);

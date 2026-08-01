@@ -23,10 +23,16 @@ const AboutPage = lazy(() => import('@/pages/about/AboutPage'));
 const UsersList = lazy(() => import('@/pages/users/UsersList'));
 import { SuperAdminRoute } from '@/components/layout/SuperAdminRoute';
 
-// Simple loading fallback
+// Enhanced PageLoader with min height & smooth spinner to prevent white screen gaps
 const PageLoader = () => (
-  <div className="flex h-full w-full items-center justify-center p-8">
-    <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-300 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100" />
+  <div className="flex min-h-[60vh] w-full flex-col items-center justify-center gap-3 p-8 animate-in fade-in duration-200">
+    <div className="relative flex items-center justify-center">
+      <div className="h-10 w-10 animate-spin rounded-full border-3 border-gray-200 border-t-black" />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="h-2 w-2 rounded-full bg-black" />
+      </div>
+    </div>
+    <p className="text-xs font-semibold text-gray-400 animate-pulse tracking-wider uppercase">Đang tải dữ liệu...</p>
   </div>
 );
 

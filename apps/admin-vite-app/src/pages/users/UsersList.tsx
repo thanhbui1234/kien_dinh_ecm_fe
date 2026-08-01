@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
-  ShieldCheck, UserPlus, KeyRound, LogOut, Trash2, Lock, 
-  CheckCircle2, AlertTriangle, Monitor, Clock, Info, ShieldAlert, Radio
+  ShieldCheck, UserPlus, KeyRound, LogOut, Trash2, Lock, CheckCircle2,
+  AlertTriangle, Monitor, Clock, Info, ShieldAlert, Radio, Mail, User
 } from 'lucide-react';
 import { DataTable, ColumnDef } from '@/components/common/DataTable';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
@@ -26,6 +26,7 @@ export default function UsersList() {
   const [kickTargetUser, setKickTargetUser] = useState<UserAdminItem | null>(null);
   const [deleteTargetUser, setDeleteTargetUser] = useState<UserAdminItem | null>(null);
   const [viewDevicesUser, setViewDevicesUser] = useState<UserAdminItem | null>(null);
+  const [viewDetailUser, setViewDetailUser] = useState<UserAdminItem | null>(null);
 
   // Forms
   const createForm = useForm({
@@ -84,9 +85,13 @@ export default function UsersList() {
       key: 'fullName',
       header: 'HỌ VÀ TÊN & EMAIL',
       cell: (user) => (
-        <div className="flex items-center gap-2.5">
+        <div 
+          onClick={() => setViewDetailUser(user)}
+          className="flex items-center gap-2.5 cursor-pointer group"
+          title="Click để xem chi tiết tài khoản"
+        >
           <div className="relative flex-shrink-0">
-            <div className="w-8 h-8 rounded-full bg-zinc-900 text-white font-bold flex items-center justify-center text-xs uppercase">
+            <div className="w-8 h-8 rounded-full bg-zinc-900 text-white font-bold flex items-center justify-center text-xs uppercase group-hover:bg-purple-600 transition-colors">
               {user.fullName?.charAt(0) || user.email.charAt(0)}
             </div>
             {/* Chấm Online xanh 🟢 */}
@@ -98,7 +103,7 @@ export default function UsersList() {
             />
           </div>
           <div>
-            <div className="font-semibold text-gray-900 flex items-center gap-1.5">
+            <div className="font-semibold text-gray-900 flex items-center gap-1.5 group-hover:text-purple-600 transition-colors">
               {user.fullName}
               {user.isOnline && (
                 <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.2 rounded font-medium">
@@ -106,7 +111,10 @@ export default function UsersList() {
                 </span>
               )}
             </div>
-            <div className="text-xs text-gray-500">{user.email}</div>
+            <div className="text-xs font-mono font-medium text-gray-700 flex items-center gap-1 mt-0.5">
+              <Mail className="w-3 h-3 text-purple-600 shrink-0" />
+              {user.email}
+            </div>
           </div>
         </div>
       ),
@@ -134,17 +142,20 @@ export default function UsersList() {
     },
     {
       key: 'deviceQuota',
-      header: 'THIẾT BỊ DÙNG (MAX 3)',
+      header: 'THIẾT BỊ DÙNG',
       cell: (user) => {
+        const isSuperAdminRole = user.role === USER_ROLES.SUPER_ADMIN;
         const count = user.deviceCount || 0;
-        const isMaxed = count >= 3 || user.isLocked;
-        const isWarning = count === 2;
+        const isMaxed = !isSuperAdminRole && (count >= 3 || user.isLocked);
+        const isWarning = !isSuperAdminRole && count === 2;
 
         return (
           <div className="flex items-center gap-2">
             <span
               className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold border ${
-                isMaxed
+                isSuperAdminRole
+                  ? 'bg-purple-50 text-purple-700 border-purple-200'
+                  : isMaxed
                   ? 'bg-red-100 text-red-700 border-red-200 animate-pulse'
                   : isWarning
                   ? 'bg-amber-100 text-amber-800 border-amber-300'
@@ -156,9 +167,9 @@ export default function UsersList() {
               ) : isWarning ? (
                 <AlertTriangle className="w-3 h-3 text-amber-600" />
               ) : (
-                <Monitor className="w-3 h-3 text-gray-500" />
+                <Monitor className="w-3 h-3 text-purple-600" />
               )}
-              {count}/3 Thiết bị
+              {isSuperAdminRole ? `${count} Thiết bị (Không giới hạn)` : `${count}/3 Thiết bị`}
               {user.isLocked && ' (ĐÃ KHÓA)'}
             </span>
 
@@ -223,7 +234,7 @@ export default function UsersList() {
                   <KeyRound className="w-3.5 h-3.5" />
                 </button>
 
-                {/* Nút Kick thông minh: Nổi bật nếu có session online, mờ nếu không có session */}
+                {/* Nút Kick thông minh */}
                 {!isSelf && (
                   <button
                     onClick={() => canKick && setKickTargetUser(user)}
@@ -282,6 +293,176 @@ export default function UsersList() {
 
       {/* Main Table */}
       <DataTable columns={columns} data={users} isLoading={isLoading} />
+
+      {/* View User Details Modal */}
+      <Dialog open={!!viewDetailUser} onOpenChange={(open) => !open && setViewDetailUser(null)}>
+        <DialogContent className="sm:max-w-md bg-white p-5 rounded-xl shadow-xl">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold flex items-center gap-2 text-gray-900">
+              <User className="w-4.5 h-4.5 text-purple-600" />
+              Chi tiết Hồ sơ Tài khoản
+            </DialogTitle>
+            <DialogDescription className="text-xs text-gray-500">
+              Thông số tài khoản, mã ID, trạng thái thiết bị và phiên làm việc.
+            </DialogDescription>
+          </DialogHeader>
+
+          {viewDetailUser && (
+            <div className="space-y-3 text-xs mt-1">
+              {/* Profile Header */}
+              <div className="flex items-center gap-3 p-3 rounded-lg border border-purple-100 bg-purple-50/50">
+                <div className="relative shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-black text-white font-bold text-sm flex items-center justify-center uppercase shadow-sm">
+                    {viewDetailUser.fullName?.charAt(0) || viewDetailUser.email.charAt(0)}
+                  </div>
+                  <span 
+                    className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${
+                      viewDetailUser.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300'
+                    }`}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-gray-900 text-sm flex items-center gap-1.5">
+                    {viewDetailUser.fullName}
+                    {viewDetailUser.isOnline ? (
+                      <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.2 rounded font-semibold">
+                        Online
+                      </span>
+                    ) : (
+                      <span className="text-[10px] bg-gray-200 text-gray-600 px-1.5 py-0.2 rounded font-medium">
+                        Offline
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs text-purple-700 font-mono font-semibold select-all truncate mt-0.5 flex items-center gap-1">
+                    <Mail className="w-3 h-3 text-purple-600 shrink-0" />
+                    {viewDetailUser.email}
+                  </div>
+                </div>
+              </div>
+
+              {/* ID Box */}
+              <div className="p-2 rounded bg-gray-50 border border-gray-200">
+                <div className="text-gray-500 text-[11px] font-medium flex items-center gap-1">
+                  <KeyRound className="w-3 h-3 text-amber-600" /> Mã Định danh (ID):
+                </div>
+                <div className="font-mono text-gray-900 font-semibold text-[11px] select-all mt-0.5 truncate">
+                  {viewDetailUser.id}
+                </div>
+              </div>
+
+              {/* Details grid */}
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2.5 rounded bg-gray-50 border border-gray-200">
+                  <div className="text-gray-500 font-medium flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-purple-600" /> Vai trò
+                  </div>
+                  <div className="font-bold text-gray-900 mt-1">
+                    {viewDetailUser.role === USER_ROLES.SUPER_ADMIN ? '⚡ Super Admin' : 'Admin'}
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded bg-gray-50 border border-gray-200">
+                  <div className="text-gray-500 font-medium flex items-center gap-1">
+                    <Lock className="w-3 h-3 text-amber-600" /> Trạng thái
+                  </div>
+                  <div className={`font-bold mt-1 ${viewDetailUser.isLocked ? 'text-red-600' : 'text-emerald-600'}`}>
+                    {viewDetailUser.isLocked ? '🔴 Bị khóa' : '🟢 Bình thường'}
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded bg-gray-50 border border-gray-200">
+                  <div className="text-gray-500 font-medium flex items-center gap-1">
+                    <Monitor className="w-3 h-3 text-gray-600" /> Thiết bị đã dùng
+                  </div>
+                  <div className="font-bold text-gray-900 mt-1">
+                    {viewDetailUser.role === USER_ROLES.SUPER_ADMIN
+                      ? `${viewDetailUser.deviceCount || 0} (Không giới hạn)`
+                      : `${viewDetailUser.deviceCount || 0}/3 Thiết bị`}
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded bg-gray-50 border border-gray-200">
+                  <div className="text-gray-500 font-medium flex items-center gap-1">
+                    <Radio className="w-3 h-3 text-emerald-600" /> Phiên mở
+                  </div>
+                  <div className="font-bold text-gray-900 mt-1">
+                    {viewDetailUser.activeSessionsCount || 0} phiên
+                  </div>
+                </div>
+              </div>
+
+              {/* Activity Timestamps */}
+              <div className="space-y-1.5 text-xs">
+                <div className="flex justify-between items-center p-2 rounded bg-gray-50 border border-gray-200">
+                  <span className="text-gray-500 font-medium flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-gray-400" /> Hoạt động lần cuối:
+                  </span>
+                  <span className="font-semibold text-gray-900">{formatDate(viewDetailUser.lastActiveAt)}</span>
+                </div>
+                <div className="flex justify-between items-center p-2 rounded bg-gray-50 border border-gray-200">
+                  <span className="text-gray-500 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-gray-400" /> Ngày tạo tài khoản:
+                  </span>
+                  <span className="font-semibold text-gray-900">{formatDate(viewDetailUser.createdAt)}</span>
+                </div>
+              </div>
+
+              {/* Devices breakdown */}
+              {viewDetailUser.devices && viewDetailUser.devices.length > 0 && (
+                <div className="space-y-1 mt-1">
+                  <div className="text-[11px] font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1">
+                    <Monitor className="w-3 h-3 text-purple-600" /> Danh sách thiết bị ({viewDetailUser.devices.length}):
+                  </div>
+                  <div className="max-h-24 overflow-y-auto space-y-1 pr-1">
+                    {viewDetailUser.devices.map((devStr, idx) => (
+                      <div key={idx} className="p-1.5 rounded bg-gray-50 border border-gray-200 text-[11px] font-medium text-gray-800 flex items-center gap-2">
+                        <Monitor className="w-3 h-3 text-purple-600 shrink-0" />
+                        <span className="truncate">{devStr}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+            {isSuperAdmin && viewDetailUser && currentUser?.id !== viewDetailUser.id ? (
+              <div className="flex items-center gap-2">
+                <Button 
+                  size="sm"
+                  variant="outline" 
+                  onClick={() => {
+                    setResetTargetUser(viewDetailUser);
+                    setViewDetailUser(null);
+                  }}
+                  className="text-xs border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100"
+                >
+                  <KeyRound className="w-3 h-3 mr-1" /> Reset Pass
+                </Button>
+                {viewDetailUser.activeSessionsCount > 0 && (
+                  <Button 
+                    size="sm"
+                    variant="outline" 
+                    onClick={() => {
+                      setKickTargetUser(viewDetailUser);
+                      setViewDetailUser(null);
+                    }}
+                    className="text-xs border-orange-300 text-orange-700 bg-orange-50 hover:bg-orange-100"
+                  >
+                    <LogOut className="w-3 h-3 mr-1" /> Kick
+                  </Button>
+                )}
+              </div>
+            ) : <div />}
+
+            <Button variant="outline" size="sm" onClick={() => setViewDetailUser(null)}>
+              Đóng
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Create Admin Modal */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

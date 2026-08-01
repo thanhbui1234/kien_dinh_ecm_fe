@@ -9,6 +9,7 @@ import { StatusSwitch } from '@/components/common/StatusSwitch';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { Product } from 'shared-api';
 import { Link } from 'react-router-dom';
+import { ENV } from '@/config/env';
 
 export default function ProductsList() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -106,7 +107,7 @@ export default function ProductsList() {
       cell: (row) => (
         <div className="flex items-center justify-end gap-1">
           <a
-            href={`http://localhost:3000/products/${row.slug}`}
+            href={`${ENV.FRONTEND_URL}/products/${row.slug}`}
             target="_blank"
             rel="noopener noreferrer"
             title="Xem trực tiếp trên Website"

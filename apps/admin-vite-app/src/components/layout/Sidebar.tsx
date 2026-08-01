@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Settings, Package, FolderTree,
@@ -32,19 +33,18 @@ export function Sidebar() {
   const navigate = useNavigate();
   const { data: currentUser } = useMe();
   const { mutate: logout, isPending } = useLogout();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const isSuperAdmin = currentUser?.role === USER_ROLES.SUPER_ADMIN;
 
   const handleLogout = () => {
+    if (isLoggingOut || isPending) return;
+    setIsLoggingOut(true);
     logout(undefined, {
-      onSuccess: () => {
+      onSettled: () => {
         TokenService.clearTokens();
-        navigate('/login');
+        navigate('/login', { replace: true });
       },
-      onError: () => {
-        TokenService.clearTokens();
-        navigate('/login');
-      }
     });
   };
 
@@ -127,9 +127,22 @@ export function Sidebar() {
               {currentUser?.role === USER_ROLES.SUPER_ADMIN ? '⚡ Super Admin' : 'Admin'}
             </div>
           </div>
-          <LogOut className={`w-3.5 h-3.5 text-gray-400 group-hover:text-black transition-colors shrink-0 ${isPending ? 'opacity-50 animate-pulse' : ''}`} />
+          <LogOut className={`w-3.5 h-3.5 text-gray-400 group-hover:text-black transition-colors shrink-0 ${isLoggingOut || isPending ? 'opacity-50 animate-pulse' : ''}`} />
         </div>
       </div>
+
+      {/* Fullscreen Logout Overlay to prevent white flash */}
+      {(isLoggingOut || isPending) && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/90 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="flex flex-col items-center gap-3 bg-white p-6 rounded-2xl border border-gray-200 shadow-2xl">
+            <div className="relative flex items-center justify-center">
+              <div className="h-10 w-10 animate-spin rounded-full border-3 border-gray-200 border-t-black" />
+              <LogOut className="w-4 h-4 text-black absolute" />
+            </div>
+            <p className="text-xs font-bold text-gray-800 tracking-wide">Đang đăng xuất khỏi hệ thống...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
