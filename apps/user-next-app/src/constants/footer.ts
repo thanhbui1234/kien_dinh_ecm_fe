@@ -1,20 +1,31 @@
+import { Locale } from '@/lib/locale';
+import { getDictionary } from '@/lib/dictionary';
+
 export interface FooterNavLink {
   label: string;
   href: string;
   indent?: boolean;
 }
 
-export const COMPANY_ADDRESS = 'Công Ty Cổ Phần Thanh Bằng, Xuân Trường, Ninh Bình 420000, Việt Nam';
+export function getFooterContent(locale: Locale = 'vi') {
+  const dict = getDictionary(locale);
 
-export const CUSTOMER_SUPPORT_GROUP = {
-  heading: 'HỖ TRỢ KHÁCH HÀNG',
-  headingHref: '#',
-  links: [
-    { label: 'Tư vấn ngay', href: '/contact' },
-    { label: 'Chính sách bảo hành', href: '/warranty-policy' },
-    { label: 'Hướng dẫn mua hàng', href: '/shopping-guide' },
-    { label: 'Hướng dẫn thanh toán', href: '/payment-guide' },
-    { label: 'Đối tác và khách hàng', href: '/partners' },
-    { label: 'Về chúng tôi', href: '/about-us' },
-  ]
-};
+  return {
+    companyAddress: dict.footer.address,
+    customerSupportGroup: {
+      heading: dict.footer.customer_support,
+      headingHref: '#',
+      links: [
+        { label: dict.footer.consultation, href: '/contact' },
+        { label: dict.footer.warranty_policy, href: '/warranty-policy' },
+        { label: dict.footer.shopping_guide, href: '/shopping-guide' },
+        { label: dict.footer.payment_guide, href: '/payment-guide' },
+        { label: dict.footer.partners, href: '/partners' },
+        { label: dict.footer.about_us, href: '/about-us' },
+      ],
+    },
+  };
+}
+
+export const COMPANY_ADDRESS = 'Công Ty Cổ Phần Thanh Bằng, Xuân Trường, Ninh Bình 420000, Việt Nam';
+export const CUSTOMER_SUPPORT_GROUP = getFooterContent('vi').customerSupportGroup;

@@ -29,10 +29,18 @@ export default function ProductDetailClient({ product, category, relatedProducts
         hasPrice={hasPrice}
         bottomSectionRef={bottomSectionRef}
       />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20">
-        <ProductMediaGallery images={product.images} thumbnail={product.thumbnailUrl} name={product.name} videoUrls={product.detail?.videoUrls} />
 
+      {/* 2-Column Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20">
+        
+        {/* Left Column: Gallery */}
+        <div className="w-full">
+          <ProductMediaGallery images={product.images} thumbnail={product.thumbnailUrl} name={product.name} videoUrls={product.detail?.videoUrls} />
+        </div>
+
+        {/* Right Column: Info & Details */}
         <div className="flex flex-col gap-5 sm:gap-6">
+          
           {category && (
             <Link
               href={`/products/?category=${category.slug}`}
@@ -46,6 +54,7 @@ export default function ProductDetailClient({ product, category, relatedProducts
             {product.name}
           </h1>
 
+          {/* Price Box */}
           {hasPrice ? (
             <p className="text-[20px] font-semibold text-[#5e8dd1] m-0">
               {product.price!.toLocaleString('vi-VN')} ₫
@@ -62,15 +71,15 @@ export default function ProductDetailClient({ product, category, relatedProducts
             </Link>
           )}
 
-          {product.detail?.specifications &&
-            Object.keys(product.detail.specifications).length > 0 && (
-              <div className="pt-4 border-t border-gray-100">
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 mb-4">
-                  Thông số kỹ thuật
-                </h3>
-                <SpecificationsTable specs={product.detail.specifications} />
-              </div>
-            )}
+          {/* Specifications Table */}
+          {product.detail?.specifications && Object.keys(product.detail.specifications).length > 0 && (
+            <div className="pt-4 border-t border-gray-100">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 mb-4">
+                Thông số kỹ thuật
+              </h3>
+              <SpecificationsTable specs={product.detail.specifications} />
+            </div>
+          )}
         </div>
       </div>
 

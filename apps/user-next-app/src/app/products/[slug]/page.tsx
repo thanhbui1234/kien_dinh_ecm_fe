@@ -7,15 +7,14 @@ import ProductDetailClient from './ProductDetailClient';
 import type { Metadata } from 'next';
 import { buildProductMetadata, generateProductSchema, generateBreadcrumbSchema } from '@/lib/seo';
 
-export const revalidate = 3600;
+// Dynamic rendering: searchParams (?lang=en) cần trang này là dynamic.
+// Trang vẫn được cache bởi Next.js data cache (mỗi unique URL được cache riêng).
+export const dynamic = 'force-dynamic';
 
-export async function generateStaticParams() {
-  const res = await api.products.getProducts({ limit: '100' }).catch(() => null);
-  return (res?.items ?? []).map((p) => ({ slug: p.slug }));
-}
 
 interface Props {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ lang?: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -40,15 +39,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-export default async function ProductDetailPage({ params }: Props) {
+export default async function ProductDetailPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
+  const lang = (resolvedSearchParams?.lang || 'vi').toUpperCase();
 
   // Try slug directly at the detail endpoint first (backend often accepts slug at /{id})
-  let product = await api.products.getProductDetail(slug);
+  let product = await api.products.getProductDetail(slug, lang);
 
   // Fallback: search by text and match slug exactly
   if (!product) {
-    const listResult = await api.products.getProducts({ search: slug, limit: '20' });
+    const listResult = await api.products.getProducts({ search: slug, limit: '20', lang });
     product = listResult?.items?.find((p) => p.slug === slug) ?? null;
   }
 
@@ -56,7 +57,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   // If product came from list (no detail field), fetch full detail by ID
   const [fullProduct, categoriesResponse, relatedResponse] = await Promise.all([
-    product.detail ? Promise.resolve(product) : api.products.getProductDetail(product.id).then((d) => d ?? product),
+    product.detail ? Promise.resolve(product) : api.products.getProductDetail(product.id, lang).then((d) => d ?? product),
     getCachedCategories(),
     api.products.getRelatedProducts(product.id),
   ]);

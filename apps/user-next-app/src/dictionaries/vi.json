@@ -1,0 +1,92 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "products": "Các sản phẩm",
+    "projects": "Dự án",
+    "about_us": "Về chúng tôi",
+    "careers": "Tuyển dụng",
+    "contact": "Liên hệ chúng tôi",
+    "categories": {
+      "multitasking": "Máy đa chức năng",
+      "five_axis": "Trung tâm gia công 5 trục",
+      "cnc_lathe": "Máy tiện CNC",
+      "vertical": "Trung tâm gia công đứng",
+      "horizontal": "Trung tâm gia công ngang",
+      "fsw": "Hàn khuấy ma sát (FSW)",
+      "tool_holder": "Đầu kẹp dao CNC",
+      "automation": "Tự động hóa",
+      "by_industry": "Theo Ngành"
+    }
+  },
+  "utility": {
+    "careers": "TUYỂN DỤNG",
+    "language": "Ngôn ngữ",
+    "vietnamese": "🇻🇳 Tiếng Việt",
+    "english": "🇬🇧 English"
+  },
+  "footer": {
+    "company_name": "CÔNG TY CỔ PHẦN THANH BẰNG",
+    "address": "Công Ty Cổ Phần Thanh Bằng, Xuân Trường, Ninh Bình 420000, Việt Nam",
+    "customer_support": "HỖ TRỢ KHÁCH HÀNG",
+    "consultation": "Tư vấn ngay",
+    "warranty_policy": "Chính sách bảo hành",
+    "shopping_guide": "Hướng dẫn mua hàng",
+    "payment_guide": "Hướng dẫn thanh toán",
+    "partners": "Đối tác và khách hàng",
+    "about_us": "Về chúng tôi",
+    "all_rights_reserved": "Tất cả các quyền được bảo lưu."
+  },
+  "common": {
+    "view_more": "Xem thêm",
+    "learn_more": "Tìm hiểu thêm",
+    "contact_us": "Liên hệ ngay",
+    "search": "Tìm kiếm...",
+    "featured_products": "Sản phẩm nổi bật",
+    "featured_projects": "Dự án tiêu biểu",
+    "no_data": "Chưa có dữ liệu"
+  },
+  "hero": {
+    "fallback_description": "Phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Việt Nam.",
+    "fallback_link_text": "Xem sản phẩm",
+    "read_more": "Đọc thêm",
+    "explore_more": "Khám phá tiếp",
+    "scroll_down": "Cuộn xuống nội dung bên dưới"
+  },
+  "home": {
+    "featured_products_loading": "Đang cập nhật sản phẩm...",
+    "all_products": "Tất cả sản phẩm",
+    "all_projects": "Xem tất cả dự án",
+    "view_product_detail": "Xem chi tiết",
+    "view_project": "Xem dự án",
+    "view_products": "Xem sản phẩm",
+    "contact_label": "Liên hệ với chúng tôi",
+    "contact_headline_part1": "Sẵn sàng tư vấn",
+    "contact_headline_bold": "giải pháp",
+    "contact_headline_part2": "phù hợp với bạn",
+    "showroom_cta": "Ghé thăm showroom của chúng tôi",
+    "categories_section": "Danh mục sản phẩm",
+    "categories_label": "Danh mục sản phẩm",
+    "featured_label": "Dự án tiêu biểu",
+    "price_on_request": "Liên hệ"
+  },
+  "products": {
+    "all_products": "Tất cả sản phẩm",
+    "view_detail": "Xem chi tiết",
+    "count_suffix": "sản phẩm",
+    "showing_prefix": "Hiển thị",
+    "showing_suffix": "sản phẩm",
+    "not_found": "Không tìm thấy sản phẩm phù hợp.",
+    "search_prefix": "Tìm kiếm:",
+    "breadcrumb_home": "Trang chủ",
+    "breadcrumb_products": "Sản phẩm"
+  },
+  "projects": {
+    "all_projects": "Tất cả dự án",
+    "view_project": "Xem dự án",
+    "count_suffix": "dự án",
+    "featured_badge": "Tiêu biểu",
+    "breadcrumb_home": "Trang chủ",
+    "breadcrumb_projects": "Dự án",
+    "empty": "Chưa có dự án nào."
+  }
+}

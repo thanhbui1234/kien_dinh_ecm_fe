@@ -1,0 +1,18 @@
+{
+  "client": {
+    "home": "Trang chủ",
+    "products": "Sản phẩm",
+    "projects": "Dự án",
+    "aboutUs": "Về chúng tôi",
+    "contact": "Liên hệ",
+    "careers": "Tuyển dụng",
+    "search": "Tìm kiếm...",
+    "viewDetails": "Xem chi tiết",
+    "contactUs": "Liên hệ ngay",
+    "relatedProducts": "Sản phẩm liên quan",
+    "specifications": "Thông số kỹ thuật",
+    "features": "Đặc điểm nổi bật",
+    "langVi": "Tiếng Việt",
+    "langEn": "English"
+  }
+}

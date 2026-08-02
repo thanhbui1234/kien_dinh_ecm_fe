@@ -1,0 +1,18 @@
+{
+  "client": {
+    "home": "Home",
+    "products": "Products",
+    "projects": "Projects",
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "careers": "Careers",
+    "search": "Search...",
+    "viewDetails": "View Details",
+    "contactUs": "Contact Us",
+    "relatedProducts": "Related Products",
+    "specifications": "Technical Specifications",
+    "features": "Key Features",
+    "langVi": "Vietnamese",
+    "langEn": "English"
+  }
+}

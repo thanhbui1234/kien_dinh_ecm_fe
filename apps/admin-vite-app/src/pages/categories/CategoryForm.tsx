@@ -3,13 +3,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ChevronLeft, Loader2 } from 'lucide-react';
+import { ChevronLeft, Loader2, Globe } from 'lucide-react';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { useCreateCategory, useUpdateCategory, useCategoryDetail } from '@/queries/categories';
 import { resolveImageValue } from '@/queries/upload/useUpload';
-import { CreateCategorySchema, CreateCategoryInput } from 'shared-api';
+import { CreateCategorySchema, CreateCategoryInput, API_ENDPOINTS } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 import { toast } from '@/utils/toast';
+import { axiosInstance } from '@/lib/axios';
+import { LanguageTabs } from '@/components/common/LanguageTabs';
+import { CategoryEnglishTranslationSection } from '@/components/categories/CategoryEnglishTranslationSection';
+
+import { TranslationWarningBanner } from '@/components/common/TranslationWarningBanner';
 
 const inputCls = "w-full h-9 px-3 rounded-md bg-white border border-gray-300 text-sm font-medium text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all shadow-sm";
 const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2";
@@ -21,12 +26,8 @@ const Toggle = ({ checked, onToggle }: { checked: boolean; onToggle: () => void 
   </button>
 );
 
-// imageUrl may hold a File that hasn't been uploaded yet — upload is
-// deferred until submit — so extend the API schema locally for form validation.
 type CategoryFormValues = Omit<CreateCategoryInput, 'imageUrl'> & { imageUrl?: string | File };
 const CategoryFormSchema = CreateCategorySchema.extend({
-  // browser-image-compression's runtime output is a Blob, not a real File
-  // instance (despite its .d.ts claiming otherwise), so validate against Blob.
   imageUrl: z.union([z.string(), z.instanceof(Blob)]).optional(),
 });
 
@@ -38,6 +39,10 @@ export default function CategoryForm() {
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const { data: categoryData, isLoading: isLoadingDetail } = useCategoryDetail(id || '');
+
+  const [activeTab, setActiveTab] = useState<'VI' | 'EN'>('VI');
+  const [enTranslation, setEnTranslation] = useState({ name: '', slug: '' });
+  const [isSavingEn, setIsSavingEn] = useState(false);
 
   const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty, dirtyFields } } = useForm<CategoryFormValues>({
     resolver: zodResolver(CategoryFormSchema as any),
@@ -58,8 +63,34 @@ export default function CategoryForm() {
         status: categoryData.status,
         parentId: categoryData.parentId || '',
       });
+
+      const enTrans = (categoryData as any).translations?.find((t: any) => t.lang === 'EN');
+      if (enTrans) {
+        setEnTranslation({ name: enTrans.name || '', slug: enTrans.slug || '' });
+      }
     }
   }, [isEdit, categoryData, reset]);
+
+  const handleSaveEnTranslation = async () => {
+    if (!id || !enTranslation.name.trim()) {
+      toast.error(null, 'Vui lòng nhập tên danh mục tiếng Anh');
+      return;
+    }
+
+    try {
+      setIsSavingEn(true);
+      await axiosInstance.post(API_ENDPOINTS.CATEGORIES.TRANSLATION(id), {
+        lang: 'EN',
+        name: enTranslation.name.trim(),
+        slug: enTranslation.slug.trim() || undefined,
+      });
+      toast.success('Lưu bản dịch Tiếng Anh thành công!');
+    } catch {
+      toast.error(null, 'Lưu bản dịch Tiếng Anh thất bại');
+    } finally {
+      setIsSavingEn(false);
+    }
+  };
 
   const onSubmit = async (data: CategoryFormValues) => {
     let resolvedImageUrl: string;
@@ -93,8 +124,23 @@ export default function CategoryForm() {
       });
     } else {
       createMutation.mutate(payload, { 
-        onSuccess: () => { 
+        onSuccess: async (res: any) => { 
           markSaved(); 
+          const newId = res?.id || res?.data?.id;
+
+          // If English translation was filled out during creation, save it as well
+          if (newId && enTranslation.name.trim()) {
+            try {
+              await axiosInstance.post(API_ENDPOINTS.CATEGORIES.TRANSLATION(newId), {
+                lang: 'EN',
+                name: enTranslation.name.trim(),
+                slug: enTranslation.slug.trim() || undefined,
+              });
+            } catch (err) {
+              console.error('Failed to save EN translation on create', err);
+            }
+          }
+
           toast.success('Tạo danh mục thành công!');
           navigate('/categories'); 
         } 
@@ -102,75 +148,116 @@ export default function CategoryForm() {
     }
   };
 
-  const isSaving = createMutation.isPending || updateMutation.isPending || isSubmitting || isUploadingImage;
-
   if (isEdit && isLoadingDetail) {
-    return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 text-black animate-spin" /></div>;
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+      </div>
+    );
   }
 
+  const hasEnTranslation = !!(categoryData as any)?.translations?.some((t: any) => t.lang === 'EN');
+
   return (
-    <div className="space-y-6 max-w-5xl pb-12">
+    <div className="mx-auto max-w-4xl py-6">
       <UnsavedChangesModal />
-      <div className="flex items-center gap-3">
-        <button type="button" onClick={() => navigate('/categories')}
-          className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-gray-500 hover:text-black hover:bg-gray-50 transition-all shadow-sm">
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <div>
-          <h1 className="text-xl font-bold text-black">{isEdit ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}</h1>
-          <p className="text-xs font-medium text-gray-500 mt-0.5">{isEdit ? 'Cập nhật thông tin danh mục' : 'Điền thông tin để tạo danh mục mới'}</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate('/categories')} className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors">
+            <ChevronLeft className="h-5 w-5 text-gray-600" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">{isEdit ? 'Chỉnh sửa danh mục' : 'Tạo danh mục mới'}</h1>
+            <p className="text-xs text-gray-500 mt-0.5">{isEdit ? 'Cập nhật thông tin chi tiết của danh mục' : 'Điền thông tin bên dưới để tạo danh mục mới'}</p>
+          </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="grid grid-cols-3 gap-5">
-          <div className="col-span-2 space-y-5">
-            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-              <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">THÔNG TIN CƠ BẢN</h2>
-              <div>
-                <label className={labelCls}>Tên danh mục <span className="text-red-500">*</span></label>
-                <input {...register('name')} placeholder="Ví dụ: Máy gia công CNC" className={inputCls} />
-                {errors.name && <p className="text-xs font-medium text-red-500 mt-1.5">{errors.name.message}</p>}
-              </div>
+      {isEdit && (
+        <TranslationWarningBanner
+          hasEnTranslation={hasEnTranslation || !!enTranslation.name.trim()}
+          activeTab={activeTab}
+          onSwitchToEnTab={() => setActiveTab('EN')}
+        />
+      )}
+
+      <LanguageTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        hasEnTranslation={hasEnTranslation || !!enTranslation.name.trim()}
+      />
+
+      {/* English Translation Form View */}
+      {activeTab === 'EN' ? (
+        <CategoryEnglishTranslationSection
+          isEdit={isEdit}
+          categoryId={id}
+          enTranslation={enTranslation}
+          setEnTranslation={setEnTranslation}
+          onSwitchToViTab={() => setActiveTab('VI')}
+        />
+      ) : (
+        /* Vietnamese (Default) Form */
+        <form onSubmit={handleSubmit(onSubmit)} className="bg-white border border-gray-200 rounded-xl p-6 shadow-xs space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className={labelCls}>Tên danh mục *</label>
+              <input type="text" className={inputCls} placeholder="Nhập tên danh mục" {...register('name')} />
+              {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
+            </div>
+
+            <div>
+              <label className={labelCls}>Slug (Đường dẫn tĩnh)</label>
+              <input type="text" className={inputCls} placeholder="tu-dong-sinh-neu-de-trong" {...register('slug')} />
+            </div>
+
+            <div>
+              <label className={labelCls}>Thứ tự hiển thị</label>
+              <input type="number" className={inputCls} {...register('orderIndex', { valueAsNumber: true })} />
+            </div>
+
+            <div className="flex items-center gap-3 pt-6">
+              <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Trạng thái hoạt động</label>
+              <Toggle checked={!!statusValue} onToggle={() => setValue('status', !statusValue, { shouldDirty: true })} />
+              <span className="text-xs font-semibold text-gray-600">{statusValue ? 'Hiển thị' : 'Ẩn'}</span>
             </div>
           </div>
 
-          <div className="col-span-1">
-            <div className="sticky top-6 space-y-5">
-              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-                <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">ẢNH ĐẠI DIỆN</h2>
-                <Controller name="imageUrl" control={control}
-                  render={({ field }) => <FileUpload label="" value={field.value} onChange={field.onChange} bgOption="none" />}
+          <div>
+            <label className={labelCls}>Ảnh danh mục</label>
+            <Controller
+              name="imageUrl"
+              control={control}
+              render={({ field }) => (
+                <FileUpload
+                  value={field.value}
+                  onChange={field.onChange}
                 />
-                {errors.imageUrl && <p className="text-xs font-medium text-red-500">{errors.imageUrl.message}</p>}
-              </div>
-
-              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3 mb-4">CÀI ĐẶT</h2>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-black">Hiển thị</p>
-                    <p className="text-xs font-medium text-gray-500">Hiện trên website</p>
-                  </div>
-                  <Toggle checked={!!statusValue} onToggle={() => setValue('status', !statusValue, { shouldDirty: true })} />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2.5">
-                <button type="submit" disabled={isSaving || !isDirty}
-                  className="flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm">
-                  {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {isUploadingImage ? 'ĐANG TẢI ẢNH LÊN...' : isEdit ? 'CẬP NHẬT' : 'TẠO DANH MỤC'}
-                </button>
-                <button type="button" onClick={() => navigate('/categories')} disabled={isSaving}
-                  className="h-10 px-4 rounded-md bg-white hover:bg-gray-50 border border-gray-300 text-black text-sm font-bold transition-colors shadow-sm">
-                  HỦY
-                </button>
-              </div>
-            </div>
+              )}
+            />
           </div>
-        </div>
-      </form>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => navigate('/categories')}
+              className="px-4 py-2 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || updateMutation.isPending || createMutation.isPending || isUploadingImage}
+              className="flex items-center gap-2 px-5 py-2 bg-black hover:bg-gray-800 text-white rounded-lg font-semibold text-xs transition-colors shadow-xs cursor-pointer disabled:opacity-50"
+            >
+              {(isSubmitting || updateMutation.isPending || createMutation.isPending || isUploadingImage) && (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              )}
+              {isEdit ? 'Lưu thay đổi' : 'Tạo danh mục'}
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

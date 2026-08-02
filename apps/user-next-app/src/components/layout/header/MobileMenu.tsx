@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { NavItem } from '@/constants/navigation';
+import { LanguageToggle } from './LanguageToggle';
 
 interface MobileMenuProps {
   navItems: NavItem[];
@@ -35,6 +36,12 @@ export const MobileMenu = ({ navItems, closeMenu }: MobileMenuProps) => {
           )}
         </div>
       ))}
+      
+      {/* Language Toggle for Mobile */}
+      <div className="px-6 py-6 border-b border-[#f0f0f0] flex items-center justify-between">
+        <span className="text-[14px] font-medium text-black">Ngôn ngữ / Language</span>
+        <LanguageToggle textClass="text-black" />
+      </div>
     </div>
   );
 };

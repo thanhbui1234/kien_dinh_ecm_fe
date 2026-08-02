@@ -53,7 +53,6 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
   ];
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [playingVideoIndex, setPlayingVideoIndex] = useState<number | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -65,15 +64,19 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
     skipSnaps: false,
   });
 
+  const [emblaThumbsRef, emblaThumbsApi] = useEmblaCarousel({
+    containScroll: 'keepSnaps',
+    dragFree: true,
+  });
+
   const onSelect = useCallback(() => {
-    if (!emblaApi) return;
+    if (!emblaApi || !emblaThumbsApi) return;
     const newIndex = emblaApi.selectedScrollSnap();
     setActiveIndex(newIndex);
-  }, [emblaApi]);
+    emblaThumbsApi.scrollTo(newIndex);
+  }, [emblaApi, emblaThumbsApi]);
 
-  useEffect(() => {
-    setPlayingVideoIndex(null);
-  }, [activeIndex]);
+  // No longer need to reset playing state since videos render directly
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -86,9 +89,8 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
     };
   }, [emblaApi, onSelect]);
 
-  useEffect(() => {
-    thumbRefs.current[activeIndex]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-  }, [activeIndex]);
+  // Auto-scroll thumb list is handled by emblaThumbsApi.scrollTo in onSelect
+  // We can remove the old manual scrollIntoView logic
 
   const goTo = (index: number) => {
     if (index < 0 || index >= mediaItems.length) return;
@@ -116,8 +118,8 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
 
   return (
     <div className="flex flex-col gap-3 lg:sticky lg:top-[100px]">
-      {/* Main Viewport Slider (Exact CellphoneS 16:9 Ratio + Instagram Touch) */}
-      <div className="relative group/zoom w-full overflow-hidden rounded-2xl bg-[#f8f9fa] shadow-xs border border-gray-100/80 aspect-[16/9] md:aspect-[4/3] lg:aspect-[16/9]">
+      {/* Main Viewport Slider */}
+      <div className="relative group/zoom w-full overflow-hidden rounded-2xl bg-[#f8f9fa] shadow-xs border border-gray-100/80 aspect-square">
         <div ref={emblaRef} className="h-full overflow-hidden cursor-grab active:cursor-grabbing select-none">
           <div className="flex h-full touch-pan-y" style={{ backfaceVisibility: 'hidden' }}>
             {mediaItems.map((item, index) => (
@@ -126,55 +128,19 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
                 className="relative flex-[0_0_100%] min-w-0 h-full bg-[#f8f9fa] flex items-center justify-center overflow-hidden"
               >
                 {item.type === 'video' ? (
-                  playingVideoIndex === index ? (
-                    <div className="relative w-full h-full">
-                      {item.youtubeId ? (
-                        <iframe
-                          src={`https://www.youtube.com/embed/${item.youtubeId}?autoplay=1&controls=1&rel=0&enablejsapi=1`}
-                          title={name}
-                          className="w-full h-full border-0 relative z-20"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          allowFullScreen
-                        />
-                      ) : (
-                        <video src={item.directUrl} autoPlay controls className="w-full h-full object-contain bg-black relative z-20" />
-                      )}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPlayingVideoIndex(null);
-                        }}
-                        className="absolute top-2 right-2 z-30 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-white text-[11px] font-bold shadow-md hover:bg-black transition-all flex items-center gap-1 cursor-pointer"
-                      >
-                        ✕ Thu nhỏ
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      className="relative w-full h-full flex items-center justify-center bg-black group/play cursor-pointer overflow-hidden"
-                      onClick={() => setPlayingVideoIndex(index)}
-                    >
-                      <Image
-                        src={item.src}
-                        alt={name}
-                        fill
-                        draggable={false}
-                        className="object-cover opacity-85 group-hover/play:opacity-95 transition-opacity duration-300"
-                        sizes="(max-width: 768px) 100vw, 50vw"
+                  <div className="relative w-full h-full bg-black flex items-center justify-center pointer-events-auto">
+                    {item.youtubeId ? (
+                      <iframe
+                        src={`https://www.youtube.com/embed/${item.youtubeId}?autoplay=0&controls=1&rel=0`}
+                        title={name}
+                        className="w-full h-full border-0 relative z-20"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
                       />
-                      <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
-                        <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-red-600/90 shadow-xl flex items-center justify-center text-white transition-transform duration-300 group-hover/play:scale-110 group-hover/play:bg-red-600">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="ml-1">
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        </div>
-                      </div>
-                      <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-semibold flex items-center gap-1.5 pointer-events-none">
-                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> Chạm để phát Video
-                      </div>
-                    </div>
-                  )
+                    ) : (
+                      <video src={item.directUrl} controls preload="metadata" className="w-full h-full object-contain relative z-20" />
+                    )}
+                  </div>
                 ) : (
                   <div className="relative w-full h-full cursor-zoom-in" onClick={() => openLightbox(index)}>
                     <Image
@@ -229,46 +195,46 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
         )}
       </div>
 
-      {/* Thumbnails Navigation (Exact CellphoneS Style) */}
-      {mediaItems.length > 1 && (
-        <div className="w-full">
-          <div ref={thumbsContainerRef} className="flex gap-2 overflow-x-auto scrollbar-hide py-1 px-0.5">
+      {/* Thumbnails Navigation (Slider) */}
+      <div className="w-full relative mt-2">
+        <div ref={emblaThumbsRef} className="overflow-hidden">
+          <div className="flex gap-2.5 py-1 px-1 touch-pan-x" style={{ backfaceVisibility: 'hidden' }}>
             {mediaItems.map((item, i) => (
-              <button
-                key={i}
-                ref={(el) => { thumbRefs.current[i] = el; }}
-                onClick={() => goTo(i)}
-                className={`relative shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 bg-white flex flex-col items-center justify-center cursor-pointer ${
-                  activeIndex === i
-                    ? item.type === 'video'
-                      ? 'border-red-600 ring-2 ring-red-500/20 shadow-xs scale-[1.02]'
-                      : 'border-[#5e8dd1] ring-2 ring-[#5e8dd1]/20 shadow-xs scale-[1.02]'
-                    : 'border-gray-200 hover:border-gray-300 opacity-90 hover:opacity-100'
-                }`}
-              >
-                {item.type === 'video' ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-white p-1 text-center select-none">
-                    <div className="w-6 h-6 rounded-full bg-red-50 text-red-600 flex items-center justify-center mb-0.5 group-hover:scale-110 transition-transform">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
+              <div key={i} className="flex-[0_0_72px] min-w-0">
+                <button
+                  onClick={() => goTo(i)}
+                  className={`relative w-full h-[72px] rounded-xl overflow-hidden border-2 transition-all duration-200 bg-white flex flex-col items-center justify-center cursor-pointer ${
+                    activeIndex === i
+                      ? item.type === 'video'
+                        ? 'border-red-600 shadow-sm scale-[1.02] ring-2 ring-red-100'
+                        : 'border-red-600 shadow-sm scale-[1.02] ring-2 ring-red-100'
+                      : 'border-gray-200 hover:border-gray-300 opacity-80 hover:opacity-100'
+                  }`}
+                >
+                  {item.type === 'video' ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-white p-1 text-center select-none">
+                      <div className="w-[30px] h-[30px] rounded-[10px] border border-gray-300 flex items-center justify-center mb-1 group-hover:scale-105 transition-transform">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-0.5 text-gray-800">
+                          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                      </div>
+                      <span className="text-[11px] font-bold text-gray-700 tracking-tight leading-none">Video</span>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-800 tracking-tight leading-none uppercase">Video</span>
-                  </div>
-                ) : (
-                  <Image
-                    src={item.src}
-                    alt=""
-                    width={64}
-                    height={64}
-                    className="w-full h-full object-contain p-1"
-                  />
-                )}
-              </button>
+                  ) : (
+                    <Image
+                      src={item.src}
+                      alt=""
+                      width={72}
+                      height={72}
+                      className="w-full h-full object-contain p-1.5"
+                    />
+                  )}
+                </button>
+              </div>
             ))}
           </div>
         </div>
-      )}
+      </div>
 
       {/* Lightbox Modal with Thumbnails, Zoom & Counter plugins */}
       {lightboxOpen && (

@@ -3,6 +3,10 @@ import Image from 'next/image';
 import { api } from '@/lib/api';
 import type { Metadata } from 'next';
 import type { Project } from 'shared-api';
+import { cookies } from 'next/headers';
+import { getDictionary } from '@/lib/dictionary';
+import type { Locale } from '@/lib/locale';
+import { COOKIE_NAME } from '@/lib/locale';
 
 export const metadata: Metadata = {
   title: 'Dự án | Thanh Bằng',
@@ -27,7 +31,7 @@ interface SearchParams {
   page?: string;
 }
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project, dict }: { project: Project; dict: ReturnType<typeof getDictionary> }) {
   const formattedDate = new Date(project.createdAt).toLocaleDateString('vi-VN', {
     year: 'numeric',
     month: 'short',
@@ -62,7 +66,7 @@ function ProjectCard({ project }: { project: Project }) {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-60" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
             </span>
-            Tiêu biểu
+            {dict.projects.featured_badge}
           </div>
         )}
       </div>
@@ -80,7 +84,7 @@ function ProjectCard({ project }: { project: Project }) {
         )}
         <div className="mt-auto pt-4 flex items-center justify-between">
           <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-gray-400 group-hover:text-[#5e8dd1] transition-colors duration-200">
-            Xem dự án
+            {dict.projects.view_project}
             <svg
               width="14" height="14" viewBox="0 0 14 14" fill="none"
               className="transition-transform duration-300 group-hover:translate-x-1"
@@ -94,7 +98,7 @@ function ProjectCard({ project }: { project: Project }) {
   );
 }
 
-function EmptyState() {
+function EmptyState({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-32 gap-4">
       <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
@@ -103,7 +107,7 @@ function EmptyState() {
           <path d="M16 7V5a2 2 0 0 0-4 0v2M8 7V5a2 2 0 0 1 4 0" />
         </svg>
       </div>
-      <p className="text-gray-400 text-[14px]">Chưa có dự án nào.</p>
+      <p className="text-gray-400 text-[14px]">{label}</p>
     </div>
   );
 }
@@ -149,6 +153,12 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   const params = await searchParams;
   const page = Number(params.page ?? 1);
 
+  // Resolve locale: from searchParams first, then cookie
+  const cookieStore = await cookies();
+  const cookieLocale = cookieStore.get(COOKIE_NAME)?.value;
+  const locale = ((params as Record<string, string | undefined>).lang ?? cookieLocale ?? 'vi').toLowerCase() as Locale;
+  const dict = getDictionary(locale);
+
   const response = await api.projects.getProjects(
     { page: String(page), limit: '12' },
     { next: { revalidate: 3600 } },
@@ -163,16 +173,18 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
       <div className="border-b border-gray-100">
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-6">
           <div className="flex items-center gap-2 text-[14px] text-gray-400 mb-4">
-            <Link href="/" className="hover:text-[#5e8dd1] no-underline transition-colors">Trang chủ</Link>
+            <Link href="/" className="hover:text-[#5e8dd1] no-underline transition-colors">
+              {dict.projects.breadcrumb_home}
+            </Link>
             <span>/</span>
-            <span className="text-[#111]">Dự án</span>
+            <span className="text-[#111]">{dict.projects.breadcrumb_projects}</span>
           </div>
           <div className="flex items-end justify-between gap-4">
             <h1 className="text-[30px] md:text-[40px] font-light text-[#111] leading-none m-0">
-              Tất cả dự án
+              {dict.projects.all_projects}
             </h1>
             {meta && (
-              <p className="text-gray-400 text-[13px] shrink-0 m-0">{meta.totalItems} dự án</p>
+              <p className="text-gray-400 text-[13px] shrink-0 m-0">{meta.totalItems} {dict.projects.count_suffix}</p>
             )}
           </div>
         </div>
@@ -181,11 +193,11 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
       {/* Content */}
       <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-10">
         {items.length === 0 ? (
-          <EmptyState />
+          <EmptyState label={dict.projects.empty} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {items.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+              <ProjectCard key={project.id} project={project} dict={dict} />
             ))}
           </div>
         )}

@@ -6,16 +6,20 @@ import { api } from '@/lib/api';
 import { getCachedCategories } from '@/lib/cached-api';
 import FilterDrawer from './FilterDrawer';
 import { buildBaseMetadata, generateItemListSchema, generateBreadcrumbSchema } from '@/lib/seo';
+import { getDictionary } from '@/lib/dictionary';
+import type { Locale } from '@/lib/locale';
 
 interface SearchParams {
   category?: string;
   page?: string;
   search?: string;
+  lang?: string;
 }
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParams> }): Promise<Metadata> {
   const params = await searchParams;
   const { category: categorySlug, search } = params;
+
 
   let title = 'Sản phẩm — Phụ Tùng & Dụng Cụ CNC';
   let description = 'Danh mục sản phẩm phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Thanh Bằng. Tìm kiếm và lựa chọn sản phẩm phù hợp.';
@@ -50,14 +54,17 @@ interface SearchParams {
   category?: string;
   page?: string;
   search?: string;
+  lang?: string;
 }
 
 function ProductCard({
   product,
   categoryName,
+  viewDetailLabel,
 }: {
   product: { id: string; name: string; slug: string; thumbnailUrl: string };
   categoryName?: string;
+  viewDetailLabel: string;
 }) {
   return (
     <Link
@@ -96,7 +103,7 @@ function ProductCard({
         </h3>
         <div className="mt-auto pt-4">
           <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-gray-400 group-hover:text-[#5e8dd1] transition-colors duration-200 w-fit">
-            Xem chi tiết
+            {viewDetailLabel}
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="transition-transform duration-300 group-hover:translate-x-1">
               <path d="M2.33 7H11.67M11.67 7L7.58 3M11.67 7L7.58 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -107,7 +114,7 @@ function ProductCard({
   );
 }
 
-function EmptyState() {
+function EmptyState({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-24 gap-4">
       <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
@@ -115,7 +122,7 @@ function EmptyState() {
           <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
         </svg>
       </div>
-      <p className="text-gray-400 text-[14px]">Không tìm thấy sản phẩm phù hợp.</p>
+      <p className="text-gray-400 text-[14px]">{label}</p>
     </div>
   );
 }
@@ -153,9 +160,13 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const page = Number(params.page ?? 1);
   const search = params.search;
 
+  const locale = ((params.lang ?? 'vi').toLowerCase()) as Locale;
+  const lang = locale.toUpperCase();
+  const dict = getDictionary(locale);
+
   const [categoriesResponse, productsResponse] = await Promise.all([
     getCachedCategories(),
-    api.products.getProducts({ page: String(page), limit: '12', ...(search ? { search } : {}) }),
+    api.products.getProducts({ page: String(page), limit: '12', lang, ...(search ? { search } : {}) }),
   ]);
 
   const categories = (categoriesResponse ?? []).filter((c) => !c.parentId);
@@ -173,6 +184,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         page: String(page),
         limit: '12',
         categoryId: activeCategoryId,
+        lang,
         ...(search ? { search } : {}),
       })
     : productsResponse;
@@ -182,11 +194,21 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const categoryMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
 
   const breadcrumbItems = activeCategoryName
-    ? [{ label: 'Trang chủ', href: '/' }, { label: 'Sản phẩm', href: '/products/' }, { label: activeCategoryName }]
-    : [{ label: 'Trang chủ', href: '/' }, { label: 'Sản phẩm' }];
+    ? [
+        { label: dict.products.breadcrumb_home, href: '/' },
+        { label: dict.products.breadcrumb_products, href: '/products/' },
+        { label: activeCategoryName },
+      ]
+    : [
+        { label: dict.products.breadcrumb_home, href: '/' },
+        { label: dict.products.breadcrumb_products },
+      ];
 
   const itemListSchema = generateItemListSchema(items.map((i) => ({ name: i.name, slug: i.slug })));
   const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+
+  const pageHeading = activeCategoryName
+    ?? (search ? `${dict.products.search_prefix} "${search}"` : dict.products.all_products);
 
   return (
     <div className="min-h-screen bg-white pt-[80px]">
@@ -209,9 +231,9 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-6">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
             <h1 className="break-words text-[26px] sm:text-[30px] md:text-[40px] font-light text-[#111] leading-tight md:leading-none m-0">
-              {activeCategoryName ?? (search ? `Tìm kiếm: "${search}"` : 'Tất cả sản phẩm')}
+              {pageHeading}
             </h1>
-            {meta && <p className="text-gray-400 text-[13px] m-0">{meta.totalItems} sản phẩm</p>}
+            {meta && <p className="text-gray-400 text-[13px] m-0">{meta.totalItems} {dict.products.count_suffix}</p>}
           </div>
         </div>
       </div>
@@ -220,7 +242,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         {/* Toolbar with FilterDrawer */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-8 pb-4 border-b border-gray-100">
           <p className="text-gray-500 text-[14px] m-0 shrink-0">
-            Hiển thị <strong className="text-[#111] font-medium">{items.length}</strong> sản phẩm
+            {dict.products.showing_prefix} <strong className="text-[#111] font-medium">{items.length}</strong> {dict.products.showing_suffix}
           </p>
           <FilterDrawer categories={categories} activeSlug={categorySlug} />
         </div>
@@ -228,7 +250,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         {/* Product list */}
         <main className="w-full">
           {items.length === 0 ? (
-            <EmptyState />
+            <EmptyState label={dict.products.not_found} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {items.map((product) => (
@@ -236,6 +258,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                   key={product.id}
                   product={product}
                   categoryName={categoryMap[product.categoryId]}
+                  viewDetailLabel={dict.products.view_detail}
                 />
               ))}
             </div>

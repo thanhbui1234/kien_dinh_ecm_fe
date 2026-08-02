@@ -1,3 +1,6 @@
+import { Locale } from '@/lib/locale';
+import { getDictionary } from '@/lib/dictionary';
+
 export interface NavChild {
   label: string;
   href: string;
@@ -10,40 +13,42 @@ export interface NavItem {
   children?: NavChild[];
 }
 
-export const NAV_ITEMS: NavItem[] = [
-  {
-    label: 'Trang chủ',
-    href: '/',
-  },
-  {
-    label: 'Các sản phẩm',
-    href: '/products/',
-    children: [
-      { label: 'Máy đa chức năng', href: '/products/#integrex' },
-      { label: 'Trung tâm gia công 5 trục', href: '/products/#five-axis' },
-      { label: 'Máy tiện CNC', href: '/products/#cnc' },
-      { label: 'Trung tâm gia công đứng', href: '/products/#vertical' },
-      { label: 'Trung tâm gia công ngang', href: '/products/#horizontal' },
-      { label: 'Hàn khuấy ma sát (FSW)', href: '/products/fsw/' },
-      { label: 'Đầu kẹp dao CNC', href: '/products/mazak-tool-holder/' },
-      { label: 'Tự động hóa', href: '/products/#automation-machine-tool' },
-      { label: 'Theo Ngành', href: '/products/#industry' },
-    ],
-  },
-  {
-    label: 'Dự án',
-    href: '/projects/',
-  },
-  {
-    label: 'Về chúng tôi',
-    href: '/about-us/',
-  },
-  {
-    label: 'Tuyển dụng',
-    href: '/tuyen-dung/',
-  },
-  {
-    label: 'Liên hệ chúng tôi',
-    href: '/contact/',
-  },
-];
+export function getNavItems(locale: Locale = 'vi'): NavItem[] {
+  const dict = getDictionary(locale);
+
+  return [
+    {
+      label: dict.nav.home,
+      href: '/',
+    },
+    {
+      label: dict.nav.products,
+      href: '/products/',
+      children: [
+        { label: dict.nav.categories.multitasking, href: '/products/#integrex' },
+        { label: dict.nav.categories.five_axis, href: '/products/#five-axis' },
+        { label: dict.nav.categories.cnc_lathe, href: '/products/#cnc' },
+        { label: dict.nav.categories.vertical, href: '/products/#vertical' },
+        { label: dict.nav.categories.horizontal, href: '/products/#horizontal' },
+        { label: dict.nav.categories.fsw, href: '/products/fsw/' },
+        { label: dict.nav.categories.tool_holder, href: '/products/mazak-tool-holder/' },
+        { label: dict.nav.categories.automation, href: '/products/#automation-machine-tool' },
+        { label: dict.nav.categories.by_industry, href: '/products/#industry' },
+      ],
+    },
+    {
+      label: dict.nav.projects,
+      href: '/projects/',
+    },
+    {
+      label: dict.nav.about_us,
+      href: '/about-us/',
+    },
+    {
+      label: dict.nav.contact,
+      href: '/contact/',
+    },
+  ];
+}
+
+export const NAV_ITEMS = getNavItems('vi');

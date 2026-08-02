@@ -8,9 +8,10 @@ export const createProductsApi = (client: FetchClient) => ({
     const listResource = createListResource<Product>(client, API_ENDPOINTS.PRODUCTS.BASE);
     return listResource(params, { ...options, next: { tags: ['products'] } } as any);
   },
-  getProductDetail: (id: string, options?: RequestInit) => {
-    const detailResource = createDetailResource<Product>(client, API_ENDPOINTS.PRODUCTS.DETAIL);
-    return detailResource(id, { ...options, next: { tags: ['products'] } } as any);
+  getProductDetail: (id: string, lang?: string, options?: RequestInit) => {
+    const langQuery = lang && lang !== 'VI' ? `?lang=${lang}` : '';
+    const endpoint = `${API_ENDPOINTS.PRODUCTS.DETAIL(id)}${langQuery}`;
+    return client.safeGet<Product>(endpoint, { ...options, next: { tags: ['products'] } } as any);
   },
   getRelatedProducts: async (id: string, options?: RequestInit): Promise<Product[] | null> => {
     return await client.safeGet<Product[]>(API_ENDPOINTS.PRODUCTS.RELATED(id), { ...options, next: { tags: ['products'] } } as any);
@@ -23,3 +24,4 @@ export const createProductsApi = (client: FetchClient) => ({
     }
   },
 });
+

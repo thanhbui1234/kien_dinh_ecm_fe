@@ -1,7 +1,14 @@
 import Link from 'next/link';
 import { Store } from 'lucide-react';
+import { cookies } from 'next/headers';
+import { getDictionary } from '@/lib/dictionary';
+import { type Locale, COOKIE_NAME } from '@/lib/locale';
 
-export default function ShowroomCTA() {
+export default async function ShowroomCTA() {
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get(COOKIE_NAME)?.value ?? 'vi') as Locale;
+  const dict = getDictionary(locale);
+
   return (
     <>
       <style>{`
@@ -44,7 +51,7 @@ export default function ShowroomCTA() {
             textAlign: 'center',
           }}
         >
-          Ghé thăm showroom của chúng tôi
+          {dict.home.showroom_cta}
         </p>
       </Link>
     </section>

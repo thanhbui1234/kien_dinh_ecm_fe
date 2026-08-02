@@ -42,7 +42,14 @@ export function buildBaseMetadata(opts: {
     description,
     keywords: combinedKeywords,
     metadataBase: new URL(SITE_URL),
-    alternates: { canonical: url },
+    alternates: { 
+      canonical: url,
+      languages: {
+        'vi': `${SITE_URL}/vi${path.startsWith('/') ? path : `/${path}`}`,
+        'en': `${SITE_URL}/en${path.startsWith('/') ? path : `/${path}`}`,
+        'x-default': `${SITE_URL}/vi${path.startsWith('/') ? path : `/${path}`}`,
+      },
+    },
     robots: {
       index: true,
       follow: true,

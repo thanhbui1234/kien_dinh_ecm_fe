@@ -270,6 +270,15 @@ export interface CreateCategoryDto {
   parentId?: string;
 }
 
+export interface UpsertCategoryTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tên danh mục theo ngôn ngữ */
+  name: string;
+  /** Slug theo ngôn ngữ */
+  slug?: string;
+}
+
 export interface UpdateCategoryDto {
   /** Tên danh mục */
   name?: string;
@@ -398,6 +407,24 @@ export interface CreateProductDto {
   images?: CreateProductImageDto[];
 }
 
+export interface UpsertProductTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tên sản phẩm theo ngôn ngữ */
+  name: string;
+  /** Slug theo ngôn ngữ (tự sinh nếu không truyền) */
+  slug?: string;
+  /** Nội dung chi tiết bài viết */
+  contentDetail?: string;
+  /** Thông số kỹ thuật */
+  specifications?: object;
+  /** Tính năng nổi bật */
+  features?: object;
+  /** SEO Title */
+  seoTitle?: string;
+  /** SEO Description */
+  seoDescription?: string;
+}
 
 export interface UpdateProductDto {
   /** Tên sản phẩm */
@@ -510,6 +537,19 @@ export interface CreateProjectDto {
   videoUrls?: string[];
 }
 
+export interface UpsertProjectTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tên dự án theo ngôn ngữ */
+  name: string;
+  /** Slug theo ngôn ngữ */
+  slug?: string;
+  /** Mô tả ngắn */
+  description?: string;
+  /** Nội dung chi tiết */
+  contentDetail?: string;
+}
+
 export interface UpdateProjectDto {
   /** Tên dự án */
   name?: string;
@@ -586,6 +626,19 @@ export interface CreateJobDto {
   status?: boolean;
   /** Mảng các mục chi tiết (JSON) */
   sections: object[];
+}
+
+export interface UpsertJobPostTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tiêu đề tuyển dụng theo ngôn ngữ */
+  title: string;
+  /** Slug theo ngôn ngữ */
+  slug?: string;
+  /** Mức lương */
+  salary?: string;
+  /** Mô tả công việc & Yêu cầu (sections JSON) */
+  sections?: object;
 }
 
 export interface UpdateJobDto {
