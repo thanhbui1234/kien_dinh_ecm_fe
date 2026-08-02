@@ -451,7 +451,7 @@ export default function AIChatWidget() {
                     maxLength={MAX_CHARS}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Hỏi AI về máy phay, tiện, bảo hành..."
-                    className="w-full pl-3.5 pr-9 py-2 rounded-xl bg-slate-100/80 border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    className="w-full pl-3.5 pr-9 py-2 rounded-xl bg-slate-100/80 border border-slate-200 text-base sm:text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                   />
                   <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-medium">
                     {input.length}/{MAX_CHARS}
