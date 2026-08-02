@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function FloatingZaloWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const zaloLink = "https://zalo.me/0943 676869";
+  const zaloLink = "https://zalo.me/0943676869";
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">

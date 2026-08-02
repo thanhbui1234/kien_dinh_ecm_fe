@@ -136,7 +136,7 @@ export const FooterSettingForm: React.FC = () => {
               <input
                 type="text"
                 {...register('phone')}
-                placeholder="Ví dụ: 0943 676869"
+                placeholder="Ví dụ: 0943676869"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-black"
               />
             </div>

@@ -135,7 +135,7 @@ export default async function JobDetailPage({ params }: Props) {
                   Liên hệ ứng tuyển
                 </Link>
                 <a
-                  href="https://zalo.me/0943 676869"
+                  href="https://zalo.me/0943676869"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 bg-transparent border border-gray-200 text-[#111] text-[14px] font-semibold px-6 py-3 rounded-full hover:bg-gray-50 active:scale-[0.98] transition-all no-underline text-center"

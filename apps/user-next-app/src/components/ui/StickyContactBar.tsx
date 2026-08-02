@@ -55,7 +55,7 @@ export default function StickyContactBar({
           </div>
           <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto sm:ml-auto">
             <a
-              href="tel:0943 676869"
+              href="tel:0943676869"
               aria-label="Gọi ngay"
               className="inline-flex items-center justify-center gap-2 shrink-0 w-11 h-11 sm:w-auto sm:h-auto border border-gray-200 text-[#111] text-[13px] font-semibold rounded-full sm:px-5 sm:py-2.5 hover:border-[#00B14F] hover:text-[#00B14F] transition-colors no-underline"
             >
@@ -65,7 +65,7 @@ export default function StickyContactBar({
               <span className="hidden sm:inline">Gọi ngay</span>
             </a>
             <a
-              href="https://zalo.me/0943 676869"
+              href="https://zalo.me/0943676869"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Chat Zalo"
