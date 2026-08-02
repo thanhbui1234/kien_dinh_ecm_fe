@@ -109,7 +109,7 @@ export default function ProductDetailClient({ product, category, relatedProducts
             {hasPrice ? 'Liên hệ tư vấn' : 'Báo giá ngay'}
           </Link>
           <a
-            href="https://zalo.me/0374864110"
+            href="https://zalo.me/0943 676869"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 bg-[#0068FF] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:opacity-90 transition-opacity no-underline w-full sm:w-auto"

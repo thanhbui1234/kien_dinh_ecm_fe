@@ -40,7 +40,7 @@ export default function ProjectBottomCTA({ ctaRef }: Props) {
             Liên hệ tư vấn
           </Link>
           <a
-            href="https://zalo.me/0374864110"
+            href="https://zalo.me/0943 676869"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 bg-white/[0.05] border border-white/[0.12] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-white/[0.10] active:scale-[0.98] transition-all no-underline"

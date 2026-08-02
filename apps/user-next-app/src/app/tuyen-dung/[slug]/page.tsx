@@ -62,9 +62,8 @@ export default async function JobDetailPage({ params }: Props) {
             <div className="mb-10 pb-10 border-b border-gray-100">
               <div className="flex items-center gap-3 mb-4 flex-wrap">
                 <span
-                  className={`inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] px-2.5 py-1 rounded-full ${
-                    job.status ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-400'
-                  }`}
+                  className={`inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] px-2.5 py-1 rounded-full ${job.status ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-400'
+                    }`}
                 >
                   {job.status && (
                     <span className="relative flex h-1.5 w-1.5 shrink-0">
@@ -136,7 +135,7 @@ export default async function JobDetailPage({ params }: Props) {
                   Liên hệ ứng tuyển
                 </Link>
                 <a
-                  href="https://zalo.me/0374864110"
+                  href="https://zalo.me/0943 676869"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 bg-transparent border border-gray-200 text-[#111] text-[14px] font-semibold px-6 py-3 rounded-full hover:bg-gray-50 active:scale-[0.98] transition-all no-underline text-center"

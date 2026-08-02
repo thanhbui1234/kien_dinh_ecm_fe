@@ -13,7 +13,7 @@ interface Message {
   isError?: boolean;
 }
 
-const ZALO_LINK = 'https://zalo.me/0374864110';
+const ZALO_LINK = 'https://zalo.me/0943 676869';
 const ZALO_PHONE = '0374 864 110';
 
 const QUICK_SUGGESTIONS = [
@@ -380,13 +380,12 @@ export default function AIChatWidget() {
                   className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed shadow-sm ${
-                      msg.sender === 'user'
+                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed shadow-sm ${msg.sender === 'user'
                         ? 'bg-indigo-600 text-white rounded-br-none'
                         : msg.isError
-                        ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-none flex items-start gap-1.5'
-                        : 'bg-white text-slate-800 border border-slate-100 rounded-bl-none shadow-slate-100'
-                    }`}
+                          ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-none flex items-start gap-1.5'
+                          : 'bg-white text-slate-800 border border-slate-100 rounded-bl-none shadow-slate-100'
+                      }`}
                   >
                     {msg.isError && <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />}
                     {msg.sender === 'user' ? (
@@ -421,11 +420,10 @@ export default function AIChatWidget() {
                         key={i}
                         type="button"
                         onClick={() => handleSendMessage(sug)}
-                        className={`text-[12px] rounded-full px-3 py-1 font-medium transition-colors text-left border ${
-                          sug.includes('Zalo')
+                        className={`text-[12px] rounded-full px-3 py-1 font-medium transition-colors text-left border ${sug.includes('Zalo')
                             ? 'bg-blue-50 text-[#0068FF] border-blue-200 hover:bg-blue-100 font-bold'
                             : 'bg-indigo-50/80 text-indigo-700 border-indigo-200/60 hover:bg-indigo-100'
-                        }`}
+                          }`}
                       >
                         {sug}
                       </button>
