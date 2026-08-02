@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { AUTO_ADVANCE_MS } from '@/constants/hero';
 
 const HexagonBg = () => (
   <div className="absolute inset-0 bg-[#f2f2f2] overflow-hidden">
@@ -33,20 +34,30 @@ interface HeroSlideBgProps {
   title: string;
   isFirst: boolean;
   darkText: boolean;
+  active: boolean;
 }
 
-export const HeroSlideBg = ({ type, image, title, isFirst, darkText }: HeroSlideBgProps) => {
+export const HeroSlideBg = ({ type, image, title, isFirst, darkText, active }: HeroSlideBgProps) => {
   if (type === "fullscreen") {
     return (
       <>
-        <Image
-          src={image}
-          alt={title}
-          fill
-          priority={isFirst}
-          className="object-cover object-center"
-          sizes="100vw"
-        />
+        {/* Keyed on `active` so the zoom restarts from scale(1) every time this
+            slide becomes active again (Embla keeps all slides mounted, it never
+            unmounts on its own). */}
+        <div
+          key={active ? "kb-on" : "kb-off"}
+          className={`absolute inset-0 ${active ? "hero-kenburns" : ""}`}
+          style={active ? { animationDuration: `${AUTO_ADVANCE_MS}ms` } : undefined}
+        >
+          <Image
+            src={image}
+            alt={title}
+            fill
+            priority={isFirst}
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+        </div>
 
         {/* Committed dark→transparent overlay for text legibility */}
         <div
