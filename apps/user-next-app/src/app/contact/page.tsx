@@ -2,20 +2,15 @@ import Link from 'next/link';
 import { PageBreadcrumb } from 'shared-ui';
 import ContactForm from './ContactForm';
 import { api } from '@/lib/api';
+import { buildBaseMetadata } from '@/lib/seo';
+import { getTranslations } from 'next-intl/server';
+import type { Metadata } from 'next';
 
-export const metadata = {
-  title: 'Liên hệ | Thanh Bằng',
+export const metadata: Metadata = buildBaseMetadata({
+  title: 'Liên hệ',
   description: 'Liên hệ với Thanh Bằng để được tư vấn và báo giá sản phẩm, dịch vụ máy công cụ CNC.',
-  alternates: { canonical: 'https://thanhbang.com/contact/' },
-  openGraph: {
-    title: 'Liên hệ | Thanh Bằng',
-    description: 'Liên hệ với Thanh Bằng để được tư vấn và báo giá sản phẩm, dịch vụ máy công cụ CNC.',
-    url: 'https://thanhbang.com/contact/',
-    siteName: 'Thanh Bằng',
-    locale: 'vi_VN',
-    type: 'website',
-  },
-};
+  path: '/contact/',
+});
 
 export default async function ContactPage({
   searchParams,
@@ -26,13 +21,13 @@ export default async function ContactPage({
   const productId = params.productId;
   const jobId = params.jobId;
 
+  const t = await getTranslations();
+
   let productName = undefined;
   if (productId) {
     try {
       const product = await api.products.getProductDetail(productId);
-      if (product) {
-        productName = product.name;
-      }
+      if (product) productName = product.name;
     } catch (e) {
       console.error('Failed to fetch product for contact page', e);
     }
@@ -42,9 +37,7 @@ export default async function ContactPage({
   if (jobId) {
     try {
       const job = await api.jobs.getJobDetail(jobId);
-      if (job) {
-        jobTitle = job.title;
-      }
+      if (job) jobTitle = job.title;
     } catch (e) {
       console.error('Failed to fetch job for contact page', e);
     }
@@ -57,10 +50,8 @@ export default async function ContactPage({
     console.error('Failed to fetch contact setting', e);
   }
 
-  const title = contactSetting?.title || 'Liên hệ với chúng tôi';
-  const description =
-    contactSetting?.description ||
-    'Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn về sản phẩm và dịch vụ. Hãy để lại thông tin, đội ngũ tư vấn sẽ liên hệ với bạn trong thời gian sớm nhất.';
+  const title = contactSetting?.title || t('contact.default_title');
+  const description = contactSetting?.description || t('contact.default_description');
   const hotline = contactSetting?.hotline || '0374 864 110';
   const zalo = contactSetting?.zalo || '0374 864 110';
   const email = contactSetting?.email || 'info@kiendinhecm.com';
@@ -71,7 +62,7 @@ export default async function ContactPage({
   const zaloHref = zalo.startsWith('http') ? zalo : `https://zalo.me/${zalo.replace(/\s+/g, '')}`;
 
   const defaultMessage = jobTitle
-    ? `Xin chào, tôi muốn ứng tuyển vị trí: ${jobTitle}.`
+    ? t('contact.job_application_message', { title: jobTitle })
     : undefined;
 
   return (
@@ -79,11 +70,11 @@ export default async function ContactPage({
       <PageBreadcrumb
         variant="light"
         LinkComponent={Link}
-        items={[{ label: 'Trang chủ', href: '/' }, { label: 'Liên hệ' }]}
+        items={[{ label: t('common.home'), href: '/' }, { label: t('contact.breadcrumb') }]}
       />
       <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-12 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16">
-          
+
           {/* Left Column: Contact Info */}
           <div className="lg:col-span-2 flex flex-col gap-8">
             <div>
@@ -92,7 +83,7 @@ export default async function ContactPage({
                   <>
                     Liên hệ với<br />
                     <span className="font-medium text-[#5e8dd1]">
-                      {title.replace('Liên hệ với', '').trim() || 'chúng tôi'}
+                      {title.replace('Liên hệ với', '').trim() || t('contact.us')}
                     </span>
                   </>
                 ) : (
@@ -113,7 +104,7 @@ export default async function ContactPage({
                   </svg>
                 </div>
                 <div className="pt-1">
-                  <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Hotline tư vấn</p>
+                  <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">{t('contact.hotline_label')}</p>
                   <a href={`tel:${cleanHotline}`} className="text-[20px] font-semibold text-[#111] hover:text-[#5e8dd1] transition-colors no-underline">
                     {hotline}
                   </a>
@@ -130,7 +121,7 @@ export default async function ContactPage({
                   </svg>
                 </div>
                 <div className="pt-1">
-                  <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Chat Zalo</p>
+                  <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">{t('contact.zalo_label')}</p>
                   <a href={zaloHref} target="_blank" rel="noopener noreferrer" className="text-[16px] font-medium text-[#111] hover:text-[#0068FF] transition-colors no-underline">
                     {zalo.includes('Zalo:') ? zalo : `Zalo: ${zalo}`}
                   </a>
@@ -166,7 +157,7 @@ export default async function ContactPage({
                       </svg>
                     </div>
                     <div className="pt-1">
-                      <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Địa chỉ</p>
+                      <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">{t('contact.address_label')}</p>
                       <p className="text-[15px] font-medium text-[#111] m-0">{address}</p>
                     </div>
                   </div>
@@ -184,13 +175,12 @@ export default async function ContactPage({
                       </svg>
                     </div>
                     <div className="pt-1">
-                      <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Giờ làm việc</p>
+                      <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">{t('contact.working_hours_label')}</p>
                       <p className="text-[15px] font-medium text-[#111] m-0">{workingHours}</p>
                     </div>
                   </div>
                 </>
               )}
-
             </div>
           </div>
 
@@ -198,7 +188,7 @@ export default async function ContactPage({
           <div className="lg:col-span-3">
             <div className="bg-white p-8 md:p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
               <h2 className="text-[24px] font-semibold text-[#111] mb-8">
-                Gửi yêu cầu báo giá / Tư vấn
+                {t('contact.form_heading')}
               </h2>
               <ContactForm productId={productId} productName={productName} jobId={jobId} jobTitle={jobTitle} defaultMessage={defaultMessage} />
             </div>

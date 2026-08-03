@@ -6,15 +6,13 @@ import { getCachedCategories } from '@/lib/cached-api';
 import ProductDetailClient from './ProductDetailClient';
 import type { Metadata } from 'next';
 import { buildProductMetadata, generateProductSchema, generateBreadcrumbSchema } from '@/lib/seo';
+import { getTranslations, getLocale } from 'next-intl/server';
 
-// Dynamic rendering: searchParams (?lang=en) cần trang này là dynamic.
-// Trang vẫn được cache bởi Next.js data cache (mỗi unique URL được cache riêng).
 export const dynamic = 'force-dynamic';
 
 
 interface Props {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ lang?: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -39,15 +37,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-export default async function ProductDetailPage({ params, searchParams }: Props) {
+export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
-  const resolvedSearchParams = await searchParams;
-  const lang = (resolvedSearchParams?.lang || 'vi').toUpperCase();
 
-  // Try slug directly at the detail endpoint first (backend often accepts slug at /{id})
+  const [t, locale] = await Promise.all([getTranslations(), getLocale()]);
+  const lang = locale.toUpperCase();
+
   let product = await api.products.getProductDetail(slug, lang);
 
-  // Fallback: search by text and match slug exactly
   if (!product) {
     const listResult = await api.products.getProducts({ search: slug, limit: '20', lang });
     product = listResult?.items?.find((p) => p.slug === slug) ?? null;
@@ -55,14 +52,12 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
 
   if (!product) notFound();
 
-  // If product came from list (no detail field), fetch full detail by ID
   const [fullProduct, categoriesResponse, relatedResponse] = await Promise.all([
     product.detail ? Promise.resolve(product) : api.products.getProductDetail(product.id, lang).then((d) => d ?? product),
     getCachedCategories(),
     api.products.getRelatedProducts(product.id),
   ]);
 
-  // Fallback chain: related API → same category → general list
   let relatedProducts: typeof relatedResponse = relatedResponse?.length ? relatedResponse : null;
 
   if (!relatedProducts?.length) {
@@ -79,8 +74,8 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   const category = categories.find((c) => c.id === product.categoryId);
 
   const breadcrumbItems = [
-    { label: 'Trang chủ', href: '/' },
-    { label: 'Sản phẩm', href: '/products/' },
+    { label: t('products.breadcrumb_home'), href: '/' },
+    { label: t('products.breadcrumb_products'), href: '/products/' },
     ...(category ? [{ label: category.name, href: `/products/?category=${category.slug}` }] : []),
     { label: product.name },
   ];

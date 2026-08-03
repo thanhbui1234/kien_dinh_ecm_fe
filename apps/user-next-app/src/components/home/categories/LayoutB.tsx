@@ -3,11 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { SectionHeading } from "shared-ui";
 import type { Category } from "shared-api";
-import { getStoredLocale } from "@/lib/locale";
-import { getDictionary } from "@/lib/dictionary";
+import { useTranslations } from "next-intl";
 
 const EASE_EXPO = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
@@ -42,11 +41,7 @@ export default function LayoutB({ categories }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
-
-  const [dict, setDict] = useState(() => getDictionary('vi'));
-  useEffect(() => {
-    setDict(getDictionary(getStoredLocale()));
-  }, []);
+  const t = useTranslations();
 
   const activeCategory = categories[activeIndex];
 
@@ -54,7 +49,7 @@ export default function LayoutB({ categories }: Props) {
     <section className="bg-[#f0f0f0] py-20">
       {/* Heading — constrained */}
       <div className="max-w-[1300px] mx-auto px-6 md:px-10 mb-12">
-        <SectionHeading>{dict.home.categories_section}</SectionHeading>
+        <SectionHeading>{t('home.categories_section')}</SectionHeading>
       </div>
 
       {/* Panel — full-bleed với margin nhỏ 2 bên */}
@@ -140,7 +135,7 @@ export default function LayoutB({ categories }: Props) {
               {/* Bottom content */}
               <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
                 <p className="text-[#5e8dd1] text-[11px] font-semibold uppercase tracking-[0.2em] mb-2">
-                  {dict.home.categories_label}
+                  {t('home.categories_label')}
                 </p>
                 <h3 className="text-white text-2xl md:text-3xl font-semibold mb-4">
                   {activeCategory?.name}
@@ -150,7 +145,7 @@ export default function LayoutB({ categories }: Props) {
                     href={`/products/?category=${activeCategory.slug}`}
                     className="inline-flex items-center gap-2 text-sm text-white border border-white/40 rounded-full px-5 py-2 hover:bg-white hover:text-[#111] transition-colors duration-200 no-underline"
                   >
-                    {dict.home.view_products}
+                    {t('home.view_products')}
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <path d="M2.33 7H11.67M11.67 7L7.58 3M11.67 7L7.58 11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>

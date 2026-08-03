@@ -4,6 +4,7 @@ import type { Job } from 'shared-api';
 import { PageBreadcrumb } from 'shared-ui';
 import { api } from '@/lib/api';
 import { buildBaseMetadata } from '@/lib/seo';
+import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = buildBaseMetadata({
   title: 'Tuyển dụng',
@@ -13,13 +14,11 @@ export const metadata: Metadata = buildBaseMetadata({
 
 export const revalidate = 3600;
 
-function StatusBadge({ active }: { active: boolean }) {
+function StatusBadge({ active, openLabel, closedLabel }: { active: boolean; openLabel: string; closedLabel: string }) {
   return (
     <span
       className={`inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] px-2.5 py-1 rounded-full ${
-        active
-          ? 'bg-emerald-50 text-emerald-700'
-          : 'bg-gray-100 text-gray-400'
+        active ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-400'
       }`}
     >
       {active && (
@@ -28,12 +27,12 @@ function StatusBadge({ active }: { active: boolean }) {
           <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
         </span>
       )}
-      {active ? 'Đang tuyển' : 'Đã đóng'}
+      {active ? openLabel : closedLabel}
     </span>
   );
 }
 
-function JobCard({ job }: { job: Job }) {
+function JobCard({ job, labels }: { job: Job; labels: { open: string; closed: string; salary: string; viewDetail: string } }) {
   return (
     <Link
       href={`/tuyen-dung/${job.slug}/`}
@@ -45,20 +44,20 @@ function JobCard({ job }: { job: Job }) {
     >
       <div className="flex flex-col gap-2 min-w-0">
         <div className="flex items-center gap-3 flex-wrap">
-          <StatusBadge active={job.status} />
+          <StatusBadge active={job.status} openLabel={labels.open} closedLabel={labels.closed} />
         </div>
         <h2 className="text-[17px] font-medium text-[#111] leading-snug m-0 group-hover:text-[#5e8dd1] transition-colors duration-200">
           {job.title}
         </h2>
         {job.salary && (
           <p className="text-[13px] text-gray-500 m-0">
-            <span className="font-medium text-[#111]">Mức lương:</span> {job.salary}
+            <span className="font-medium text-[#111]">{labels.salary}</span> {job.salary}
           </p>
         )}
       </div>
 
       <div className="shrink-0 flex items-center gap-2 text-[13px] font-medium text-gray-400 group-hover:text-[#5e8dd1] transition-colors duration-200">
-        Xem chi tiết
+        {labels.viewDetail}
         <svg width="16" height="16" viewBox="0 0 14 14" fill="none" className="transition-transform duration-300 group-hover:translate-x-1">
           <path d="M2.33 7H11.67M11.67 7L7.58 3M11.67 7L7.58 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -67,7 +66,7 @@ function JobCard({ job }: { job: Job }) {
   );
 }
 
-function EmptyState() {
+function EmptyState({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-32 gap-4 text-center">
       <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
@@ -76,80 +75,83 @@ function EmptyState() {
           <path d="M16 7V5a2 2 0 0 0-4 0v2M8 7V5a2 2 0 0 1 4 0" />
         </svg>
       </div>
-      <p className="text-gray-400 text-[14px]">Hiện chưa có vị trí tuyển dụng nào.</p>
+      <p className="text-gray-400 text-[14px]">{label}</p>
     </div>
   );
 }
 
 export default async function JobsPage() {
-  const response = await api.jobs.getJobs(
-    { limit: '100' },
-    { next: { revalidate: 3600 } },
-  );
+  const [t, response] = await Promise.all([
+    getTranslations(),
+    api.jobs.getJobs({ limit: '100' }, { next: { revalidate: 3600 } }),
+  ]);
 
   const items = response?.items ?? [];
   const activeJobs = items.filter((j) => j.status);
   const closedJobs = items.filter((j) => !j.status);
+
+  const jobLabels = {
+    open: t('recruitment.status_open'),
+    closed: t('recruitment.status_closed'),
+    salary: t('recruitment.salary_label'),
+    viewDetail: t('recruitment.view_detail'),
+  };
 
   return (
     <div className="min-h-screen bg-white pt-[80px]">
       <PageBreadcrumb
         variant="light"
         LinkComponent={Link}
-        items={[{ label: 'Trang chủ', href: '/' }, { label: 'Tuyển dụng' }]}
+        items={[{ label: t('common.home'), href: '/' }, { label: t('recruitment.breadcrumb') }]}
       />
 
-      {/* Header */}
       <div className="max-w-[1300px] mx-auto px-6 md:px-10 pt-12 pb-10 border-b border-gray-100">
         <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#5e8dd1]">
-          Cơ hội việc làm
+          {t('recruitment.eyebrow')}
         </span>
         <h1 className="text-[32px] md:text-[48px] font-light text-[#111] leading-tight tracking-[-0.02em] m-0 mt-3">
-          Tuyển dụng
+          {t('recruitment.heading')}
         </h1>
         <p className="text-gray-500 text-[15px] leading-relaxed mt-4 max-w-[560px] m-0">
-          Tham gia đội ngũ Thanh Bằng — nơi kỹ sư và chuyên gia cùng nhau phát triển trong ngành công nghiệp máy công cụ CNC.
+          {t('recruitment.description')}
         </p>
       </div>
 
-      {/* Content */}
       <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-12">
         {items.length === 0 ? (
-          <EmptyState />
+          <EmptyState label={t('recruitment.empty')} />
         ) : (
           <div className="flex flex-col gap-14">
-            {/* Active jobs */}
             {activeJobs.length > 0 && (
               <div>
                 <div className="flex items-center gap-4 mb-6">
                   <h2 className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[#111] m-0">
-                    Đang tuyển dụng
+                    {t('recruitment.open_section')}
                   </h2>
                   <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                    {activeJobs.length} vị trí
+                    {t('recruitment.open_count', { count: activeJobs.length })}
                   </span>
                   <div className="flex-1 h-px bg-gray-100" />
                 </div>
                 <div className="flex flex-col gap-3">
                   {activeJobs.map((job) => (
-                    <JobCard key={job.id} job={job} />
+                    <JobCard key={job.id} job={job} labels={jobLabels} />
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Closed jobs */}
             {closedJobs.length > 0 && (
               <div>
                 <div className="flex items-center gap-4 mb-6">
                   <h2 className="text-[13px] font-semibold uppercase tracking-[0.18em] text-gray-400 m-0">
-                    Đã đóng tuyển
+                    {t('recruitment.closed_section')}
                   </h2>
                   <div className="flex-1 h-px bg-gray-100" />
                 </div>
                 <div className="flex flex-col gap-3">
                   {closedJobs.map((job) => (
-                    <JobCard key={job.id} job={job} />
+                    <JobCard key={job.id} job={job} labels={jobLabels} />
                   ))}
                 </div>
               </div>
@@ -158,22 +160,21 @@ export default async function JobsPage() {
         )}
       </div>
 
-      {/* Bottom CTA */}
       <div className="max-w-[1300px] mx-auto px-6 md:px-10 pb-16">
         <div className="bg-[#0f0f0f] rounded-2xl px-8 md:px-12 py-10 md:py-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div className="max-w-[460px]">
             <p className="text-white text-[22px] md:text-[26px] font-light leading-tight m-0">
-              Không tìm thấy vị trí phù hợp?
+              {t('recruitment.no_match_heading')}
             </p>
             <p className="text-white/50 text-[14px] mt-3 m-0 leading-relaxed">
-              Hãy liên hệ với chúng tôi — Thanh Bằng luôn chào đón những ứng viên xuất sắc.
+              {t('recruitment.no_match_body')}
             </p>
           </div>
           <Link
             href="/contact/"
             className="inline-flex items-center justify-center gap-2 bg-[#5e8dd1] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#356098] active:scale-[0.98] transition-all no-underline shrink-0"
           >
-            Liên hệ ngay
+            {t('recruitment.contact_cta')}
           </Link>
         </div>
       </div>

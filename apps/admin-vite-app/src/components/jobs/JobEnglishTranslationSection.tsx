@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Globe, Plus, Trash2, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { toast } from '@/utils/toast';
-import { axiosInstance } from '@/lib/axios';
-import { API_ENDPOINTS } from 'shared-api';
+import { useSaveJobTranslation } from '@/queries/jobs';
+import { ENV } from '@/config/env';
+import { translateJobViToEnglish } from '@/utils/ai';
+import { TranslationSectionHeader } from '@/components/common/TranslationSectionHeader';
+import { TranslationSectionFooter } from '@/components/common/TranslationSectionFooter';
 
 interface JobSectionItem {
   title: string;
@@ -22,8 +25,9 @@ interface JobEnglishTranslationSectionProps {
   jobId?: string;
   enTranslation: JobEnTranslationState;
   setEnTranslation: React.Dispatch<React.SetStateAction<JobEnTranslationState>>;
-  viSectionsCount: number;
-  onSyncFromVi: () => void;
+  viTitle?: string;
+  viSalary?: string;
+  viSections?: any[];
   onSwitchToViTab?: () => void;
 }
 
@@ -35,11 +39,13 @@ export function JobEnglishTranslationSection({
   jobId,
   enTranslation,
   setEnTranslation,
-  viSectionsCount,
-  onSyncFromVi,
+  viTitle = '',
+  viSalary = '',
+  viSections = [],
   onSwitchToViTab,
 }: JobEnglishTranslationSectionProps) {
-  const [isSaving, setIsSaving] = useState(false);
+  const saveMutation = useSaveJobTranslation();
+  const [isTranslatingAi, setIsTranslatingAi] = useState(false);
   const [initialData, setInitialData] = useState<JobEnTranslationState | null>(null);
 
   useEffect(() => {
@@ -48,7 +54,23 @@ export function JobEnglishTranslationSection({
     }
   }, [enTranslation, initialData]);
 
-  const isDirty = initialData ? JSON.stringify(enTranslation) !== JSON.stringify(initialData) : false;
+  const checkIsDirty = () => {
+    if (!initialData) return false;
+    const normalize = (state: JobEnTranslationState) => ({
+      title: state.title.trim(),
+      salary: state.salary?.trim() || '',
+      sections: state.sections.filter(s => s.title.trim() || s.content.trim()).map(s => ({ title: s.title.trim(), content: s.content.trim() }))
+    });
+    return JSON.stringify(normalize(enTranslation)) !== JSON.stringify(normalize(initialData));
+  };
+
+  const isDirty = checkIsDirty();
+
+  const missingFields = [];
+  if (viTitle?.trim() && !enTranslation.title.trim()) missingFields.push('Tiêu đề');
+  if (viSalary?.trim() && !enTranslation.salary.trim()) missingFields.push('Mức lương');
+  const enSectionsCount = enTranslation.sections.filter(s => s.title.trim() || s.content.trim()).length;
+  if (viSections.length > 0 && enSectionsCount < viSections.length) missingFields.push(`Mục nội dung (${enSectionsCount}/${viSections.length})`);
 
   const handleReset = () => {
     if (initialData) {
@@ -57,72 +79,101 @@ export function JobEnglishTranslationSection({
     }
   };
 
-  const enSectionsCount = enTranslation.sections.filter(s => s.title.trim() || s.content.trim()).length;
-  const isSectionsMismatched = viSectionsCount > 0 && enSectionsCount !== viSectionsCount;
-
   const handleSave = async () => {
     if (!jobId || !enTranslation.title.trim()) {
       toast.error(null, 'Vui lòng nhập tiêu đề tuyển dụng bằng Tiếng Anh trước khi lưu');
       return;
     }
 
-    try {
-      setIsSaving(true);
-      await axiosInstance.post(API_ENDPOINTS.JOBS.TRANSLATION(jobId), {
+    saveMutation.mutate(
+      {
+        jobId: jobId!,
         lang: 'EN',
         title: enTranslation.title.trim(),
-        salary: enTranslation.salary || undefined,
+        salary: enTranslation.salary?.trim() || undefined,
         sections: enTranslation.sections,
-      });
-      setInitialData(enTranslation);
-      toast.success('Lưu bản dịch Tiếng Anh bài tuyển dụng thành công!');
-    } catch {
-      toast.error(null, 'Lưu bản dịch Tiếng Anh thất bại, vui lòng thử lại');
-    } finally {
-      setIsSaving(false);
-    }
+      },
+      {
+        onSuccess: () => {
+          const newSavedState = {
+            title: enTranslation.title.trim(),
+            slug: enTranslation.slug || '',
+            salary: enTranslation.salary?.trim() || '',
+            sections: enTranslation.sections,
+          };
+          setInitialData(newSavedState);
+          setEnTranslation(newSavedState);
+          toast.success('Lưu bản dịch Tiếng Anh bài tuyển dụng thành công!');
+        },
+        onError: () => {
+          toast.error(null, 'Lưu bản dịch Tiếng Anh thất bại, vui lòng thử lại');
+        },
+      }
+    );
   };
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-xs space-y-6 animate-in fade-in duration-150">
-      <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-        <div className="flex items-center gap-2">
-          <Globe className="w-4 h-4 text-purple-600" />
-          <h2 className="text-sm font-bold text-gray-900">Bản dịch Tiếng Anh (English Job Translation)</h2>
-        </div>
+      <TranslationSectionHeader
+        title="Bản dịch Tiếng Anh (English Job Translation)"
+        missingFields={missingFields}
+        isTranslatingAi={isTranslatingAi}
+        onAiTranslate={async () => {
+          const apiKey = ENV.GEMINI_API_KEY;
+          if (!apiKey) {
+            toast.error(null, 'Chưa cấu hình VITE_GEMINI_API_KEY trong file .env.local!');
+            return;
+          }
+          try {
+            setIsTranslatingAi(true);
+            toast.info('AI đang dịch các trường còn thiếu sang Tiếng Anh...');
+            
+            const needsTitle = viTitle?.trim() && !enTranslation.title.trim();
+            const needsSalary = viSalary?.trim() && !enTranslation.salary.trim();
+            
+            const sectionsToTranslate = viSections.filter((_, idx) => {
+              const enItem = enTranslation.sections[idx];
+              return !enItem || (!enItem.title.trim() && !enItem.content.trim());
+            });
 
-        {/* Sync from VI Button */}
-        {viSectionsCount > 0 && (
-          <button
-            type="button"
-            onClick={onSyncFromVi}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
-            title="Sao chép danh sách các mục từ Tiếng Việt sang để tiện dịch"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>⚡ Tải khung từ Tiếng Việt</span>
-          </button>
-        )}
-      </div>
+            const res = await translateJobViToEnglish(apiKey, {
+              title: needsTitle ? viTitle : '',
+              salary: needsSalary ? viSalary : '',
+              sections: sectionsToTranslate,
+            });
 
-      {/* Mismatch Warning Banner */}
-      {isSectionsMismatched && (
-        <div className="flex items-center justify-between p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs font-medium text-amber-900">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-            <span>
-              <strong>Cảnh báo lệch số lượng:</strong> Tiếng Anh hiện có <strong>{enSectionsCount}</strong> mục nội dung, nhưng Tiếng Việt gốc có <strong>{viSectionsCount}</strong> mục.
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={onSyncFromVi}
-            className="text-xs font-bold text-purple-700 underline hover:text-purple-900 cursor-pointer ml-3 shrink-0"
-          >
-            Đồng bộ ngay
-          </button>
-        </div>
-      )}
+            const newSections = [...enTranslation.sections];
+            let secResultIdx = 0;
+            viSections.forEach((_, idx) => {
+              const enItem = enTranslation.sections[idx];
+              if (!enItem || (!enItem.title.trim() && !enItem.content.trim())) {
+                if (res.sections && res.sections[secResultIdx]) {
+                  newSections[idx] = res.sections[secResultIdx];
+                  secResultIdx++;
+                }
+              }
+            });
+            while (secResultIdx < (res.sections?.length || 0)) {
+              newSections.push(res.sections[secResultIdx]);
+              secResultIdx++;
+            }
+
+            setEnTranslation({
+              ...enTranslation,
+              title: needsTitle ? (res.title || enTranslation.title) : enTranslation.title,
+              salary: needsSalary ? (res.salary || enTranslation.salary) : enTranslation.salary,
+              sections: newSections.length > 0 ? newSections : enTranslation.sections,
+            });
+
+            toast.success('Dịch tự động các trường còn thiếu bằng AI thành công!');
+          } catch (err: any) {
+            toast.error(null, err.message || 'Lỗi khi dịch bằng AI, vui lòng thử lại');
+          } finally {
+            setIsTranslatingAi(false);
+          }
+        }}
+        disableAiButton={isTranslatingAi || missingFields.length === 0 || isDirty}
+      />
 
       <div className="space-y-5">
         <div>
@@ -207,39 +258,14 @@ export function JobEnglishTranslationSection({
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-        {isEdit ? (
-          <>
-            {isDirty && (
-              <button
-                type="button"
-                onClick={handleReset}
-                disabled={isSaving}
-                className="px-4 py-2 border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-lg font-semibold text-xs transition-colors cursor-pointer disabled:opacity-50"
-              >
-                Hủy thay đổi
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={isSaving || !isDirty}
-              className="flex items-center gap-2 px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold text-xs transition-colors shadow-xs cursor-pointer disabled:opacity-50"
-            >
-              {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              Lưu bản dịch Tiếng Anh
-            </button>
-          </>
-        ) : (
-          <button
-            type="button"
-            onClick={onSwitchToViTab}
-            className="flex items-center gap-2 px-5 py-2 bg-black hover:bg-gray-800 text-white rounded-lg font-semibold text-xs transition-colors shadow-xs cursor-pointer"
-          >
-            Xác nhận & Quay lại Tab Tiếng Việt để Tạo mới
-          </button>
-        )}
-      </div>
+      <TranslationSectionFooter
+        isEdit={isEdit}
+        isDirty={isDirty}
+        isSaving={saveMutation.isPending}
+        onReset={handleReset}
+        onSave={handleSave}
+        onSwitchToViTab={onSwitchToViTab}
+      />
     </div>
   );
 }

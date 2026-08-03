@@ -14,6 +14,8 @@ import {
   DEFAULT_KEYWORDS,
   generateWebSiteSearchSchema,
 } from "@/lib/seo";
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: {
@@ -78,9 +80,11 @@ export default async function RootLayout({
   const categories = (categoriesResponse || []).filter((c) => !c.parentId);
 
   const searchSchema = generateWebSiteSearchSchema();
+  const locale = await getLocale();
+  const messages = await getMessages();
 
   return (
-    <html lang="vi" suppressHydrationWarning className={`${notoSans.variable} ${notoSansJP.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${notoSans.variable} ${notoSansJP.variable}`}>
       <head>
         <JsonLd />
         <script
@@ -92,12 +96,14 @@ export default async function RootLayout({
         <Suspense fallback={null}>
           <RouteHistoryTracker />
         </Suspense>
-        <MotionProvider>
-          <Header categories={categories} />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-          <AIChatWidget />
-        </MotionProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <MotionProvider>
+            <Header categories={categories} />
+            <main className="min-h-screen">{children}</main>
+            <Footer />
+            <AIChatWidget />
+          </MotionProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -6,6 +6,8 @@ import { categoryKeys } from 'shared-api';
 import { Category, CreateCategoryInput, UpdateCategoryInput, PageMeta } from 'shared-api';
 import { triggerRevalidate } from '@/utils/revalidate';
 
+export { useSaveCategoryTranslation } from './useSaveCategoryTranslation';
+
 export const useCategories = (params?: Record<string, any>) => {
   const client = axiosInstance;
   return useQuery({

@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
-import { Sparkles, Send, Bot, RotateCcw, X, AlertCircle, ExternalLink, PhoneCall } from 'lucide-react';
+import { Sparkles, Send, Bot, RotateCcw, X, AlertCircle, ExternalLink } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface Message {
   id: string;
@@ -15,17 +16,8 @@ interface Message {
 
 const ZALO_LINK = 'https://zalo.me/0374864110';
 const ZALO_PHONE = '0374 864 110';
-
-const QUICK_SUGGESTIONS = [
-  '💬 Chat Zalo với Kỹ thuật viên',
-  'Máy phay CNC nổi bật?',
-  'Địa chỉ showroom ở đâu?',
-  'Tư vấn mua máy tiện CNC',
-];
-
 const MAX_CHARS = 300;
 
-// Helper function to format Markdown bold (**text**) and bullet lists (* item)
 function renderFormattedContent(text: string) {
   if (!text) return null;
 
@@ -39,14 +31,12 @@ function renderFormattedContent(text: string) {
           return <div key={lineIdx} className="h-1" />;
         }
 
-        // Check if line is a bullet point (* or -)
         const isBullet = trimmed.startsWith('* ') || trimmed.startsWith('- ') || trimmed.startsWith('*   ') || trimmed.startsWith('-   ');
         let contentText = line;
         if (isBullet) {
           contentText = trimmed.replace(/^[\*\-]\s+/, '');
         }
 
-        // Parse **bold text**
         const parts = contentText.split(/(\*\*.*?\*\*)/g);
         const renderedParts = parts.map((part, partIdx) => {
           if (part.startsWith('**') && part.endsWith('**')) {
@@ -75,6 +65,7 @@ function renderFormattedContent(text: string) {
 }
 
 export default function AIChatWidget() {
+  const t = useTranslations();
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -86,7 +77,13 @@ export default function AIChatWidget() {
   const [mobilePanelStyle, setMobilePanelStyle] = useState<{ top: number; height: number } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Initialize session ID from localStorage or generate new uuid
+  const QUICK_SUGGESTIONS = [
+    `💬 ${t('chat.zalo_banner_cta').replace(' →', '')}`,
+    t('chat.suggestions.0'),
+    t('chat.suggestions.1'),
+    t('chat.suggestions.2'),
+  ];
+
   useEffect(() => {
     setMounted(true);
     let sid = localStorage.getItem('ai_session_id');
@@ -96,18 +93,17 @@ export default function AIChatWidget() {
     }
     setSessionId(sid);
 
-    // Initial greeting if empty
     setMessages([
       {
         id: 'welcome',
         sender: 'ai',
-        text: 'Xin chào! Tôi là Trợ lý AI của Máy Công Cụ Thanh Bằng. Bạn cần tư vấn sản phẩm hay hỗ trợ kỹ thuật gì cứ hỏi tôi nhé! 🤖✨',
+        text: t('chat.welcome_message'),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       },
     ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Show onboarding tooltip on mount, auto-hide after 10s
   useEffect(() => {
     if (!mounted) return;
     setShowTooltip(true);
@@ -115,12 +111,10 @@ export default function AIChatWidget() {
     return () => clearTimeout(hideTimer);
   }, [mounted]);
 
-  // Dismiss tooltip as soon as the chat panel is opened
   useEffect(() => {
     if (isOpen) setShowTooltip(false);
   }, [isOpen]);
 
-  // Lock background page scroll while the full-screen mobile chat is open
   useEffect(() => {
     const isMobile = window.matchMedia('(max-width: 639px)').matches;
     if (isOpen && isMobile) {
@@ -131,10 +125,6 @@ export default function AIChatWidget() {
     }
   }, [isOpen]);
 
-  // Keep the mobile panel sized to the actual visible viewport so opening the
-  // on-screen keyboard doesn't leave a dead gap below the input bar (fixed
-  // top/bottom offsets are pinned to the layout viewport, which iOS/Android
-  // don't resize consistently when the keyboard appears).
   useEffect(() => {
     const isMobile = window.matchMedia('(max-width: 639px)').matches;
     const vv = window.visualViewport;
@@ -143,8 +133,8 @@ export default function AIChatWidget() {
       return;
     }
 
-    const TOP_OFFSET = 32; // matches top-8
-    const BOTTOM_MARGIN = 16; // matches bottom-4
+    const TOP_OFFSET = 32;
+    const BOTTOM_MARGIN = 16;
 
     const updateSize = () => {
       setMobilePanelStyle({
@@ -163,7 +153,6 @@ export default function AIChatWidget() {
     };
   }, [isOpen]);
 
-  // Auto scroll to bottom of message list
   useEffect(() => {
     if (isOpen) {
       setUnreadCount(0);
@@ -171,7 +160,6 @@ export default function AIChatWidget() {
     }
   }, [messages, isOpen]);
 
-  // Reset conversation session
   const handleResetSession = () => {
     const newSid = uuidv4();
     setSessionId(newSid);
@@ -180,7 +168,7 @@ export default function AIChatWidget() {
       {
         id: uuidv4(),
         sender: 'ai',
-        text: 'Đã làm mới cuộc hội thoại. Bạn muốn tìm hiểu thông tin gì tiếp theo?',
+        text: t('chat.reset_message'),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       },
     ]);
@@ -189,8 +177,7 @@ export default function AIChatWidget() {
   const handleSendMessage = async (textToSend?: string) => {
     const query = (textToSend || input).trim();
 
-    // If clicking Zalo suggestion
-    if (query.includes('Chat Zalo')) {
+    if (query.includes('Zalo') || query.toLowerCase().includes('zalo')) {
       window.open(ZALO_LINK, '_blank');
       return;
     }
@@ -198,17 +185,12 @@ export default function AIChatWidget() {
     if (!query || loading) return;
 
     if (query.length > MAX_CHARS) {
-      alert(`Câu hỏi quá dài. Vui lòng nhập tối đa ${MAX_CHARS} ký tự.`);
+      alert(t('chat.message_too_long'));
       return;
     }
 
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const userMsg: Message = {
-      id: uuidv4(),
-      sender: 'user',
-      text: query,
-      timestamp: time,
-    };
+    const userMsg: Message = { id: uuidv4(), sender: 'user', text: query, timestamp: time };
 
     setInput('');
     setMessages((prev) => [...prev, userMsg]);
@@ -218,10 +200,7 @@ export default function AIChatWidget() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: query,
-          sessionId: sessionId,
-        }),
+        body: JSON.stringify({ message: query, sessionId }),
       });
 
       const json = await res.json();
@@ -230,7 +209,7 @@ export default function AIChatWidget() {
         const aiMsg: Message = {
           id: uuidv4(),
           sender: 'ai',
-          text: json.data?.reply || 'Cảm ơn câu hỏi của bạn!',
+          text: json.data?.reply || t('chat.fallback_thanks'),
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
         setMessages((prev) => [...prev, aiMsg]);
@@ -244,7 +223,7 @@ export default function AIChatWidget() {
           {
             id: uuidv4(),
             sender: 'ai',
-            text: '⚠️ Bạn đã gửi câu hỏi quá nhanh hoặc vượt quá giới hạn lượt dùng trong ngày (20 câu/ngày). Vui lòng thử lại sau ít phút hoặc nhắn Zalo hỗ trợ nhé!',
+            text: t('chat.rate_limit_error'),
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             isError: true,
           },
@@ -255,19 +234,19 @@ export default function AIChatWidget() {
           {
             id: uuidv4(),
             sender: 'ai',
-            text: json.message || 'Hệ thống đang bận. Vui lòng thử lại sau.',
+            text: json.message || t('chat.system_error'),
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             isError: true,
           },
         ]);
       }
-    } catch (err) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
           id: uuidv4(),
           sender: 'ai',
-          text: 'Không thể kết nối tới máy chủ AI. Vui lòng kiểm tra lại kết nối mạng.',
+          text: t('chat.network_error'),
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           isError: true,
         },
@@ -281,7 +260,6 @@ export default function AIChatWidget() {
 
   return (
     <div className="fixed bottom-6 right-6 z-[1001] flex flex-col items-end">
-      {/* Mobile-only backdrop scrim — tap to dismiss */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -306,7 +284,7 @@ export default function AIChatWidget() {
             style={mobilePanelStyle ? { top: mobilePanelStyle.top, height: mobilePanelStyle.height, bottom: 'auto' } : undefined}
             className="fixed inset-x-3 top-8 bottom-4 z-50 rounded-3xl sm:static sm:inset-auto sm:mb-4 sm:h-[540px] sm:max-h-[82vh] sm:w-[350px] md:w-[385px] sm:rounded-2xl bg-white shadow-[0_12px_45px_rgba(79,70,229,0.22)] border border-indigo-100 flex flex-col origin-bottom-right overflow-hidden"
           >
-            {/* Header - Indigo/Purple Gradient */}
+            {/* Header */}
             <div className="bg-gradient-to-r from-indigo-700 via-purple-700 to-indigo-800 text-white p-4 flex items-center justify-between shadow-sm shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner shrink-0">
@@ -314,23 +292,22 @@ export default function AIChatWidget() {
                 </div>
                 <div>
                   <h4 className="font-bold text-[14px] leading-tight m-0 flex items-center gap-1.5 text-white">
-                    Trợ lý AI & Hỗ trợ
+                    {t('chat.header_title')}
                     <Sparkles className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
                   </h4>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span className="text-[11px] text-indigo-100 font-medium">Sẵn sàng 24/7</span>
+                    <span className="text-[11px] text-indigo-100 font-medium">{t('chat.header_subtitle')}</span>
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-1.5">
-                {/* Zalo Direct Button in Header */}
                 <a
                   href={ZALO_LINK}
                   target="_blank"
                   rel="noopener noreferrer"
-                  title={`Chat Zalo trực tiếp (${ZALO_PHONE})`}
+                  title={t('chat.zalo_button_title', { phone: ZALO_PHONE })}
                   className="flex items-center gap-1 px-2.5 py-1 bg-[#0068FF] hover:bg-[#0052cc] text-white text-[11px] font-bold rounded-lg transition-colors shadow-sm no-underline"
                 >
                   <span>Zalo</span>
@@ -340,7 +317,7 @@ export default function AIChatWidget() {
                 <button
                   type="button"
                   onClick={handleResetSession}
-                  title="Làm mới cuộc hội thoại"
+                  title={t('chat.reset_button_title')}
                   className="p-1.5 text-indigo-100 hover:text-white hover:bg-white/15 rounded-lg transition-colors"
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -348,7 +325,7 @@ export default function AIChatWidget() {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  title="Đóng"
+                  title={t('chat.close_button_title')}
                   className="p-1.5 text-indigo-100 hover:text-white hover:bg-white/15 rounded-lg transition-colors"
                 >
                   <X className="w-4 h-4" />
@@ -356,11 +333,11 @@ export default function AIChatWidget() {
               </div>
             </div>
 
-            {/* Zalo Banner Top Bar */}
+            {/* Zalo Banner */}
             <div className="bg-blue-50/90 border-b border-blue-100 px-3.5 py-2 flex items-center justify-between gap-2 shrink-0">
               <div className="flex items-center gap-2 text-[12px] text-blue-900 font-medium truncate">
                 <span className="w-2 h-2 rounded-full bg-[#0068FF] shrink-0"></span>
-                <span className="truncate">Cần tư vấn ngay với Kỹ thuật viên?</span>
+                <span className="truncate">{t('chat.zalo_banner')}</span>
               </div>
               <a
                 href={ZALO_LINK}
@@ -368,7 +345,7 @@ export default function AIChatWidget() {
                 rel="noopener noreferrer"
                 className="text-[11px] font-bold text-[#0068FF] hover:underline shrink-0 no-underline"
               >
-                Nhắn Zalo →
+                {t('chat.zalo_banner_cta')}
               </a>
             </div>
 
@@ -399,11 +376,10 @@ export default function AIChatWidget() {
                 </div>
               ))}
 
-              {/* Typing indicator */}
               {loading && (
                 <div className="flex flex-col items-start">
                   <div className="bg-white border border-slate-100 rounded-2xl rounded-bl-none px-4 py-3 shadow-sm flex items-center gap-1.5 text-slate-500">
-                    <span className="text-[12px] font-medium text-indigo-600 mr-1">AI đang suy nghĩ</span>
+                    <span className="text-[12px] font-medium text-indigo-600 mr-1">{t('chat.typing_indicator')}</span>
                     <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce"></span>
                     <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
                     <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
@@ -411,10 +387,9 @@ export default function AIChatWidget() {
                 </div>
               )}
 
-              {/* Quick Prompt Suggestions */}
               {messages.length <= 2 && !loading && (
                 <div className="pt-2">
-                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Gợi ý hỗ trợ nhanh:</p>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">{t('chat.suggestions_label')}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {QUICK_SUGGESTIONS.map((sug, i) => (
                       <button
@@ -422,7 +397,7 @@ export default function AIChatWidget() {
                         type="button"
                         onClick={() => handleSendMessage(sug)}
                         className={`text-[12px] rounded-full px-3 py-1 font-medium transition-colors text-left border ${
-                          sug.includes('Zalo')
+                          sug.toLowerCase().includes('zalo')
                             ? 'bg-blue-50 text-[#0068FF] border-blue-200 hover:bg-blue-100 font-bold'
                             : 'bg-indigo-50/80 text-indigo-700 border-indigo-200/60 hover:bg-indigo-100'
                         }`}
@@ -452,7 +427,7 @@ export default function AIChatWidget() {
                     value={input}
                     maxLength={MAX_CHARS}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Hỏi AI về máy phay, tiện, bảo hành..."
+                    placeholder={t('chat.input_placeholder')}
                     className="w-full pl-3.5 pr-9 py-2 rounded-xl bg-slate-100/80 border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                   />
                   <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-medium">
@@ -483,15 +458,13 @@ export default function AIChatWidget() {
             className="mb-3 relative w-[260px] origin-bottom-right rounded-2xl border border-indigo-100 shadow-[0_16px_40px_rgba(79,70,229,0.25)]"
             role="status"
           >
-            {/* Tail sits behind the card body — only the tip below the body stays visible */}
             <div className="absolute -bottom-1.5 right-7 w-3 h-3 bg-white border-r border-b border-indigo-100 rotate-45" />
 
-            {/* Card body carries the fill so it covers the tail's upper half; clips the countdown bar's corners to the card radius */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-indigo-50">
               <button
                 type="button"
                 onClick={() => setShowTooltip(false)}
-                aria-label="Đóng gợi ý"
+                aria-label={t('chat.close_suggestions')}
                 className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
@@ -503,15 +476,14 @@ export default function AIChatWidget() {
                 </div>
                 <div className="pt-0.5 pr-4">
                   <p className="text-[13.5px] font-semibold text-slate-800 leading-snug m-0">
-                    Liên hệ với <span className="text-indigo-600">AI</span> để được tư vấn
+                    {t('chat.tooltip_heading')}
                   </p>
                   <p className="text-[11.5px] text-slate-400 font-medium leading-snug m-0 mt-0.5">
-                    Phản hồi tức thì, miễn phí
+                    {t('chat.tooltip_subtext')}
                   </p>
                 </div>
               </div>
 
-              {/* Countdown bar — mirrors the 10s auto-hide timer above */}
               <div className="h-1 w-full bg-indigo-100">
                 <motion.div
                   initial={{ width: '100%' }}
@@ -525,7 +497,6 @@ export default function AIChatWidget() {
         )}
       </AnimatePresence>
 
-      {/* Unified Floating Trigger Button — hidden on mobile while the full-screen chat is open */}
       <div className={`relative ${isOpen ? 'hidden sm:block' : ''}`}>
         <AnimatePresence>
           {showTooltip && !isOpen && (
@@ -543,20 +514,18 @@ export default function AIChatWidget() {
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          aria-label="Mở Trợ lý AI & Hỗ trợ Zalo"
+          aria-label={t('chat.fab_aria_label')}
           className="relative flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-indigo-700 via-indigo-600 to-purple-600 text-white rounded-full shadow-lg shadow-indigo-600/30 hover:scale-105 hover:shadow-xl hover:shadow-indigo-600/40 transition-all duration-300 group"
         >
           <Sparkles className="w-6 h-6 text-amber-300 group-hover:rotate-12 transition-transform duration-300 fill-amber-300" />
 
-          {/* Small Zalo Icon Badge on Bottom-Left of Button */}
           <div
-            title="Tích hợp Zalo"
+            title={t('chat.zalo_badge_title')}
             className="absolute -bottom-0.5 -left-0.5 w-5 h-5 rounded-full bg-[#0068FF] text-white flex items-center justify-center text-[9px] font-black border-2 border-white shadow-sm"
           >
             Z
           </div>
 
-          {/* Unread / Notification Badge */}
           {!isOpen && unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 flex h-5 px-1.5 items-center justify-center rounded-full bg-amber-400 text-[10px] font-extrabold text-slate-900 border-2 border-white shadow-sm">
               AI

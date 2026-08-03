@@ -2,25 +2,35 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { getStoredLocale, setStoredLocale, Locale } from '@/lib/locale';
+import { useRouter } from 'next/navigation';
+
+type Locale = 'vi' | 'en';
+const COOKIE_NAME = 'NEXT_LOCALE';
+
+function getLocaleCookie(): Locale {
+  if (typeof document === 'undefined') return 'vi';
+  const match = document.cookie.match(new RegExp('(^| )' + COOKIE_NAME + '=([^;]+)'));
+  const val = match?.[2];
+  return val === 'en' ? 'en' : 'vi';
+}
 
 export function LanguageToggle({ textClass }: { textClass?: string }) {
   const [locale, setLocale] = useState<Locale>('vi');
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    setLocale(getStoredLocale());
+    setLocale(getLocaleCookie());
     setMounted(true);
   }, []);
 
   if (!mounted) return <div className="w-[68px] h-[32px]"></div>;
 
   const toggleLocale = () => {
-    const newLocale = locale === 'vi' ? 'en' : 'vi';
-    setStoredLocale(newLocale);
+    const newLocale: Locale = locale === 'vi' ? 'en' : 'vi';
+    document.cookie = `${COOKIE_NAME}=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
     setLocale(newLocale);
-    // Hard refresh to apply language changes server-side
-    window.location.reload();
+    router.refresh();
   };
 
   const isVi = locale === 'vi';
@@ -38,9 +48,7 @@ export function LanguageToggle({ textClass }: { textClass?: string }) {
         className="absolute w-[28px] h-[24px] bg-[#5e8dd1] rounded-full shadow-sm"
         layout
         initial={false}
-        animate={{
-          left: isVi ? '4px' : '34px'
-        }}
+        animate={{ left: isVi ? '4px' : '34px' }}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       />
       <div className="relative z-10 flex w-full justify-between px-[7px] text-[11px] font-bold tracking-wider">

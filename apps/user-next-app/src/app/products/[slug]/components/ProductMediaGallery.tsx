@@ -5,6 +5,7 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import useEmblaCarousel from 'embla-carousel-react';
 import type { Product } from 'shared-api';
+import { useTranslations } from 'next-intl';
 
 const LightboxModal = dynamic(() => import('./LightboxModal'), { ssr: false });
 
@@ -25,6 +26,7 @@ interface ProductMediaGalleryProps {
 }
 
 export default function ProductMediaGallery({ images, thumbnail, name, videoUrls }: ProductMediaGalleryProps) {
+  const t = useTranslations();
   const sorted = (images && images.length > 0)
     ? [...images].sort((a, b) => {
       if (a.isMain && !b.isMain) return -1;
@@ -173,7 +175,7 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
               type="button"
               onClick={scrollPrev}
               disabled={activeIndex === 0}
-              aria-label="Ảnh/video trước"
+              aria-label={t('products.gallery_prev')}
               className="flex absolute left-2 md:left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 md:w-10 md:h-10 items-center justify-center rounded-full bg-white/90 shadow-md text-gray-800 disabled:opacity-0 disabled:pointer-events-none transition-all duration-200 hover:bg-white hover:text-[#5e8dd1] cursor-pointer"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -184,7 +186,7 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
               type="button"
               onClick={scrollNext}
               disabled={activeIndex === mediaItems.length - 1}
-              aria-label="Ảnh/video tiếp theo"
+              aria-label={t('products.gallery_next')}
               className="flex absolute right-2 md:right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 md:w-10 md:h-10 items-center justify-center rounded-full bg-white/90 shadow-md text-gray-800 disabled:opacity-0 disabled:pointer-events-none transition-all duration-200 hover:bg-white hover:text-[#5e8dd1] cursor-pointer"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -243,6 +245,7 @@ export default function ProductMediaGallery({ images, thumbnail, name, videoUrls
           close={() => setLightboxOpen(false)}
           slides={slides}
           index={lightboxIndex}
+          videoTitle={t('products.video_product_title')}
           onView={(newIndex) => {
             setLightboxIndex(newIndex);
             goTo(newIndex);

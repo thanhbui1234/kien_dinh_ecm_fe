@@ -9,10 +9,10 @@ import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { AIGenerator } from '@/components/common/AIGenerator';
 import { generateProductContent } from '@/utils/ai';
-import { useCreateProduct, useUpdateProduct, useProductDetail } from '@/queries/products';
+import { useCreateProduct, useUpdateProduct, useProductDetail, useSaveProductTranslation } from '@/queries/products';
 import { useCategories } from '@/queries/categories';
 import { resolveImageValue } from '@/queries/upload/useUpload';
-import { CreateProductSchema, CreateProductImageSchema, CreateProductInput, API_ENDPOINTS, productKeys } from 'shared-api';
+import { CreateProductSchema, CreateProductImageSchema, CreateProductInput, productKeys } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 import { useObjectUrlCache } from '@/hooks/useObjectUrlCache';
 import { ImageLightbox } from '@/components/common/ImageLightbox';
@@ -26,7 +26,6 @@ import { ProductVideoSection } from '@/components/products/ProductVideoSection';
 import { ProductGallerySection } from '@/components/products/ProductGallerySection';
 import { LanguageTabs } from '@/components/common/LanguageTabs';
 import { ProductEnglishTranslationSection } from '@/components/products/ProductEnglishTranslationSection';
-import { axiosInstance } from '@/lib/axios';
 
 import { TranslationWarningBanner } from '@/components/common/TranslationWarningBanner';
 
@@ -83,7 +82,7 @@ export default function ProductForm() {
     specList: [{ key: '', value: '' }],
     featureList: [{ key: '', value: '' }],
   });
-  const [isSavingEn, setIsSavingEn] = useState(false);
+  const saveEnTranslation = useSaveProductTranslation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(ProductFormSchema as any),
@@ -201,41 +200,6 @@ export default function ProductForm() {
     }
   }, [isEdit, productData, reset]);
 
-  const handleSaveEnTranslation = async () => {
-    if (!id || !enTranslation.name.trim()) {
-      toast.error(null, 'Vui lòng nhập tên sản phẩm tiếng Anh');
-      return;
-    }
-
-    const specsObj = enTranslation.specList.reduce((acc: any, item) => {
-      if (item.key && item.key.trim()) acc[item.key.trim()] = item.value;
-      return acc;
-    }, {});
-
-    const featuresObj = enTranslation.featureList.reduce((acc: any, item) => {
-      if (item.key && item.key.trim()) acc[item.key.trim()] = item.value;
-      return acc;
-    }, {});
-
-    try {
-      setIsSavingEn(true);
-      await axiosInstance.post(API_ENDPOINTS.PRODUCTS.TRANSLATION(id), {
-        lang: 'EN',
-        name: enTranslation.name.trim(),
-        slug: enTranslation.slug.trim() || undefined,
-        contentDetail: enTranslation.contentDetail || undefined,
-        specifications: Object.keys(specsObj).length > 0 ? specsObj : undefined,
-        features: Object.keys(featuresObj).length > 0 ? featuresObj : undefined,
-      });
-      // Invalidate React Query cache để ProductForm và ProductView fetch lại data mới
-      await queryClient.invalidateQueries({ queryKey: productKeys.detail(id) });
-      toast.success('Lưu bản dịch Tiếng Anh sản phẩm thành công!');
-    } catch {
-      toast.error(null, 'Lưu bản dịch Tiếng Anh thất bại');
-    } finally {
-      setIsSavingEn(false);
-    }
-  };
 
   const onSubmit = async (validatedData: any) => {
     const data: CreateProductInput = { ...validatedData };
@@ -327,18 +291,15 @@ export default function ProductForm() {
               return acc;
             }, {});
 
-            try {
-              await axiosInstance.post(API_ENDPOINTS.PRODUCTS.TRANSLATION(newId), {
-                lang: 'EN',
-                name: enTranslation.name.trim(),
-                slug: enTranslation.slug.trim() || undefined,
-                contentDetail: enTranslation.contentDetail || undefined,
-                specifications: Object.keys(specsObj).length > 0 ? specsObj : undefined,
-                features: Object.keys(featuresObj).length > 0 ? featuresObj : undefined,
-              });
-            } catch (err) {
-              console.error('Failed to save EN product translation on create', err);
-            }
+            saveEnTranslation.mutate({
+              productId: newId,
+              lang: 'EN',
+              name: enTranslation.name.trim(),
+              slug: enTranslation.slug.trim() || undefined,
+              contentDetail: enTranslation.contentDetail || undefined,
+              specifications: Object.keys(specsObj).length > 0 ? specsObj : undefined,
+              features: Object.keys(featuresObj).length > 0 ? featuresObj : undefined,
+            });
           }
 
           toast.success('Tạo sản phẩm thành công!');
@@ -443,48 +404,28 @@ export default function ProductForm() {
       )}
 
       {/* English Translation View */}
-      {activeTab === 'EN' ? (
-        <ProductEnglishTranslationSection
-          isEdit={isEdit}
-          productId={id}
-          enTranslation={enTranslation}
-          setEnTranslation={setEnTranslation}
-          viSpecsCount={specListValue ? specListValue.filter(s => s.key?.trim() || s.value?.trim()).length : 0}
-          viFeaturesCount={featureListValue ? featureListValue.filter(f => f.key?.trim() || f.value?.trim()).length : 0}
-          viName={watch('name')}
-          viContentDetail={watch('contentDetail')}
-          viSpecList={specListValue}
-          viFeatureList={featureListValue}
-          hasExistingEnTranslation={hasEnTranslation}
-          onSyncFromVi={() => {
-            const syncedSpecs = specListValue.map((item) => ({
-              key: item.key || '',
-              value: item.value || '',
-            }));
-            setEnTranslation((prev) => ({
-              ...prev,
-              specList: syncedSpecs,
-            }));
-            toast.success('Đã tải cấu trúc thông số từ bản Tiếng Việt!');
-          }}
-          onSyncFeaturesFromVi={() => {
-            if (!featureListValue || featureListValue.length === 0) return;
-            const syncedFeatures = featureListValue.map((item) => ({
-              key: item.key || '',
-              value: item.value || '',
-            }));
-            setEnTranslation((prev) => ({
-              ...prev,
-              featureList: syncedFeatures,
-            }));
-            toast.success('Đã tải cấu trúc tính năng nổi bật từ bản Tiếng Việt!');
-          }}
-          onSwitchToViTab={() => setActiveTab('VI')}
-        />
-      ) : (
-        /* Vietnamese (Default) Form */
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div className="grid grid-cols-3 gap-5">
+      <div className={activeTab === 'EN' ? 'block' : 'hidden'}>
+        {isFormReady && (
+          <ProductEnglishTranslationSection
+            isEdit={isEdit}
+            productId={id}
+            enTranslation={enTranslation}
+            setEnTranslation={setEnTranslation}
+            viSpecsCount={specListValue ? specListValue.filter(s => s.key?.trim() || s.value?.trim()).length : 0}
+            viFeaturesCount={featureListValue ? featureListValue.filter(f => f.key?.trim() || f.value?.trim()).length : 0}
+            viName={watch('name')}
+            viContentDetail={watch('contentDetail')}
+            viSpecList={specListValue}
+            viFeatureList={featureListValue}
+            hasExistingEnTranslation={hasEnTranslation}
+            onSwitchToViTab={() => setActiveTab('VI')}
+          />
+        )}
+      </div>
+
+      {/* Vietnamese (Default) Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className={`space-y-5 ${activeTab === 'VI' ? 'block' : 'hidden'}`}>
+        <div className="grid grid-cols-3 gap-5">
             {/* Main content */}
             <div className="col-span-2 space-y-5">
               <ProductBasicInfoSection form={form} categories={categories} />
@@ -561,7 +502,6 @@ export default function ProductForm() {
             </div>
           </div>
         </form>
-      )}
 
       <ImageLightbox
         open={lightboxOpen}

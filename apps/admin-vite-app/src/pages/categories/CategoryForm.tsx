@@ -3,14 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ChevronLeft, Loader2, Globe } from 'lucide-react';
+import { ChevronLeft, Loader2 } from 'lucide-react';
 import { FileUpload } from '@/components/upload/FileUpload';
-import { useCreateCategory, useUpdateCategory, useCategoryDetail } from '@/queries/categories';
+import { useCreateCategory, useUpdateCategory, useCategoryDetail, useSaveCategoryTranslation } from '@/queries/categories';
 import { resolveImageValue } from '@/queries/upload/useUpload';
-import { CreateCategorySchema, CreateCategoryInput, API_ENDPOINTS } from 'shared-api';
+import { CreateCategorySchema, CreateCategoryInput } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 import { toast } from '@/utils/toast';
-import { axiosInstance } from '@/lib/axios';
 import { LanguageTabs } from '@/components/common/LanguageTabs';
 import { CategoryEnglishTranslationSection } from '@/components/categories/CategoryEnglishTranslationSection';
 
@@ -42,7 +41,8 @@ export default function CategoryForm() {
 
   const [activeTab, setActiveTab] = useState<'VI' | 'EN'>('VI');
   const [enTranslation, setEnTranslation] = useState({ name: '', slug: '' });
-  const [isSavingEn, setIsSavingEn] = useState(false);
+  const [isDataSynced, setIsDataSynced] = useState(!isEdit);
+  const saveEnTranslation = useSaveCategoryTranslation();
 
   const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty, dirtyFields } } = useForm<CategoryFormValues>({
     resolver: zodResolver(CategoryFormSchema as any),
@@ -68,29 +68,10 @@ export default function CategoryForm() {
       if (enTrans) {
         setEnTranslation({ name: enTrans.name || '', slug: enTrans.slug || '' });
       }
+      setIsDataSynced(true);
     }
   }, [isEdit, categoryData, reset]);
 
-  const handleSaveEnTranslation = async () => {
-    if (!id || !enTranslation.name.trim()) {
-      toast.error(null, 'Vui lòng nhập tên danh mục tiếng Anh');
-      return;
-    }
-
-    try {
-      setIsSavingEn(true);
-      await axiosInstance.post(API_ENDPOINTS.CATEGORIES.TRANSLATION(id), {
-        lang: 'EN',
-        name: enTranslation.name.trim(),
-        slug: enTranslation.slug.trim() || undefined,
-      });
-      toast.success('Lưu bản dịch Tiếng Anh thành công!');
-    } catch {
-      toast.error(null, 'Lưu bản dịch Tiếng Anh thất bại');
-    } finally {
-      setIsSavingEn(false);
-    }
-  };
 
   const onSubmit = async (data: CategoryFormValues) => {
     let resolvedImageUrl: string;
@@ -128,17 +109,13 @@ export default function CategoryForm() {
           markSaved(); 
           const newId = res?.id || res?.data?.id;
 
-          // If English translation was filled out during creation, save it as well
           if (newId && enTranslation.name.trim()) {
-            try {
-              await axiosInstance.post(API_ENDPOINTS.CATEGORIES.TRANSLATION(newId), {
-                lang: 'EN',
-                name: enTranslation.name.trim(),
-                slug: enTranslation.slug.trim() || undefined,
-              });
-            } catch (err) {
-              console.error('Failed to save EN translation on create', err);
-            }
+            saveEnTranslation.mutate({
+              categoryId: newId,
+              lang: 'EN',
+              name: enTranslation.name.trim(),
+              slug: enTranslation.slug.trim() || undefined,
+            });
           }
 
           toast.success('Tạo danh mục thành công!');
@@ -188,17 +165,21 @@ export default function CategoryForm() {
       />
 
       {/* English Translation Form View */}
-      {activeTab === 'EN' ? (
-        <CategoryEnglishTranslationSection
-          isEdit={isEdit}
-          categoryId={id}
-          enTranslation={enTranslation}
-          setEnTranslation={setEnTranslation}
-          onSwitchToViTab={() => setActiveTab('VI')}
-        />
-      ) : (
-        /* Vietnamese (Default) Form */
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-white border border-gray-200 rounded-xl p-6 shadow-xs space-y-6">
+      <div className={activeTab === 'EN' ? 'block' : 'hidden'}>
+        {isDataSynced && (
+          <CategoryEnglishTranslationSection
+            isEdit={isEdit}
+            categoryId={id}
+            enTranslation={enTranslation}
+            setEnTranslation={setEnTranslation}
+            viName={watch('name')}
+            onSwitchToViTab={() => setActiveTab('VI')}
+          />
+        )}
+      </div>
+
+      {/* Vietnamese (Default) Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className={`bg-white border border-gray-200 rounded-xl p-6 shadow-xs space-y-6 ${activeTab === 'VI' ? 'block' : 'hidden'}`}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={labelCls}>Tên danh mục *</label>
@@ -257,7 +238,6 @@ export default function CategoryForm() {
             </button>
           </div>
         </form>
-      )}
     </div>
   );
 }

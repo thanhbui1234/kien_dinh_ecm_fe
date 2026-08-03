@@ -3,14 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ChevronLeft, Loader2, Sparkles, Globe } from 'lucide-react';
+import { ChevronLeft, Loader2, Sparkles } from 'lucide-react';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { AIGenerator } from '@/components/common/AIGenerator';
 import { generateProjectContent } from '@/utils/ai';
-import { useCreateProject, useUpdateProject, useProjectDetail } from '@/queries/projects';
+import { useCreateProject, useUpdateProject, useProjectDetail, useSaveProjectTranslation } from '@/queries/projects';
 import { resolveImageValue, resolveImageValues } from '@/queries/upload/useUpload';
-import { CreateProjectSchema, CreateProjectInput, API_ENDPOINTS } from 'shared-api';
+import { CreateProjectSchema, CreateProjectInput } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 import { ProductVideoSection } from '@/components/products/ProductVideoSection';
 import { AdminPageHeader } from '@/components/common/AdminPageHeader';
@@ -21,7 +21,6 @@ import { CategoryPickerSection } from '@/components/projects/CategoryPickerSecti
 import { GalleryImagesSection } from '@/components/projects/GalleryImagesSection';
 import { LanguageTabs } from '@/components/common/LanguageTabs';
 import { ProjectEnglishTranslationSection } from '@/components/projects/ProjectEnglishTranslationSection';
-import { axiosInstance } from '@/lib/axios';
 import { toast } from '@/utils/toast';
 
 import { TranslationWarningBanner } from '@/components/common/TranslationWarningBanner';
@@ -51,7 +50,8 @@ export default function ProjectForm() {
 
   const [activeTab, setActiveTab] = useState<'VI' | 'EN'>('VI');
   const [enTranslation, setEnTranslation] = useState({ name: '', slug: '', description: '', contentDetail: '' });
-  const [isSavingEn, setIsSavingEn] = useState(false);
+  const [isDataSynced, setIsDataSynced] = useState(!isEdit);
+  const saveEnTranslation = useSaveProjectTranslation();
 
   const handleGalleryImagesChange = (images: (string | File)[]) => {
     setGalleryImages(images);
@@ -125,31 +125,10 @@ export default function ProjectForm() {
           contentDetail: enTrans.contentDetail || '',
         });
       }
+      setIsDataSynced(true);
     }
   }, [isEdit, projectData, reset]);
 
-  const handleSaveEnTranslation = async () => {
-    if (!id || !enTranslation.name.trim()) {
-      toast.error(null, 'Vui lòng nhập tên dự án tiếng Anh');
-      return;
-    }
-
-    try {
-      setIsSavingEn(true);
-      await axiosInstance.post(API_ENDPOINTS.PROJECTS.TRANSLATION(id), {
-        lang: 'EN',
-        name: enTranslation.name.trim(),
-        slug: enTranslation.slug.trim() || undefined,
-        description: enTranslation.description || undefined,
-        contentDetail: enTranslation.contentDetail || undefined,
-      });
-      toast.success('Lưu bản dịch Tiếng Anh dự án thành công!');
-    } catch {
-      toast.error(null, 'Lưu bản dịch Tiếng Anh thất bại');
-    } finally {
-      setIsSavingEn(false);
-    }
-  };
 
   const isSaving = createMutation.isPending || updateMutation.isPending || isSubmitting || isUploadingImages;
 
@@ -200,19 +179,15 @@ export default function ProjectForm() {
           setIsGalleryDirty(false);
           const newId = res?.id || res?.data?.id;
 
-          // Save EN translation if filled out on create
           if (newId && enTranslation.name.trim()) {
-            try {
-              await axiosInstance.post(API_ENDPOINTS.PROJECTS.TRANSLATION(newId), {
-                lang: 'EN',
-                name: enTranslation.name.trim(),
-                slug: enTranslation.slug.trim() || undefined,
-                description: enTranslation.description || undefined,
-                contentDetail: enTranslation.contentDetail || undefined,
-              });
-            } catch (err) {
-              console.error('Failed to save EN project translation on create', err);
-            }
+            saveEnTranslation.mutate({
+              projectId: newId,
+              lang: 'EN',
+              name: enTranslation.name.trim(),
+              slug: enTranslation.slug.trim() || undefined,
+              description: enTranslation.description || undefined,
+              contentDetail: enTranslation.contentDetail || undefined,
+            });
           }
 
           toast.success('Tạo dự án thành công!');
@@ -287,20 +262,23 @@ export default function ProjectForm() {
       )}
 
       {/* English Translation View */}
-      {activeTab === 'EN' ? (
-        <ProjectEnglishTranslationSection
-          isEdit={isEdit}
-          projectId={id}
-          enTranslation={enTranslation}
-          setEnTranslation={setEnTranslation}
-          viName={watch('name')}
-          viDescription={watch('description')}
-          viContentDetail={watch('contentDetail' as any)}
-          onSwitchToViTab={() => setActiveTab('VI')}
-        />
-      ) : (
-        /* Vietnamese (Default) Form */
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <div className={activeTab === 'EN' ? 'block' : 'hidden'}>
+        {isDataSynced && (
+          <ProjectEnglishTranslationSection
+            isEdit={isEdit}
+            projectId={id}
+            enTranslation={enTranslation}
+            setEnTranslation={setEnTranslation}
+            viName={watch('name')}
+            viDescription={watch('description')}
+            viContentDetail={watch('contentDetail' as any)}
+            onSwitchToViTab={() => setActiveTab('VI')}
+          />
+        )}
+      </div>
+
+      {/* Vietnamese (Default) Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className={`space-y-6 ${activeTab === 'VI' ? 'block' : 'hidden'}`}>
           <div className="grid grid-cols-3 gap-5">
             {/* Main content */}
             <div className="col-span-2 space-y-5">
@@ -370,7 +348,6 @@ export default function ProjectForm() {
             </div>
           </div>
         </form>
-      )}
     </div>
   );
 }

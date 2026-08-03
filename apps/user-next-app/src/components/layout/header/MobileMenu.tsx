@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { NavItem } from '@/constants/navigation';
 import { LanguageToggle } from './LanguageToggle';
 
@@ -9,6 +10,7 @@ interface MobileMenuProps {
 }
 
 export const MobileMenu = ({ navItems, closeMenu }: MobileMenuProps) => {
+  const t = useTranslations();
   return (
     <div className="fixed top-[100px] left-0 right-0 bottom-0 bg-white z-[999] overflow-y-auto py-5">
       {navItems.map((item) => (
@@ -39,7 +41,7 @@ export const MobileMenu = ({ navItems, closeMenu }: MobileMenuProps) => {
       
       {/* Language Toggle for Mobile */}
       <div className="px-6 py-6 border-b border-[#f0f0f0] flex items-center justify-between">
-        <span className="text-[14px] font-medium text-black">Ngôn ngữ / Language</span>
+        <span className="text-[14px] font-medium text-black">{t('utility.language')}</span>
         <LanguageToggle textClass="text-black" />
       </div>
     </div>

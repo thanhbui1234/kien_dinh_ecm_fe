@@ -375,3 +375,144 @@ KẾT QUẢ TRẢ VỀ PHẢI LÀ JSON CHUẨN (KHÔNG BỌC TRONG \`\`\`json), 
   throw new Error(lastError?.message || "Không thể dịch bằng AI lúc này. Vui lòng thử lại sau.");
 };
 
+export interface AITranslateCategoryViToEnInput {
+  name?: string;
+}
+
+export interface AITranslateCategoryViToEnResult {
+  name: string;
+}
+
+export const translateCategoryViToEnglish = async (
+  apiKey: string,
+  input: AITranslateCategoryViToEnInput
+): Promise<AITranslateCategoryViToEnResult> => {
+  if (!apiKey) {
+    throw new Error('Thiếu API Key của Google Gemini. Vui lòng cấu hình VITE_GEMINI_API_KEY trong file .env.local');
+  }
+
+  const systemInstruction = `Bạn là một chuyên gia dịch thuật chuyên nghiệp.
+Nhiệm vụ của bạn là dịch thông tin danh mục từ Tiếng Việt sang Tiếng Anh.
+KẾT QUẢ TRẢ VỀ PHẢI LÀ JSON CHUẨN (KHÔNG BỌC TRONG \`\`\`json), CÓ CẤU TRÚC:
+{
+  "name": "Category Name in English"
+}`;
+
+  const userPrompt = `Hãy dịch toàn bộ dữ liệu danh mục Tiếng Việt sau đây sang Tiếng Anh:\n${JSON.stringify(input, null, 2)}`;
+
+  const envModels = ENV.GEMINI_FALLBACK_MODELS;
+  const modelsToTry = envModels 
+    ? envModels.split(',').map((m: string) => m.trim()).filter(Boolean)
+    : ['gemini-2.5-flash', 'gemini-1.5-flash-latest', 'gemini-2.0-flash'];
+
+  const temperature = ENV.GEMINI_TEMPERATURE;
+  let lastError: any = null;
+
+  for (const model of modelsToTry) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          systemInstruction: { role: 'system', parts: [{ text: systemInstruction }] },
+          generationConfig: {
+            temperature: isNaN(temperature) ? 0.3 : temperature,
+            response_mime_type: "application/json"
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error?.message || `Lỗi AI Model ${model}`);
+      }
+
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+      return cleanAndParseJSON<AITranslateCategoryViToEnResult>(text);
+    } catch (err: any) {
+      console.warn(`[AI Fallback] Thử gọi model ${model} thất bại:`, err.message);
+      lastError = err;
+      continue;
+    }
+  }
+
+  throw new Error(lastError?.message || "Không thể dịch bằng AI lúc này. Vui lòng thử lại sau.");
+};
+
+export interface AITranslateJobViToEnInput {
+  title?: string;
+  salary?: string;
+  sections?: { title: string; content: string }[];
+}
+
+export interface AITranslateJobViToEnResult {
+  title: string;
+  salary: string;
+  sections: { title: string; content: string }[];
+}
+
+export const translateJobViToEnglish = async (
+  apiKey: string,
+  input: AITranslateJobViToEnInput
+): Promise<AITranslateJobViToEnResult> => {
+  if (!apiKey) {
+    throw new Error('Thiếu API Key của Google Gemini. Vui lòng cấu hình VITE_GEMINI_API_KEY trong file .env.local');
+  }
+
+  const systemInstruction = `Bạn là một chuyên gia dịch thuật chuyên nghiệp.
+Nhiệm vụ của bạn là dịch các thông tin tuyển dụng từ Tiếng Việt sang Tiếng Anh.
+QUY TẮC NGHIÊM NGẶT:
+1. Đối với nội dung (content) của sections: GIỮ NGUYÊN 100% CÁC THẺ HTML (h2, h3, p, ul, li, strong, img, a...), giữ nguyên đường dẫn src/href, chỉ dịch thuật phần văn bản hiển thị.
+KẾT QUẢ TRẢ VỀ PHẢI LÀ JSON CHUẨN (KHÔNG BỌC TRONG \`\`\`json), CÓ CẤU TRÚC:
+{
+  "title": "Job Title in English",
+  "salary": "Salary in English",
+  "sections": [ { "title": "Section Title EN", "content": "HTML Content EN" } ]
+}`;
+
+  const userPrompt = `Hãy dịch toàn bộ dữ liệu tuyển dụng Tiếng Việt sau đây sang Tiếng Anh:\n${JSON.stringify(input, null, 2)}`;
+
+  const envModels = ENV.GEMINI_FALLBACK_MODELS;
+  const modelsToTry = envModels 
+    ? envModels.split(',').map((m: string) => m.trim()).filter(Boolean)
+    : ['gemini-2.5-flash', 'gemini-1.5-flash-latest', 'gemini-2.0-flash'];
+
+  const temperature = ENV.GEMINI_TEMPERATURE;
+  let lastError: any = null;
+
+  for (const model of modelsToTry) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          systemInstruction: { role: 'system', parts: [{ text: systemInstruction }] },
+          generationConfig: {
+            temperature: isNaN(temperature) ? 0.3 : temperature,
+            response_mime_type: "application/json"
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error?.message || `Lỗi AI Model ${model}`);
+      }
+
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+      return cleanAndParseJSON<AITranslateJobViToEnResult>(text);
+    } catch (err: any) {
+      console.warn(`[AI Fallback] Thử gọi model ${model} thất bại:`, err.message);
+      lastError = err;
+      continue;
+    }
+  }
+
+  throw new Error(lastError?.message || "Không thể dịch bằng AI lúc này. Vui lòng thử lại sau.");
+};

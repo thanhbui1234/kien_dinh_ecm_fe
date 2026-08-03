@@ -2,14 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft, Loader2, Plus, Trash2, Globe } from 'lucide-react';
+import { ChevronLeft, Loader2, Plus, Trash2 } from 'lucide-react';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
-import { useCreateJob, useUpdateJob, useJobDetail } from '@/queries/jobs';
-import { CreateJobSchema, CreateJobInput, API_ENDPOINTS } from 'shared-api';
+import { useCreateJob, useUpdateJob, useJobDetail, useSaveJobTranslation } from '@/queries/jobs';
+import { CreateJobSchema, CreateJobInput } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 import { LanguageTabs } from '@/components/common/LanguageTabs';
 import { JobEnglishTranslationSection } from '@/components/jobs/JobEnglishTranslationSection';
-import { axiosInstance } from '@/lib/axios';
 import { toast } from '@/utils/toast';
 
 import { TranslationWarningBanner } from '@/components/common/TranslationWarningBanner';
@@ -40,7 +39,8 @@ export default function JobForm() {
     salary: '',
     sections: [{ title: 'Job Description', content: '' }],
   });
-  const [isSavingEn, setIsSavingEn] = useState(false);
+  const [isDataSynced, setIsDataSynced] = useState(!isEdit);
+  const saveEnTranslation = useSaveJobTranslation();
 
   const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting, isDirty, dirtyFields } } = useForm<CreateJobInput>({
     resolver: zodResolver(CreateJobSchema as any),
@@ -57,7 +57,7 @@ export default function JobForm() {
         title: jobData.title,
         salary: jobData.salary || '',
         status: jobData.status,
-        sections: (jobData as any).sections?.length ? (jobData as any).sections : [{ title: 'Mô tả công việc', content: '' }] as any,
+        sections: (jobData as any).detail?.sections?.length ? (jobData as any).detail.sections : [{ title: 'Mô tả công việc', content: '' }] as any,
       });
 
       const enTrans = (jobData as any).translations?.find((t: any) => t.lang === 'EN');
@@ -69,31 +69,10 @@ export default function JobForm() {
           sections: enTrans.sections?.length ? enTrans.sections : [{ title: 'Job Description', content: '' }],
         });
       }
+      setIsDataSynced(true);
     }
   }, [isEdit, jobData, reset]);
 
-  const handleSaveEnTranslation = async () => {
-    if (!id || !enTranslation.title.trim()) {
-      toast.error(null, 'Vui lòng nhập tiêu đề tuyển dụng tiếng Anh');
-      return;
-    }
-
-    try {
-      setIsSavingEn(true);
-      await axiosInstance.post(API_ENDPOINTS.JOBS.TRANSLATION(id), {
-        lang: 'EN',
-        title: enTranslation.title.trim(),
-        slug: enTranslation.slug.trim() || undefined,
-        salary: enTranslation.salary || undefined,
-        sections: enTranslation.sections,
-      });
-      toast.success('Lưu bản dịch Tiếng Anh bài tuyển dụng thành công!');
-    } catch {
-      toast.error(null, 'Lưu bản dịch Tiếng Anh thất bại');
-    } finally {
-      setIsSavingEn(false);
-    }
-  };
 
   const onSubmit = (data: CreateJobInput) => {
     if (isEdit && id) {
@@ -115,19 +94,15 @@ export default function JobForm() {
           markSaved(); 
           const newId = res?.id || res?.data?.id;
 
-          // Save EN translation if populated on create
           if (newId && enTranslation.title.trim()) {
-            try {
-              await axiosInstance.post(API_ENDPOINTS.JOBS.TRANSLATION(newId), {
-                lang: 'EN',
-                title: enTranslation.title.trim(),
-                slug: enTranslation.slug.trim() || undefined,
-                salary: enTranslation.salary || undefined,
-                sections: enTranslation.sections,
-              });
-            } catch (err) {
-              console.error('Failed to save EN job translation on create', err);
-            }
+            saveEnTranslation.mutate({
+              jobId: newId,
+              lang: 'EN',
+              title: enTranslation.title.trim(),
+              slug: enTranslation.slug.trim() || undefined,
+              salary: enTranslation.salary || undefined,
+              sections: enTranslation.sections,
+            });
           }
 
           toast.success('Tạo bài tuyển dụng thành công!');
@@ -195,32 +170,24 @@ export default function JobForm() {
         hasEnTranslation={hasEnTranslation || !!enTranslation.title.trim()}
       />
 
-      {/* English Translation View */}
-      {activeTab === 'EN' ? (
-        <JobEnglishTranslationSection
-          isEdit={isEdit}
-          jobId={id}
-          enTranslation={enTranslation}
-          setEnTranslation={setEnTranslation}
-          viSectionsCount={fields ? fields.length : 0}
-          onSyncFromVi={() => {
-            const viSections = watch('sections') || [];
-            if (!viSections || viSections.length === 0) return;
-            const synced = viSections.map((sec: any) => ({
-              title: sec.title || '',
-              content: sec.content || '',
-            }));
-            setEnTranslation((prev) => ({
-              ...prev,
-              sections: synced,
-            }));
-            toast.success('Đã tải cấu trúc các mục nội dung từ bản Tiếng Việt!');
-          }}
-          onSwitchToViTab={() => setActiveTab('VI')}
-        />
-      ) : (
-        /* Vietnamese (Default) Form */
-        <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
+      {/* English Translation Form View */}
+      <div className={activeTab === 'EN' ? 'block' : 'hidden'}>
+        {isDataSynced && (
+          <JobEnglishTranslationSection
+            isEdit={isEdit}
+            jobId={id}
+            enTranslation={enTranslation}
+            setEnTranslation={setEnTranslation}
+            viTitle={watch('title')}
+            viSalary={watch('salary')}
+            viSections={watch('sections') || []}
+            onSwitchToViTab={() => setActiveTab('VI')}
+          />
+        )}
+      </div>
+
+      {/* Vietnamese (Default) Form */}
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className={`space-y-6 ${activeTab === 'VI' ? 'block' : 'hidden'}`}>
           <div className="p-5 bg-white rounded-lg border border-gray-200 shadow-sm space-y-4">
             <h2 className="text-xs font-bold text-black uppercase tracking-wider border-b border-gray-100 pb-2">Thông tin cơ bản</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -322,7 +289,6 @@ export default function JobForm() {
             </button>
           </div>
         </form>
-      )}
     </div>
   );
 }

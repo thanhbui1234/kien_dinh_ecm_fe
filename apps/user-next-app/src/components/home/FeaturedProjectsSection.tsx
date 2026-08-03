@@ -1,14 +1,13 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Project } from "shared-api";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "shared-ui";
 import { m, useInView } from "framer-motion";
-import { getStoredLocale } from "@/lib/locale";
-import { getDictionary } from "@/lib/dictionary";
+import { useTranslations } from "next-intl";
 
 const EASE_EXPO = [0.16, 1, 0.3, 1] as const;
 
@@ -29,11 +28,7 @@ const item = {
 export default function FeaturedProjectsSection({ projects = [] }: FeaturedProjectsSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
-
-  const [dict, setDict] = useState(() => getDictionary('vi'));
-  useEffect(() => {
-    setDict(getDictionary(getStoredLocale()));
-  }, []);
+  const t = useTranslations();
 
   if (projects.length === 0) return null;
 
@@ -49,7 +44,7 @@ export default function FeaturedProjectsSection({ projects = [] }: FeaturedProje
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, ease: EASE_EXPO }}
         >
-          <SectionHeading>{dict.common.featured_projects}</SectionHeading>
+          <SectionHeading>{t('common.featured_projects')}</SectionHeading>
         </m.div>
 
         {/* Bento Grid */}
@@ -59,39 +54,36 @@ export default function FeaturedProjectsSection({ projects = [] }: FeaturedProje
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
         >
-          {/* Hero card — col span 2, row span 2 */}
           {displayed[0] && (
             <m.div variants={item} className="md:col-span-2 md:row-span-2">
-              <BentoCard project={displayed[0]} hero dict={dict} />
+              <BentoCard project={displayed[0]} hero />
             </m.div>
           )}
 
-          {/* Side cards */}
           {displayed[1] && (
             <m.div variants={item}>
-              <BentoCard project={displayed[1]} dict={dict} />
+              <BentoCard project={displayed[1]} />
             </m.div>
           )}
           {displayed[2] && (
             <m.div variants={item}>
-              <BentoCard project={displayed[2]} dict={dict} />
+              <BentoCard project={displayed[2]} />
             </m.div>
           )}
 
-          {/* Bottom row */}
           {displayed[3] && (
             <m.div variants={item}>
-              <BentoCard project={displayed[3]} dict={dict} />
+              <BentoCard project={displayed[3]} />
             </m.div>
           )}
           {displayed[4] && (
             <m.div variants={item}>
-              <BentoCard project={displayed[4]} dict={dict} />
+              <BentoCard project={displayed[4]} />
             </m.div>
           )}
           {displayed[5] && (
             <m.div variants={item}>
-              <BentoCard project={displayed[5]} dict={dict} />
+              <BentoCard project={displayed[5]} />
             </m.div>
           )}
         </m.div>
@@ -107,7 +99,7 @@ export default function FeaturedProjectsSection({ projects = [] }: FeaturedProje
             href="/projects/"
             className="group inline-flex items-center gap-2.5 border border-[#111]/20 text-[#111] text-[13px] font-semibold px-7 py-3 rounded-full hover:bg-[#111] hover:text-white hover:border-[#111] active:scale-[0.98] transition-all no-underline"
           >
-            {dict.home.all_projects}
+            {t('home.all_projects')}
             <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </m.div>
@@ -151,12 +143,11 @@ const ctaVariants = {
 function BentoCard({
   project,
   hero = false,
-  dict,
 }: {
   project: Project;
   hero?: boolean;
-  dict: ReturnType<typeof getDictionary>;
 }) {
+  const t = useTranslations();
   return (
     <m.div
       className={`relative overflow-hidden rounded-lg bg-gray-100 cursor-pointer ${hero ? "h-[460px] md:h-full min-h-[460px]" : "h-[220px]"}`}
@@ -195,11 +186,10 @@ function BentoCard({
       <div className="absolute inset-x-0 bottom-0 p-5 z-[2] overflow-hidden">
         {hero && (
           <p className="text-[#5e8dd1] text-[11px] font-semibold uppercase tracking-[0.18em] mb-2">
-            {dict.home.featured_label}
+            {t('home.featured_label')}
           </p>
         )}
 
-        {/* Title always visible */}
         <m.h3
           className={`text-white font-semibold leading-snug line-clamp-2 ${hero ? "text-xl md:text-2xl" : "text-sm"}`}
           variants={titleVariants}
@@ -207,7 +197,6 @@ function BentoCard({
           {project.name}
         </m.h3>
 
-        {/* Description — hidden at rest */}
         {project.description && (
           <m.p
             className={`text-white/70 mt-2 line-clamp-3 ${hero ? "text-sm" : "text-xs"}`}
@@ -217,12 +206,11 @@ function BentoCard({
           </m.p>
         )}
 
-        {/* CTA — hidden at rest */}
         <m.div
           className="flex items-center gap-1.5 mt-3 text-[#5e8dd1] text-xs font-semibold uppercase tracking-wider"
           variants={ctaVariants}
         >
-          {dict.home.view_project} <ArrowRight className="w-3 h-3" />
+          {t('home.view_project')} <ArrowRight className="w-3 h-3" />
         </m.div>
       </div>
     </m.div>

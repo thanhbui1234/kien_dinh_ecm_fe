@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Globe, Loader2 } from 'lucide-react';
-import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/utils/toast';
-import { axiosInstance } from '@/lib/axios';
-import { API_ENDPOINTS, categoryKeys } from 'shared-api';
+import { useSaveCategoryTranslation } from '@/queries/categories';
+import { ENV } from '@/config/env';
+import { translateCategoryViToEnglish } from '@/utils/ai';
+import { TranslationSectionHeader } from '@/components/common/TranslationSectionHeader';
+import { TranslationSectionFooter } from '@/components/common/TranslationSectionFooter';
 
 export interface CategoryEnTranslationState {
   name: string;
@@ -15,6 +16,7 @@ interface CategoryEnglishTranslationSectionProps {
   categoryId?: string;
   enTranslation: CategoryEnTranslationState;
   setEnTranslation: React.Dispatch<React.SetStateAction<CategoryEnTranslationState>>;
+  viName?: string;
   onSwitchToViTab?: () => void;
 }
 
@@ -26,10 +28,11 @@ export function CategoryEnglishTranslationSection({
   categoryId,
   enTranslation,
   setEnTranslation,
+  viName = '',
   onSwitchToViTab,
 }: CategoryEnglishTranslationSectionProps) {
-  const queryClient = useQueryClient();
-  const [isSaving, setIsSaving] = useState(false);
+  const saveMutation = useSaveCategoryTranslation();
+  const [isTranslatingAi, setIsTranslatingAi] = useState(false);
   const [initialData, setInitialData] = useState<CategoryEnTranslationState | null>(null);
 
   useEffect(() => {
@@ -38,7 +41,18 @@ export function CategoryEnglishTranslationSection({
     }
   }, [enTranslation, initialData]);
 
-  const isDirty = initialData ? JSON.stringify(enTranslation) !== JSON.stringify(initialData) : false;
+  const checkIsDirty = () => {
+    if (!initialData) return false;
+    const normalize = (state: CategoryEnTranslationState) => ({
+      name: state.name.trim(),
+    });
+    return JSON.stringify(normalize(enTranslation)) !== JSON.stringify(normalize(initialData));
+  };
+
+  const isDirty = checkIsDirty();
+
+  const missingFields = [];
+  if (viName?.trim() && !enTranslation.name.trim()) missingFields.push('Tên danh mục');
 
   const handleReset = () => {
     if (initialData) {
@@ -53,30 +67,63 @@ export function CategoryEnglishTranslationSection({
       return;
     }
 
-    try {
-      setIsSaving(true);
-      await axiosInstance.post(API_ENDPOINTS.CATEGORIES.TRANSLATION(categoryId), {
-        lang: 'EN',
-        name: enTranslation.name.trim(),
-      });
-      setInitialData(enTranslation);
-      if (categoryKeys?.detail) {
-        await queryClient.invalidateQueries({ queryKey: categoryKeys.detail(categoryId) });
+    saveMutation.mutate(
+      { categoryId: categoryId!, lang: 'EN', name: enTranslation.name.trim() },
+      {
+        onSuccess: () => {
+          const newSavedState = {
+            name: enTranslation.name.trim(),
+            slug: enTranslation.slug || '',
+          };
+          setInitialData(newSavedState);
+          setEnTranslation(newSavedState);
+          toast.success('Lưu bản dịch Tiếng Anh danh mục thành công!');
+        },
+        onError: () => {
+          toast.error(null, 'Lưu bản dịch Tiếng Anh thất bại, vui lòng thử lại');
+        },
       }
-      toast.success('Lưu bản dịch Tiếng Anh danh mục thành công!');
-    } catch {
-      toast.error(null, 'Lưu bản dịch Tiếng Anh thất bại, vui lòng thử lại');
+    );
+  };
+
+  const handleAiTranslate = async () => {
+    const apiKey = ENV.GEMINI_API_KEY;
+    if (!apiKey) {
+      toast.error(null, 'Chưa cấu hình VITE_GEMINI_API_KEY trong file .env.local!');
+      return;
+    }
+    try {
+      setIsTranslatingAi(true);
+      toast.info('AI đang dịch các trường còn thiếu sang Tiếng Anh...');
+      
+      const needsName = viName?.trim() && !enTranslation.name.trim();
+
+      const res = await translateCategoryViToEnglish(apiKey, {
+        name: needsName ? viName : '',
+      });
+
+      setEnTranslation({
+        name: needsName ? (res.name || enTranslation.name) : enTranslation.name,
+        slug: enTranslation.slug,
+      });
+
+      toast.success('Dịch tự động các trường còn thiếu bằng AI thành công!');
+    } catch (err: any) {
+      toast.error(null, err.message || 'Lỗi khi dịch bằng AI, vui lòng thử lại');
     } finally {
-      setIsSaving(false);
+      setIsTranslatingAi(false);
     }
   };
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-xs space-y-6 animate-in fade-in duration-150">
-      <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
-        <Globe className="w-4 h-4 text-purple-600" />
-        <h2 className="text-sm font-bold text-gray-900">Bản dịch Tiếng Anh (English Category Translation)</h2>
-      </div>
+      <TranslationSectionHeader
+        title="Bản dịch Tiếng Anh (English Category Translation)"
+        missingFields={missingFields}
+        isTranslatingAi={isTranslatingAi}
+        onAiTranslate={handleAiTranslate}
+        disableAiButton={isTranslatingAi || missingFields.length === 0 || isDirty}
+      />
 
       <div className="space-y-4">
         <div>
@@ -91,39 +138,14 @@ export function CategoryEnglishTranslationSection({
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-        {isEdit ? (
-          <>
-            {isDirty && (
-              <button
-                type="button"
-                onClick={handleReset}
-                disabled={isSaving}
-                className="px-4 py-2 border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-lg font-semibold text-xs transition-colors cursor-pointer disabled:opacity-50"
-              >
-                Hủy thay đổi
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={isSaving || !isDirty}
-              className="flex items-center gap-2 px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold text-xs transition-colors shadow-xs cursor-pointer disabled:opacity-50"
-            >
-              {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              Lưu bản dịch Tiếng Anh
-            </button>
-          </>
-        ) : (
-          <button
-            type="button"
-            onClick={onSwitchToViTab}
-            className="flex items-center gap-2 px-5 py-2 bg-black hover:bg-gray-800 text-white rounded-lg font-semibold text-xs transition-colors shadow-xs cursor-pointer"
-          >
-            Xác nhận & Quay lại Tab Tiếng Việt để Tạo mới
-          </button>
-        )}
-      </div>
+      <TranslationSectionFooter
+        isEdit={isEdit}
+        isDirty={isDirty}
+        isSaving={saveMutation.isPending}
+        onReset={handleReset}
+        onSave={handleSave}
+        onSwitchToViTab={onSwitchToViTab}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 interface StickyContactBarProps {
   entityLabel: string;
@@ -19,6 +20,7 @@ export default function StickyContactBar({
   bottomSectionRef,
 }: StickyContactBarProps) {
   const [visible, setVisible] = useState(false);
+  const t = useTranslations('common');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,25 +59,25 @@ export default function StickyContactBar({
           <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto sm:ml-auto">
             <a
               href="tel:0374864110"
-              aria-label="Gọi ngay"
+              aria-label={t('call_now')}
               className="inline-flex items-center justify-center gap-2 shrink-0 w-11 h-11 sm:w-auto sm:h-auto border border-gray-200 text-[#111] text-[13px] font-semibold rounded-full sm:px-5 sm:py-2.5 hover:border-[#00B14F] hover:text-[#00B14F] transition-colors no-underline"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
               </svg>
-              <span className="hidden sm:inline">Gọi ngay</span>
+              <span className="hidden sm:inline">{t('call_now')}</span>
             </a>
             <a
               href="https://zalo.me/0374864110"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Chat Zalo"
+              aria-label={t('chat_zalo')}
               className="inline-flex items-center justify-center gap-2 shrink-0 w-11 h-11 sm:w-auto sm:h-auto border border-[#0068FF]/30 bg-[#0068FF]/5 text-[#0068FF] text-[13px] font-semibold rounded-full sm:px-5 sm:py-2.5 hover:bg-[#0068FF] hover:text-white transition-colors no-underline"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
               </svg>
-              <span className="hidden sm:inline">Chat Zalo</span>
+              <span className="hidden sm:inline">{t('chat_zalo')}</span>
             </a>
             <Link
               href={ctaHref}

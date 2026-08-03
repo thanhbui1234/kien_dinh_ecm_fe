@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { m } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { NavItem } from '@/constants/navigation';
 
 const EASE_EXPO = [0.16, 1, 0.3, 1] as const;
@@ -14,6 +15,7 @@ interface MegaMenuProps {
 }
 
 export const MegaMenu = ({ activeNavItem, closeMenu, onMouseEnter, onMouseLeave }: MegaMenuProps) => {
+  const t = useTranslations();
   if (!activeNavItem?.children) return null;
 
   return (
@@ -40,7 +42,7 @@ export const MegaMenu = ({ activeNavItem, closeMenu, onMouseEnter, onMouseLeave 
             onClick={closeMenu}
             className="group inline-flex items-center gap-1.5 text-[14px] font-medium text-white/70 no-underline transition-colors duration-200 hover:text-[#5e8dd1]"
           >
-            Xem tất cả
+            {t('nav.view_all')}
             <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover:translate-x-1" />
           </Link>
         </div>

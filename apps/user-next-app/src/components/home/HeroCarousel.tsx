@@ -3,12 +3,10 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-// import Fade from "embla-carousel-fade";
 import { Banner } from "shared-api";
 import { Slide, AUTO_ADVANCE_MS } from "@/constants/hero";
 import { SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
-import { getStoredLocale } from "@/lib/locale";
-import { getDictionary } from "@/lib/dictionary";
+import { useTranslations } from "next-intl";
 import { HeroSlideBg } from "./hero/HeroSlideBg";
 import { HeroSlideContent } from "./hero/HeroSlideContent";
 import { HeroControls } from "./hero/HeroControls";
@@ -19,25 +17,20 @@ export default function HeroCarousel({
   banners?: Banner[] | null;
 }) {
   const [current, setCurrent] = useState(0);
-
-  // Start with 'vi' to match SSR, then switch to stored locale after hydration
-  const [dict, setDict] = useState(() => getDictionary('vi'));
-  useEffect(() => {
-    setDict(getDictionary(getStoredLocale()));
-  }, []);
+  const t = useTranslations();
 
   const FALLBACK_LOGO_SLIDE: Slide = useMemo(
     () => ({
       type: "product",
       image: DEFAULT_OG_IMAGE,
       title: SITE_NAME,
-      description: dict.hero.fallback_description,
+      description: t('hero.fallback_description'),
       link: "/products/",
-      linkText: dict.hero.fallback_link_text,
+      linkText: t('hero.fallback_link_text'),
       darkText: true,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dict.hero.fallback_description, dict.hero.fallback_link_text]
+    [t]
   );
 
   const displaySlides: Slide[] = useMemo(() => {
@@ -48,13 +41,13 @@ export default function HeroCarousel({
         title: b.title || "",
         description: b.description || "",
         link: b.link || "#",
-        linkText: dict.hero.read_more,
+        linkText: t('hero.read_more'),
         darkText: false,
       }));
     }
 
     return [FALLBACK_LOGO_SLIDE];
-  }, [banners, FALLBACK_LOGO_SLIDE, dict.hero.read_more]);
+  }, [banners, FALLBACK_LOGO_SLIDE, t]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 40 }, [
     Autoplay({ delay: AUTO_ADVANCE_MS, stopOnInteraction: false, stopOnMouseEnter: false }),
@@ -150,11 +143,11 @@ export default function HeroCarousel({
       <button
         type="button"
         onClick={() => window.scrollTo({ top: window.innerHeight - 30, behavior: 'smooth' })}
-        aria-label={dict.hero.scroll_down}
+        aria-label={t('hero.scroll_down')}
         className="md:hidden absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 text-white/80 hover:text-white transition-colors cursor-pointer group"
       >
         <span className="text-[9px] md:text-[10px] uppercase font-bold tracking-[0.2em] opacity-80 group-hover:opacity-100 drop-shadow-sm">
-          {dict.hero.explore_more}
+          {t('hero.explore_more')}
         </span>
         <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center animate-bounce shadow-md">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
