@@ -51,7 +51,7 @@ async function FeaturedProjectsWrapper() {
   const res = await api.projects
     .getProjects(
       { isFeatured: "true", limit: "6" },
-      { next: { revalidate: 3600, tags: ['projects'] } }
+      { next: { revalidate: 300, tags: ['projects'] } }
     )
     .catch(() => null);
   return <FeaturedProjectsSection projects={res?.items ?? []} />;

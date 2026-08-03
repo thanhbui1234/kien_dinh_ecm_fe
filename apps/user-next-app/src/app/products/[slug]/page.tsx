@@ -7,7 +7,7 @@ import ProductDetailClient from './ProductDetailClient';
 import type { Metadata } from 'next';
 import { buildProductMetadata, generateProductSchema, generateBreadcrumbSchema } from '@/lib/seo';
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export async function generateStaticParams() {
   const res = await api.products.getProducts({ limit: '100' }).catch(() => null);

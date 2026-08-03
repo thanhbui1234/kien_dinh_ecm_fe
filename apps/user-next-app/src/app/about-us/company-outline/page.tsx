@@ -3,7 +3,7 @@ import { PageWrapper, PageBreadcrumb, PageTitle } from 'shared-ui';
 import { api } from '@/lib/api';
 import type { Metadata } from 'next';
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Sơ lược về công ty | Thanh Bằng',
@@ -23,8 +23,8 @@ function sanitizeHtml(html: string): string {
 
 export default async function CompanyOutlinePage() {
   const [companyInfo, settings] = await Promise.all([
-    api.about.getCompanyInfo({ next: { revalidate: 3600 } } as RequestInit),
-    api.settings.getSystemSettings({ next: { revalidate: 3600 } } as RequestInit),
+    api.about.getCompanyInfo({ next: { revalidate: 300 } } as RequestInit),
+    api.settings.getSystemSettings({ next: { revalidate: 300 } } as RequestInit),
   ]);
 
   const introHtml = settings?.find((s) => s.key === 'ABOUT_INTRO_HTML')?.value ?? '';

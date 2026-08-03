@@ -5,7 +5,7 @@ import type { Facility } from 'shared-api';
 import type { Metadata } from 'next';
 import { FacilityCard } from './FacilityCard';
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Cơ sở sản xuất | Thanh Bằng',
@@ -29,7 +29,7 @@ function groupFacilities(facilities: Facility[]) {
 }
 
 export default async function ProductionFacilitiesPage() {
-  const facilities = await api.about.getFacilities({ next: { revalidate: 3600 } } as RequestInit);
+  const facilities = await api.about.getFacilities({ next: { revalidate: 300 } } as RequestInit);
   const grouped = groupFacilities(facilities ?? []);
 
   return (

@@ -11,7 +11,7 @@ export const metadata: Metadata = buildBaseMetadata({
   path: '/tuyen-dung/',
 });
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 function StatusBadge({ active }: { active: boolean }) {
   return (
@@ -84,7 +84,7 @@ function EmptyState() {
 export default async function JobsPage() {
   const response = await api.jobs.getJobs(
     { limit: '100' },
-    { next: { revalidate: 3600 } },
+    { next: { revalidate: 300 } },
   );
 
   const items = response?.items ?? [];

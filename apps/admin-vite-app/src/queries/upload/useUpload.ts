@@ -102,10 +102,12 @@ export async function resolveImageValues(values: (string | File)[]): Promise<str
 }
 
 export const useUpload = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: uploadRaw,
     onSuccess: () => {
       toast.success("Tải ảnh lên thành công");
+      queryClient.invalidateQueries({ queryKey: ['upload-files'] });
     },
     onError: (error: any) => {
       toast.error(error);

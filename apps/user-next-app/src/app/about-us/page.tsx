@@ -46,10 +46,10 @@ function groupFacilities(facilities: Facility[]) {
 
 export default async function AboutUsPage() {
   const [profile, companyInfo, historyEvents, facilities, contactSetting, companyLocations] = await Promise.all([
-    api.about.getProfile({ next: { revalidate: 3600 } } as RequestInit),
-    api.about.getCompanyInfo({ next: { revalidate: 3600 } } as RequestInit),
-    api.about.getHistoryEvents({ next: { revalidate: 3600 } } as RequestInit),
-    api.about.getFacilities({ next: { revalidate: 3600 } } as RequestInit),
+    api.about.getProfile({ next: { revalidate: 300 } } as RequestInit),
+    api.about.getCompanyInfo({ next: { revalidate: 300 } } as RequestInit),
+    api.about.getHistoryEvents({ next: { revalidate: 300 } } as RequestInit),
+    api.about.getFacilities({ next: { revalidate: 300 } } as RequestInit),
     api.settings.getContactSetting({ next: { tags: ['contact-setting'] } } as RequestInit).catch(() => null),
     api.about.getCompanyLocations({ next: { tags: ['about-locations'] } } as RequestInit).catch(() => []),
   ]);

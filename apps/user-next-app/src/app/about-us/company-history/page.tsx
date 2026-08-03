@@ -3,7 +3,7 @@ import { PageWrapper, PageBreadcrumb, PageContent, PageTitle } from 'shared-ui';
 import { api } from '@/lib/api';
 import type { Metadata } from 'next';
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Lịch sử công ty | Thanh Bằng',
@@ -18,7 +18,7 @@ const breadcrumbs = [
 ];
 
 export default async function CompanyHistoryPage() {
-  const timelines = await api.settings.getTimelines({ next: { revalidate: 3600 } } as RequestInit);
+  const timelines = await api.settings.getTimelines({ next: { revalidate: 300 } } as RequestInit);
   const sorted = [...(timelines ?? [])].sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
 
   return (
