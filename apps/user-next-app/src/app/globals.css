@@ -259,6 +259,18 @@ h1, h2, h3, h4, h5, h6 {
   animation-fill-mode: forwards;
 }
 
+@keyframes hero-kenburns {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08); }
+}
+
+.hero-kenburns {
+  animation-name: hero-kenburns;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+  will-change: transform;
+}
+
 /* ── Project detail: editorial article prose ──────────────── */
 .project-article-body {
   overflow-x: hidden;
@@ -365,5 +377,9 @@ h1, h2, h3, h4, h5, h6 {
   .project-article-body * {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .hero-kenburns {
+    animation: none;
   }
 }

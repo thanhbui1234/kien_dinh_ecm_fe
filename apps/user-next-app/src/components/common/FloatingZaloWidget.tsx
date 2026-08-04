@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 export default function FloatingZaloWidget() {
   const t = useTranslations('zalo_widget');
   const [isOpen, setIsOpen] = useState(false);
-  const zaloLink = "https://zalo.me/0374864110";
+  const zaloLink = "https://zalo.me/0943676869";
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">

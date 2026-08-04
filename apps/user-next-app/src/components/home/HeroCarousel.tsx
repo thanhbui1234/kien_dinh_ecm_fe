@@ -110,6 +110,7 @@ export default function HeroCarousel({
                   title={s.title}
                   isFirst={i === 0}
                   darkText={!!s.darkText}
+                  active={active}
                 />
 
                 {/* Content — only rendered for active slide so stagger animation replays cleanly */}

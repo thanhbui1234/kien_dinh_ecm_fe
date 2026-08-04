@@ -39,9 +39,8 @@ export default function StickyContactBar({
 
   return (
     <div
-      className={`fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out ${
-        visible ? 'translate-y-0' : 'translate-y-full'
-      }`}
+      className={`fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out ${visible ? 'translate-y-0' : 'translate-y-full'
+        }`}
     >
       <div
         className="bg-white border-t border-gray-100 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] px-4 py-3 sm:px-6 sm:py-4"
@@ -68,7 +67,7 @@ export default function StickyContactBar({
               <span className="hidden sm:inline">{t('call_now')}</span>
             </a>
             <a
-              href="https://zalo.me/0374864110"
+              href="https://zalo.me/0943676869"
               target="_blank"
               rel="noopener noreferrer"
               aria-label={t('chat_zalo')}
