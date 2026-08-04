@@ -5,6 +5,7 @@ import { PageBreadcrumb } from 'shared-ui';
 import { api } from '@/lib/api';
 import { getCachedCategories } from '@/lib/cached-api';
 import FilterDrawer from './FilterDrawer';
+import SearchInput from './SearchInput';
 import { buildBaseMetadata, generateItemListSchema, generateBreadcrumbSchema } from '@/lib/seo';
 import { getTranslations, getLocale } from 'next-intl/server';
 
@@ -36,8 +37,8 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const queryPath = categorySlug
     ? `/products/?category=${categorySlug}`
     : search
-    ? `/products/?search=${encodeURIComponent(search)}`
-    : '/products/';
+      ? `/products/?search=${encodeURIComponent(search)}`
+      : '/products/';
 
   return buildBaseMetadata({ title, description, path: queryPath });
 }
@@ -148,12 +149,10 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     getCachedCategories(),
   ]);
 
-  const lang = locale.toUpperCase();
 
   const productsResponse = await api.products.getProducts({
     page: String(page),
     limit: '12',
-    lang,
     ...(search ? { search } : {}),
   });
 
@@ -169,12 +168,11 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
   const filteredProducts = activeCategoryId
     ? await api.products.getProducts({
-        page: String(page),
-        limit: '12',
-        categoryId: activeCategoryId,
-        lang,
-        ...(search ? { search } : {}),
-      })
+      page: String(page),
+      limit: '12',
+      categoryId: activeCategoryId,
+      ...(search ? { search } : {}),
+    })
     : productsResponse;
 
   const items = filteredProducts?.items ?? [];
@@ -183,14 +181,14 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
   const breadcrumbItems = activeCategoryName
     ? [
-        { label: t('products.breadcrumb_home'), href: '/' },
-        { label: t('products.breadcrumb_products'), href: '/products/' },
-        { label: activeCategoryName },
-      ]
+      { label: t('products.breadcrumb_home'), href: '/' },
+      { label: t('products.breadcrumb_products'), href: '/products/' },
+      { label: activeCategoryName },
+    ]
     : [
-        { label: t('products.breadcrumb_home'), href: '/' },
-        { label: t('products.breadcrumb_products') },
-      ];
+      { label: t('products.breadcrumb_home'), href: '/' },
+      { label: t('products.breadcrumb_products') },
+    ];
 
   const itemListSchema = generateItemListSchema(items.map((i) => ({ name: i.name, slug: i.slug })));
   const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
@@ -199,16 +197,16 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     ?? (search ? `${t('products.search_prefix')} "${search}"` : t('products.all_products'));
 
   return (
-    <div className="min-h-screen bg-white pt-[80px]">
+    <div className="min-h-screen bg-white pt-20">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       <PageBreadcrumb variant="light" LinkComponent={Link} items={breadcrumbItems} />
 
       <div className="border-b border-gray-100">
-        <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-6">
+        <div className="max-w-325 mx-auto px-6 md:px-10 py-6">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-            <h1 className="break-words text-[26px] sm:text-[30px] md:text-[40px] font-light text-[#111] leading-tight md:leading-none m-0">
+            <h1 className="wrap-break-word text-[26px] sm:text-[30px] md:text-[40px] font-light text-[#111] leading-tight md:leading-none m-0">
               {pageHeading}
             </h1>
             {meta && <p className="text-gray-400 text-[13px] m-0">{meta.totalItems} {t('products.count_suffix')}</p>}
@@ -216,7 +214,12 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         </div>
       </div>
 
-      <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-8">
+      <div className="max-w-325 mx-auto px-6 md:px-10 py-8">
+        {/* search row */}
+        <div className="mb-5">
+          <SearchInput categories={categories} />
+        </div>
+
         <div className="flex flex-wrap items-center justify-between gap-3 mb-8 pb-4 border-b border-gray-100">
           <p className="text-gray-500 text-[14px] m-0 shrink-0">
             {t('products.showing_prefix')} <strong className="text-[#111] font-medium">{items.length}</strong> {t('products.showing_suffix')}

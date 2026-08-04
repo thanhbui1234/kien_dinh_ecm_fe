@@ -1,10 +1,11 @@
 'use client';
-
+import { useTranslations } from 'next-intl';
 interface FeaturesSectionProps {
   features: object;
 }
 
 export default function FeaturesSection({ features }: FeaturesSectionProps) {
+  const t = useTranslations();
   const entries = Object.entries(features).filter(([, v]) => v !== null && v !== undefined && v !== '');
   if (entries.length === 0) return null;
 

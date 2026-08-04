@@ -6,6 +6,12 @@ import { settingKeys } from 'shared-api';
 import { SystemSetting, Banner, Timeline, Slogan, PageMeta, UpdateSettingInput, ContactSetting, UpdateContactSettingInput, FooterSetting, UpdateFooterSettingInput } from 'shared-api';
 import { triggerRevalidate } from '@/utils/revalidate';
 
+// ─── Translation input types ──────────────────────────────────────────────────
+export interface SloganTranslationInput { lang: 'VI' | 'EN'; title: string; description?: string }
+export interface BannerTranslationInput { lang: 'VI' | 'EN'; title?: string; description?: string }
+export interface ContactTranslationInput { lang: 'VI' | 'EN'; title: string; description: string; address?: string; workingHours?: string }
+export interface FooterTranslationInput { lang: 'VI' | 'EN'; introText: string; address?: string; customerSupportTitle?: string; customerSupportLinks?: { label: string; href: string }[] }
+
 // System Settings
 export const useSystemSettings = () => {
   const client = axiosInstance;
@@ -46,6 +52,21 @@ export const useBanners = (params?: Record<string, any>) => {
       const response = await client.get<any, { data: Banner[] }>(
         API_ENDPOINTS.SETTINGS.BANNERS,
         { params }
+      );
+      return response.data;
+    },
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useBannersEN = () => {
+  const client = axiosInstance;
+  return useQuery({
+    queryKey: settingKeys.banners('EN'),
+    queryFn: async () => {
+      const response = await client.get<any, { data: Banner[] }>(
+        API_ENDPOINTS.SETTINGS.BANNERS,
+        { params: { lang: 'EN' } }
       );
       return response.data;
     },
@@ -327,6 +348,17 @@ export const useContactSetting = () => {
   });
 };
 
+export const useContactSettingEN = () => {
+  const client = axiosInstance;
+  return useQuery({
+    queryKey: settingKeys.contact('EN'),
+    queryFn: async () => {
+      const response = await client.get<any, { data: ContactSetting }>(API_ENDPOINTS.CONTACT_SETTING.BASE, { params: { lang: 'EN' } });
+      return response.data;
+    },
+  });
+};
+
 export const useUpdateContactSetting = () => {
   const client = axiosInstance;
   const queryClient = useQueryClient();
@@ -358,6 +390,17 @@ export const useFooterSetting = () => {
   });
 };
 
+export const useFooterSettingEN = () => {
+  const client = axiosInstance;
+  return useQuery({
+    queryKey: settingKeys.footer('EN'),
+    queryFn: async () => {
+      const response = await client.get<any, { data: FooterSetting }>(API_ENDPOINTS.FOOTER_SETTING.BASE, { params: { lang: 'EN' } });
+      return response.data;
+    },
+  });
+};
+
 export const useUpdateFooterSetting = () => {
   const client = axiosInstance;
   const queryClient = useQueryClient();
@@ -377,4 +420,66 @@ export const useUpdateFooterSetting = () => {
   });
 };
 
+// ─── Translation Hooks ────────────────────────────────────────────────────────
 
+export const useSaveSloganTranslation = () => {
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: SloganTranslationInput }) => {
+      const res = await axiosInstance.post(API_ENDPOINTS.SETTINGS.SLOGAN_TRANSLATION(id), data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Lưu bản dịch Tiếng Anh thành công');
+      triggerRevalidate('slogans');
+    },
+    onError: (error: any) => { toast.error(error); },
+  });
+};
+
+export const useSaveBannerTranslation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: BannerTranslationInput }) => {
+      const res = await axiosInstance.post(API_ENDPOINTS.SETTINGS.BANNER_TRANSLATION(id), data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Lưu bản dịch Tiếng Anh thành công');
+      queryClient.invalidateQueries({ queryKey: settingKeys.banners('EN') });
+      triggerRevalidate('banners');
+    },
+    onError: (error: any) => { toast.error(error); },
+  });
+};
+
+export const useSaveContactTranslation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: ContactTranslationInput) => {
+      const res = await axiosInstance.post(API_ENDPOINTS.CONTACT_SETTING.TRANSLATION, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Lưu bản dịch Tiếng Anh liên hệ thành công');
+      queryClient.invalidateQueries({ queryKey: settingKeys.contact('EN') });
+      triggerRevalidate('contact-setting');
+    },
+    onError: (error: any) => { toast.error(error); },
+  });
+};
+
+export const useSaveFooterTranslation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: FooterTranslationInput) => {
+      const res = await axiosInstance.post(API_ENDPOINTS.FOOTER_SETTING.TRANSLATION, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Lưu bản dịch Tiếng Anh footer thành công');
+      queryClient.invalidateQueries({ queryKey: settingKeys.footer('EN') });
+      triggerRevalidate('footer-setting');
+    },
+    onError: (error: any) => { toast.error(error); },
+  });
+};

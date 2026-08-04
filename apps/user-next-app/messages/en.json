@@ -119,7 +119,13 @@
     "video_label": "Video",
     "video_product_title": "Product Video",
     "gallery_prev": "Previous image/video",
-    "gallery_next": "Next image/video"
+    "gallery_next": "Next image/video",
+    "search_placeholder": "Search products by name...",
+    "search_label": "Search",
+    "search_clear": "Clear search",
+    "search_loading": "Searching...",
+    "search_submit_hint": "Press Enter to search",
+    "search_no_results": "No products found"
   },
   "projects": {
     "all_projects": "All Projects",

@@ -7,7 +7,7 @@ export default function NotFound() {
   const t = useTranslations('not_found_page');
 
   return (
-    <div className="relative min-h-[75vh] flex flex-col items-center justify-center px-4 py-20 bg-[#fafbfd] overflow-hidden">
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-4 py-20 bg-[#fafbfd] overflow-hidden">
       {/* Blueprint Grid Background */}
       <div 
         className="absolute inset-0 pointer-events-none opacity-[0.03]"

@@ -2,6 +2,7 @@ export interface FetchClientConfig {
   baseURL: string;
   defaultHeaders?: HeadersInit;
   getAccessToken?: () => string | null | Promise<string | null>;
+  getLanguage?: () => string | null | Promise<string | null>;
 }
 
 export class FetchError extends Error {
@@ -24,7 +25,22 @@ export const createFetchClient = (config: FetchClientConfig) => {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> => {
-    const url = `${config.baseURL}${endpoint}`;
+    let finalEndpoint = endpoint;
+    if (config.getLanguage) {
+      try {
+        const lang = await config.getLanguage();
+        if (lang && lang.toUpperCase() !== 'VI') {
+          const separator = finalEndpoint.includes('?') ? '&' : '?';
+          if (!finalEndpoint.includes('lang=')) {
+            finalEndpoint = `${finalEndpoint}${separator}lang=${lang.toUpperCase()}`;
+          }
+        }
+      } catch (error) {
+        // Ignore language errors
+      }
+    }
+    
+    const url = `${config.baseURL}${finalEndpoint}`;
     
     const headers = new Headers(config.defaultHeaders);
     headers.set('Content-Type', 'application/json');

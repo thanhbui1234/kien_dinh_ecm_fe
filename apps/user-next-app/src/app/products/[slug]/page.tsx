@@ -43,17 +43,17 @@ export default async function ProductDetailPage({ params }: Props) {
   const [t, locale] = await Promise.all([getTranslations(), getLocale()]);
   const lang = locale.toUpperCase();
 
-  let product = await api.products.getProductDetail(slug, lang);
+  let product = await api.products.getProductDetail(slug);
 
   if (!product) {
-    const listResult = await api.products.getProducts({ search: slug, limit: '20', lang });
+    const listResult = await api.products.getProducts({ search: slug, limit: '20' });
     product = listResult?.items?.find((p) => p.slug === slug) ?? null;
   }
 
   if (!product) notFound();
 
   const [fullProduct, categoriesResponse, relatedResponse] = await Promise.all([
-    product.detail ? Promise.resolve(product) : api.products.getProductDetail(product.id, lang).then((d) => d ?? product),
+    product.detail ? Promise.resolve(product) : api.products.getProductDetail(product.id).then((d) => d ?? product),
     getCachedCategories(),
     api.products.getRelatedProducts(product.id),
   ]);

@@ -119,7 +119,13 @@
     "video_label": "Video",
     "video_product_title": "Video sản phẩm",
     "gallery_prev": "Ảnh/video trước",
-    "gallery_next": "Ảnh/video tiếp theo"
+    "gallery_next": "Ảnh/video tiếp theo",
+    "search_placeholder": "Tìm kiếm sản phẩm theo tên...",
+    "search_label": "Tìm kiếm",
+    "search_clear": "Xóa tìm kiếm",
+    "search_loading": "Đang tìm kiếm...",
+    "search_submit_hint": "Nhấn Enter để tìm kiếm",
+    "search_no_results": "Không tìm thấy sản phẩm"
   },
   "projects": {
     "all_projects": "Tất cả dự án",
