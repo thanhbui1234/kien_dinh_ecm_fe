@@ -158,7 +158,7 @@ export default function SearchInput({ categories }: Props) {
           onFocus={() => { if (suggestions.length > 0) setIsOpen(true); }}
           placeholder={t('search_placeholder')}
           aria-label={t('search_label')}
-          aria-expanded={showDropdown}
+          aria-expanded={showDropdown || undefined}
           aria-autocomplete="list"
           className={cn(
             'w-full h-11 pl-11 pr-20 rounded-xl border bg-white text-[14px] text-[#111]',
