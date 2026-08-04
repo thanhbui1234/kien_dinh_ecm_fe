@@ -3,7 +3,7 @@ import { toast } from '@/utils/toast';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from 'shared-api';
 import { settingKeys } from 'shared-api';
-import { SystemSetting, Banner, Timeline, Slogan, PageMeta, UpdateSettingInput, ContactSetting, UpdateContactSettingInput, FooterSetting, UpdateFooterSettingInput } from 'shared-api';
+import { SystemSetting, Banner, Timeline, Slogan, UpdateSettingInput, ContactSetting, UpdateContactSettingInput, FooterSetting, UpdateFooterSettingInput } from 'shared-api';
 import { triggerRevalidate } from '@/utils/revalidate';
 
 // ─── Translation input types ──────────────────────────────────────────────────

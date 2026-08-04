@@ -139,7 +139,7 @@ export default async function ContactPage({
                   </svg>
                 </div>
                 <div className="pt-1">
-                  <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">Email</p>
+                  <p className="text-[12px] font-semibold uppercase tracking-widest text-gray-400 m-0 mb-1">{t('contact.email_label')}</p>
                   <a href={`mailto:${email}`} className="text-[16px] font-medium text-[#111] hover:text-[#5e8dd1] transition-colors no-underline">
                     {email}
                   </a>

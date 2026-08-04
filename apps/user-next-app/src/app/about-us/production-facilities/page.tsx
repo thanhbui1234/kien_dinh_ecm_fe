@@ -4,20 +4,19 @@ import { api } from '@/lib/api';
 import type { Facility } from 'shared-api';
 import type { Metadata } from 'next';
 import { FacilityCard } from './FacilityCard';
+import { getTranslations } from 'next-intl/server';
+import { buildBaseMetadata } from '@/lib/seo';
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: 'Cơ sở sản xuất | Thanh Bằng',
-  description: 'Hệ thống cơ sở sản xuất và kho hàng của Thanh Bằng trên toàn quốc — đảm bảo cung ứng nhanh chóng và chất lượng.',
-  alternates: { canonical: 'https://thanhbang.com/about-us/production-facilities/' },
-};
-
-const breadcrumbs = [
-  { label: 'Trang chủ', href: '/' },
-  { label: 'Trang giới thiệu', href: '/about-us/' },
-  { label: 'Cơ sở sản xuất' },
-];
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return buildBaseMetadata({
+    title: t('about.facilities_title'),
+    description: 'Hệ thống cơ sở sản xuất và kho hàng của Thanh Bằng trên toàn quốc — đảm bảo cung ứng nhanh chóng và chất lượng.',
+    path: '/about-us/production-facilities/',
+  });
+}
 
 function groupFacilities(facilities: Facility[]) {
   const map = new Map<string, Facility[]>();
@@ -29,17 +28,24 @@ function groupFacilities(facilities: Facility[]) {
 }
 
 export default async function ProductionFacilitiesPage() {
+  const t = await getTranslations();
   const facilities = await api.about.getFacilities({ next: { revalidate: 3600 } } as RequestInit);
   const grouped = groupFacilities(facilities ?? []);
+
+  const breadcrumbs = [
+    { label: t('common.home'), href: '/' },
+    { label: t('about.parent_breadcrumb'), href: '/about-us/' },
+    { label: t('about.facilities_breadcrumb') },
+  ];
 
   return (
     <PageWrapper>
       <PageBreadcrumb items={breadcrumbs} LinkComponent={Link} />
       <PageContent>
-        <PageTitle>Cơ sở sản xuất</PageTitle>
+        <PageTitle>{t('about.facilities_title')}</PageTitle>
 
         {grouped.size === 0 && (
-          <p className="text-[14px] text-gray-400">Chưa có dữ liệu cơ sở sản xuất.</p>
+          <p className="text-[14px] text-gray-400">{t('about.facilities_empty')}</p>
         )}
 
         {Array.from(grouped.entries()).map(([country, items]) => (

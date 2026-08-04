@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import type { Project, Product, Category } from 'shared-api';
 
 const E = [0.16, 1, 0.3, 1] as const;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export default function ProjectSidebar({ project, formattedDate, relatedProducts, relatedCategories }: Props) {
+  const t = useTranslations();
   return (
     <motion.aside
       className="lg:sticky lg:top-[88px] self-start"
@@ -32,7 +34,7 @@ export default function ProjectSidebar({ project, formattedDate, relatedProducts
           transition={{ duration: 0.45, ease: E, delay: 0.18 }}
         >
           <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1.5">
-            Ngày thực hiện
+            {t('projects.date_label')}
           </p>
           <p className="text-[14px] font-medium text-[#111]">{formattedDate}</p>
         </motion.div>
@@ -51,7 +53,7 @@ export default function ProjectSidebar({ project, formattedDate, relatedProducts
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#5e8dd1]" />
             </span>
             <span className="text-[13px] font-medium text-[#5e8dd1]">
-              Dự án tiêu biểu
+              {t('projects.featured_project_badge')}
             </span>
           </motion.div>
         )}
@@ -66,7 +68,7 @@ export default function ProjectSidebar({ project, formattedDate, relatedProducts
             transition={{ duration: 0.45, ease: E, delay: 0.34 }}
           >
             <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-3">
-              Danh mục
+              {t('projects.category_label')}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {relatedCategories.map((c) => (

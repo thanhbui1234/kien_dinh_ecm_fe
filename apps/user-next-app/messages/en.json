@@ -295,6 +295,13 @@
   "not_found_page": {
     "title": "Page Not Found",
     "description": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.",
-    "back_home": "Back to Home"
+    "back_home": "Back to Home",
+    "system_error": "System Error"
+  },
+  "zalo_widget": {
+    "heading": "24/7 Support",
+    "online_status": "Online",
+    "greeting": "Hello! Need machine consultation? Message us! 🚀",
+    "cta_button": "Message Zalo Now"
   }
 }

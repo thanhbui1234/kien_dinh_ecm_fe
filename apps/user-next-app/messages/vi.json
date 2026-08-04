@@ -295,6 +295,13 @@
   "not_found_page": {
     "title": "Trang bạn tìm kiếm không tồn tại",
     "description": "Có vẻ như đường dẫn đã bị thay đổi hoặc trang này không còn tồn tại.",
-    "back_home": "Quay lại trang chủ"
+    "back_home": "Quay lại trang chủ",
+    "system_error": "Lỗi hệ thống"
+  },
+  "zalo_widget": {
+    "heading": "Hỗ trợ 24/7",
+    "online_status": "Đang trực tuyến",
+    "greeting": "Chào Bạn! Cần hỗ trợ tư vấn máy móc nhắn mình nhé! 🚀",
+    "cta_button": "Nhắn Zalo ngay"
   }
 }

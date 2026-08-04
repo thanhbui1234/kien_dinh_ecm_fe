@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 export default function FloatingZaloWidget() {
+  const t = useTranslations('zalo_widget');
   const [isOpen, setIsOpen] = useState(false);
   const zaloLink = "https://zalo.me/0374864110";
 
@@ -37,17 +39,17 @@ export default function FloatingZaloWidget() {
                 </svg>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 text-[15px] m-0">Hỗ trợ 24/7</h4>
+                <h4 className="font-semibold text-gray-900 text-[15px] m-0">{t('heading')}</h4>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                  <span className="text-[12px] text-green-600 font-medium">Đang trực tuyến</span>
+                  <span className="text-[12px] text-green-600 font-medium">{t('online_status')}</span>
                 </div>
               </div>
             </div>
 
             {/* Message Body */}
             <p className="text-[14px] text-gray-600 leading-relaxed mb-5">
-              Chào Bạn! Cần hỗ trợ tư vấn máy móc nhắn mình nhé! 🚀
+              {t('greeting')}
             </p>
 
             {/* Action Button */}
@@ -57,7 +59,7 @@ export default function FloatingZaloWidget() {
               rel="noopener noreferrer"
               className="flex items-center justify-center w-full py-3 bg-[#0068FF] text-white text-[14px] font-bold rounded-xl hover:bg-[#0052cc] transition-colors shadow-md shadow-blue-500/20 no-underline"
             >
-              Nhắn Zalo ngay
+              {t('cta_button')}
             </a>
           </motion.div>
         )}

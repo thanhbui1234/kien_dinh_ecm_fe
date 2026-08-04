@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Calendar, Clock } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { Project } from 'shared-api';
 
 const E = [0.16, 1, 0.3, 1] as const;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export default function ProjectMetaStrip({ project, formattedDate, readMins }: Props) {
+  const t = useTranslations();
   return (
     <div className="border-b border-gray-100 bg-white">
       <div className="max-w-[1300px] mx-auto px-6 md:px-10">
@@ -30,7 +32,7 @@ export default function ProjectMetaStrip({ project, formattedDate, readMins }: P
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5e8dd1] opacity-50" />
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#5e8dd1]" />
                 </span>
-                Dự án tiêu biểu
+                {t('projects.featured_project_badge')}
               </span>
             )}
             <span className="inline-flex items-center gap-1.5">
@@ -39,14 +41,14 @@ export default function ProjectMetaStrip({ project, formattedDate, readMins }: P
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Clock className="w-3 h-3 shrink-0" />
-              {readMins} phút đọc
+              {t('projects.read_mins', { mins: readMins })}
             </span>
           </div>
           <Link
             href="/contact/"
             className="inline-flex items-center bg-[#5e8dd1] text-white text-[12px] font-semibold px-4 py-2 rounded-full hover:bg-[#356098] active:scale-[0.98] transition-all no-underline shrink-0"
           >
-            Yêu cầu tư vấn
+            {t('projects.request_consult')}
           </Link>
         </motion.div>
       </div>

@@ -7,7 +7,7 @@ import { getCachedCategories } from '@/lib/cached-api';
 import FilterDrawer from './FilterDrawer';
 import SearchInput from './SearchInput';
 import { buildBaseMetadata, generateItemListSchema, generateBreadcrumbSchema } from '@/lib/seo';
-import { getTranslations, getLocale } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 
 interface SearchParams {
   category?: string;
@@ -143,9 +143,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const page = Number(params.page ?? 1);
   const search = params.search;
 
-  const [t, locale, categoriesResponse] = await Promise.all([
+  const [t, categoriesResponse] = await Promise.all([
     getTranslations(),
-    getLocale(),
     getCachedCategories(),
   ]);
 

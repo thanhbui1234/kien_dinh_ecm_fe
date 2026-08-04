@@ -45,7 +45,7 @@ export default function NotFound() {
 
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#5e8dd1]/10 text-[#5e8dd1] text-[11px] font-semibold uppercase tracking-[0.2em] mb-6">
           <span className="w-1.5 h-1.5 rounded-full bg-[#5e8dd1] animate-pulse" />
-          System Error
+          {t('system_error')}
         </div>
         
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-[#111] mb-5 m-0 tracking-tight">

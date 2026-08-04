@@ -11,6 +11,7 @@ import { NAV_HREFS, NavItem } from '@/constants/navigation';
 import { DesktopNav } from './header/DesktopNav';
 import { HamburgerButton } from './header/HamburgerButton';
 import { MegaMenu } from './header/MegaMenu';
+import { DEFAULT_OG_IMAGE } from '@/lib/seo';
 import { MobileMenu } from './header/MobileMenu';
 import type { Category } from 'shared-api';
 
@@ -151,10 +152,10 @@ export default function Header({ categories = [] }: HeaderProps) {
         className={`fixed top-0 left-0 right-0 z-[1000] transition-[background-color,box-shadow] duration-300 ease-in-out ${headerBgClass} ${headerShadowClass}`}
       >
         <div className="max-w-[1400px] mx-auto px-6 h-[80px] flex items-center justify-between">
-          <Link href="/" className="flex items-center shrink-0" aria-label="Trang chủ Thanh Bằng">
+          <Link href="/" className="flex items-center shrink-0" aria-label={t('footer.home_label')}>
             <Image
-              src="/images/logo_thanh_bang.png"
-              alt="logo_thanh_bang"
+              src={DEFAULT_OG_IMAGE}
+              alt={t('footer.company_name')}
               width={60}
               height={20}
               className="object-contain"

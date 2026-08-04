@@ -59,12 +59,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/images/logo_thanh_bang.png', type: 'image/png' },
+      { url: DEFAULT_OG_IMAGE, type: 'image/png' },
     ],
     apple: [
-      { url: '/images/logo_thanh_bang.png', type: 'image/png' },
+      { url: DEFAULT_OG_IMAGE, type: 'image/png' },
     ],
-    shortcut: '/images/logo_thanh_bang.png',
+    shortcut: DEFAULT_OG_IMAGE,
   },
 };
 
