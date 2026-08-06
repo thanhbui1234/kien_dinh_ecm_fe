@@ -51,7 +51,7 @@ export const useBanners = (params?: Record<string, any>) => {
     queryFn: async () => {
       const response = await client.get<any, { data: Banner[] }>(
         API_ENDPOINTS.SETTINGS.BANNERS,
-        { params }
+        { params: { ...params, isAll: true } }
       );
       return response.data;
     },
@@ -66,7 +66,7 @@ export const useBannersEN = () => {
     queryFn: async () => {
       const response = await client.get<any, { data: Banner[] }>(
         API_ENDPOINTS.SETTINGS.BANNERS,
-        { params: { lang: 'EN' } }
+        { params: { lang: 'EN', isAll: true } }
       );
       return response.data;
     },
