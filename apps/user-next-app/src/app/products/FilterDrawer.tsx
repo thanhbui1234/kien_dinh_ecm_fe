@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import type { Category } from 'shared-api';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   categories: Category[];
@@ -12,12 +13,12 @@ interface Props {
 const ITEMS_PER_PAGE = 10;
 
 export default function FilterDrawer({ categories, activeSlug }: Props) {
+  const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   const activeCategory = categories.find((c) => c.slug === activeSlug);
 
-  // Pagination Logic
   const totalPages = Math.ceil(categories.length / ITEMS_PER_PAGE);
   const currentCategories = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -35,24 +36,22 @@ export default function FilterDrawer({ categories, activeSlug }: Props) {
           <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         <span className="font-medium truncate">
-          Bộ lọc {activeCategory ? `(${activeCategory.name})` : ''}
+          {t('products.filter_button')} {activeCategory ? `(${activeCategory.name})` : ''}
         </span>
       </button>
 
       {/* Drawer */}
       {isOpen && (
         <div className="fixed inset-0 z-[999] flex justify-end">
-          {/* Backdrop (Dark with slight blur) */}
           <div
             className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
             onClick={() => setIsOpen(false)}
           />
 
-          {/* Drawer Panel (Glassmorphism) */}
           <div className="relative w-full max-w-[320px] h-full bg-white/80 backdrop-blur-xl flex flex-col shadow-2xl animate-in slide-in-from-right duration-300">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200/50">
-              <h2 className="text-[18px] font-semibold text-[#111] m-0">Bộ lọc danh mục</h2>
+              <h2 className="text-[18px] font-semibold text-[#111] m-0">{t('products.filter_title')}</h2>
               <button
                 onClick={() => setIsOpen(false)}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100/50 hover:bg-gray-200 text-gray-600 transition-colors"
@@ -65,7 +64,6 @@ export default function FilterDrawer({ categories, activeSlug }: Props) {
 
             {/* Filter Content */}
             <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-1">
-              {/* Special "All Products" Link - Always visible on top */}
               <Link
                 href="/products/"
                 onClick={() => setIsOpen(false)}
@@ -75,13 +73,12 @@ export default function FilterDrawer({ categories, activeSlug }: Props) {
                     : 'text-gray-700 hover:text-[#111] hover:bg-white/60'
                 }`}
               >
-                Tất cả sản phẩm
+                {t('products.filter_all')}
                 {!activeSlug && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
               </Link>
 
               <div className="my-2 border-b border-gray-200/50 mx-2" />
 
-              {/* Paginated Categories */}
               {currentCategories.map((cat) => (
                 <Link
                   key={cat.id}
@@ -113,7 +110,7 @@ export default function FilterDrawer({ categories, activeSlug }: Props) {
                 </button>
 
                 <span className="text-[13px] text-gray-600 font-medium bg-white/50 px-3 py-1 rounded-full">
-                  Trang {currentPage} / {totalPages}
+                  {t('products.pagination', { current: currentPage, total: totalPages })}
                 </span>
 
                 <button

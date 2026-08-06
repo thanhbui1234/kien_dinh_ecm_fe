@@ -8,6 +8,7 @@ import { m, useInView, useReducedMotion } from "framer-motion";
 import { SectionHeading } from "shared-ui";
 import { Button } from "shared-ui";
 import { Product } from "shared-api";
+import { useTranslations } from "next-intl";
 
 const EASE_EXPO = [0.16, 1, 0.3, 1] as const;
 
@@ -35,6 +36,7 @@ export default function ProductsSection({ products = [] }: ProductsSectionProps)
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
   const shouldReduceMotion = useReducedMotion();
+  const t = useTranslations();
 
   return (
     <section ref={sectionRef} className="bg-white py-20">
@@ -45,7 +47,7 @@ export default function ProductsSection({ products = [] }: ProductsSectionProps)
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, ease: EASE_EXPO }}
         >
-          <SectionHeading>Sản phẩm nổi bật</SectionHeading>
+          <SectionHeading>{t('common.featured_products')}</SectionHeading>
         </m.div>
 
         <m.div
@@ -61,14 +63,14 @@ export default function ProductsSection({ products = [] }: ProductsSectionProps)
           ))}
           {products.length === 0 && (
             <div className="col-span-full text-center py-10 text-zinc-500">
-              Đang cập nhật sản phẩm...
+              {t('home.featured_products_loading')}
             </div>
           )}
         </m.div>
 
         <div className="flex justify-center">
           <Button asChild className="rounded-full bg-[#111] hover:bg-[#333] px-14 py-3 text-sm font-medium h-auto">
-            <Link href="/products/">Tất cả sản phẩm</Link>
+            <Link href="/products/">{t('home.all_products')}</Link>
           </Button>
         </div>
       </div>
@@ -76,7 +78,12 @@ export default function ProductsSection({ products = [] }: ProductsSectionProps)
   );
 }
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({
+  product,
+}: {
+  product: Product;
+}) {
+  const t = useTranslations();
   return (
     <Link
       href={`/products/${product.slug}`}
@@ -94,7 +101,7 @@ function ProductCard({ product }: { product: Product }) {
           />
         ) : (
           <div className="relative flex h-full w-full items-center justify-center rounded-xl bg-zinc-100 text-sm text-zinc-400">
-            No image
+            {t('home.no_image')}
           </div>
         )}
       </div>
@@ -103,10 +110,10 @@ function ProductCard({ product }: { product: Product }) {
           {product.name}
         </span>
         <span className="text-[13px] text-zinc-500">
-          {product.price ? currencyFormatter.format(product.price) : "Liên hệ"}
+          {product.price ? currencyFormatter.format(product.price) : t('home.price_on_request')}
         </span>
         <span className="mt-2 inline-flex items-center gap-1 text-[12px] font-semibold uppercase tracking-wide text-[#111] transition-colors duration-200 ease-in-out group-hover:text-[#5e8dd1]">
-          Xem chi tiết
+          {t('home.view_product_detail')}
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover:translate-x-1" />
         </span>
       </div>

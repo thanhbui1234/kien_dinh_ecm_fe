@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Trash2, GripVertical, ImageIcon } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, ImageIcon, Globe } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -8,12 +8,15 @@ import { FileUpload } from '@/components/upload/FileUpload';
 import { resolveImageValue } from '@/queries/upload/useUpload';
 import { toast } from '@/utils/toast';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
+import { EnTranslationModal } from '@/components/common/EnTranslationModal';
 import {
   useHistoryEvents,
+  useHistoryEventsEN,
   useCreateHistoryEvent,
   useUpdateHistoryEvent,
   useDeleteHistoryEvent,
   useUpdateHistoryEventOrders,
+  useSaveHistoryEventTranslation,
 } from '@/queries/about';
 
 const inputCls =
@@ -22,11 +25,13 @@ const labelCls = 'text-[10px] font-bold text-gray-700 uppercase';
 
 const TimelineCard = ({
   event,
+  enEvent,
   onDelete,
   onUpdate,
   isDeleting,
 }: {
   event: CompanyHistoryEvent;
+  enEvent?: CompanyHistoryEvent;
   onDelete: (id: string) => void;
   onUpdate: (id: string, data: Partial<CompanyHistoryEvent>) => void;
   isDeleting: boolean;
@@ -49,6 +54,22 @@ const TimelineCard = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
+  const [enModalOpen, setEnModalOpen] = useState(false);
+  const [enPeriod, setEnPeriod] = useState(enEvent?.period ?? '');
+  const [enText, setEnText] = useState(enEvent?.text ?? '');
+  const saveTranslation = useSaveHistoryEventTranslation();
+
+  useEffect(() => {
+    setEnPeriod(enEvent?.period ?? '');
+    setEnText(enEvent?.text ?? '');
+  }, [enEvent]);
+
+  const hasEnContent = !!enEvent?.text;
+
+  const isEnDirty =
+    enPeriod !== (enEvent?.period ?? '') ||
+    enText !== (enEvent?.text ?? '');
+
   const handleSave = async () => {
     let resolvedImageUrl: string;
     try {
@@ -60,126 +81,129 @@ const TimelineCard = ({
       return;
     }
     setIsUploadingImage(false);
-
     onUpdate(event.id, { year, period, text, imageUrl: resolvedImageUrl });
     setIsEditing(false);
   };
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="group rounded-lg border border-gray-200 bg-white p-4 shadow-sm flex flex-col gap-3"
-    >
-      <div className="flex justify-between items-start">
-        <div
-          {...attributes}
-          {...listeners}
-          className="text-gray-400 hover:text-gray-700 cursor-grab active:cursor-grabbing"
-        >
-          <GripVertical className="h-5 w-5" />
-        </div>
-        <button
-          type="button"
-          onClick={() => onDelete(event.id)}
-          disabled={isDeleting}
-          className="text-red-400 hover:text-red-600 disabled:opacity-50 cursor-pointer"
-        >
-          {isDeleting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Trash2 className="h-4 w-4" />
-          )}
-        </button>
-      </div>
+  const handleSaveEN = () => {
+    if (!enText.trim()) return;
+    saveTranslation.mutate(
+      { id: event.id, data: { lang: 'EN', period: enPeriod, text: enText } },
+      { onSuccess: () => setEnModalOpen(false) },
+    );
+  };
 
-      {isEditing ? (
-        <div className="space-y-3">
-          <div>
-            <label className={labelCls}>Năm</label>
-            <input
-              type="text"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              className={inputCls}
-              placeholder="Năm..."
-            />
+  const handleEnChange = (key: string, value: string) => {
+    if (key === 'period') setEnPeriod(value);
+    else if (key === 'text') setEnText(value);
+  };
+
+  return (
+    <>
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="group rounded-lg border border-gray-200 bg-white shadow-sm flex flex-col overflow-hidden"
+      >
+        {/* Card top bar */}
+        <div className="flex justify-between items-center px-3 py-2 bg-gray-50 border-b border-gray-100">
+          <div
+            {...attributes}
+            {...listeners}
+            className="text-gray-400 hover:text-gray-700 cursor-grab active:cursor-grabbing"
+          >
+            <GripVertical className="h-5 w-5" />
           </div>
-          <div>
-            <label className={labelCls}>Giai đoạn (period)</label>
-            <input
-              type="text"
-              value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              className={inputCls}
-              placeholder="VD: 1919 - 1950"
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Nội dung</label>
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              className={`${inputCls} h-auto py-2`}
-              rows={3}
-              placeholder="Mô tả sự kiện..."
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Ảnh cột mốc</label>
-            <FileUpload
-              label="Tải ảnh lên"
-              value={imageUrl}
-              onChange={(url) => setImageUrl(url)}
-              bgOption="none"
-            />
-          </div>
-          <div className="flex gap-2 justify-end">
+          <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => setIsEditing(false)}
-              className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-black transition-colors cursor-pointer"
+              onClick={() => setEnModalOpen(true)}
+              className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-colors cursor-pointer bg-gray-100 text-gray-500 hover:bg-purple-100 hover:text-purple-700"
             >
-              Hủy
+              <Globe className="h-3 w-3" />
+              EN
+              <span
+                className={`w-1.5 h-1.5 rounded-full inline-block ${hasEnContent ? 'bg-emerald-500' : 'bg-amber-400'}`}
+                title={hasEnContent ? 'Đã có bản dịch EN' : 'Chưa có bản dịch EN'}
+              />
             </button>
             <button
               type="button"
-              onClick={handleSave}
-              disabled={isUploadingImage}
-              className="px-3 py-1.5 text-xs font-bold text-white bg-black rounded hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-50"
+              onClick={() => onDelete(event.id)}
+              disabled={isDeleting}
+              className="text-red-400 hover:text-red-600 disabled:opacity-50 cursor-pointer p-1"
             >
-              {isUploadingImage ? 'Đang tải ảnh lên...' : 'Lưu lại'}
+              {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
           </div>
         </div>
-      ) : (
-        <div
-          className="cursor-pointer"
-          onClick={() => setIsEditing(true)}
-          title="Bấm để chỉnh sửa"
-        >
-          {event.imageUrl ? (
-            <img
-              src={event.imageUrl}
-              alt={year}
-              className="w-full h-24 object-cover rounded mb-2"
-            />
+
+        {/* VI content */}
+        <div className="p-4">
+          {isEditing ? (
+            <div className="space-y-3">
+              <div>
+                <label className={labelCls}>Năm</label>
+                <input type="text" value={year} onChange={(e) => setYear(e.target.value)} className={inputCls} placeholder="Năm..." />
+              </div>
+              <div>
+                <label className={labelCls}>Giai đoạn (period)</label>
+                <input type="text" value={period} onChange={(e) => setPeriod(e.target.value)} className={inputCls} placeholder="VD: 1919 - 1950" />
+              </div>
+              <div>
+                <label className={labelCls}>Nội dung</label>
+                <textarea value={text} onChange={(e) => setText(e.target.value)} className={`${inputCls} h-auto py-2`} rows={3} placeholder="Mô tả sự kiện..." />
+              </div>
+              <div>
+                <label className={labelCls}>Ảnh cột mốc</label>
+                <FileUpload label="Tải ảnh lên" value={imageUrl} onChange={(url) => setImageUrl(url)} bgOption="none" />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button type="button" onClick={() => setIsEditing(false)} className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-black transition-colors cursor-pointer">
+                  Hủy
+                </button>
+                <button type="button" onClick={handleSave} disabled={isUploadingImage} className="px-3 py-1.5 text-xs font-bold text-white bg-black rounded hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-50">
+                  {isUploadingImage ? 'Đang tải ảnh lên...' : 'Lưu lại'}
+                </button>
+              </div>
+            </div>
           ) : (
-            <div className="w-full h-24 bg-gray-100 rounded flex items-center justify-center mb-2">
-              <ImageIcon className="h-5 w-5 text-gray-300" />
+            <div className="cursor-pointer" onClick={() => setIsEditing(true)} title="Bấm để chỉnh sửa">
+              {event.imageUrl ? (
+                <img src={event.imageUrl} alt={year} className="w-full h-24 object-cover rounded mb-2" />
+              ) : (
+                <div className="w-full h-24 bg-gray-100 rounded flex items-center justify-center mb-2">
+                  <ImageIcon className="h-5 w-5 text-gray-300" />
+                </div>
+              )}
+              <p className="text-blue-600 font-bold text-sm">{year || 'Chưa có năm'}</p>
+              {period && <p className="text-xs text-gray-400 mt-0.5">{period}</p>}
+              <p className="text-xs text-gray-500 mt-1 line-clamp-3">{text || 'Chưa có nội dung'}</p>
             </div>
           )}
-          <p className="text-blue-600 font-bold text-sm">{year || 'Chưa có năm'}</p>
-          {period && <p className="text-xs text-gray-400 mt-0.5">{period}</p>}
-          <p className="text-xs text-gray-500 mt-1 line-clamp-3">{text || 'Chưa có nội dung'}</p>
         </div>
-      )}
-    </div>
+      </div>
+
+      <EnTranslationModal
+        isOpen={enModalOpen}
+        onOpenChange={setEnModalOpen}
+        title={`${event.year || 'Cột mốc'} — ${event.period || ''}`}
+        fields={[
+          { key: 'period', label: 'Giai đoạn (Period)', viValue: event.period || '', enValue: enPeriod },
+          { key: 'text', label: 'Nội dung', viValue: event.text || '', enValue: enText, multiline: true, required: true },
+        ]}
+        onChange={handleEnChange}
+        onSave={handleSaveEN}
+        isSaving={saveTranslation.isPending}
+        isDirty={isEnDirty}
+      />
+    </>
   );
 };
 
 export function TimelineSection() {
   const { data, isLoading } = useHistoryEvents();
+  const { data: eventsEN } = useHistoryEventsEN();
   const createMutation = useCreateHistoryEvent();
   const updateMutation = useUpdateHistoryEvent();
   const deleteMutation = useDeleteHistoryEvent();
@@ -244,7 +268,6 @@ export function TimelineSection() {
       });
     }
   };
-
 
   const handleConfirmDelete = () => {
     if (deleteId) deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
@@ -322,6 +345,7 @@ export function TimelineSection() {
                 <TimelineCard
                   key={event.id}
                   event={event}
+                  enEvent={eventsEN?.find((e) => e.id === event.id)}
                   onDelete={setDeleteId}
                   onUpdate={(id, data) => updateMutation.mutate({ id, data })}
                   isDeleting={deleteMutation.isPending}

@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import { Store } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
-export default function ShowroomCTA() {
+export default async function ShowroomCTA() {
+  const t = await getTranslations();
+
   return (
     <>
       <style>{`
@@ -32,9 +35,7 @@ export default function ShowroomCTA() {
           transition: 'opacity 0.2s ease',
         }}
       >
-        {/* Showroom icon */}
         <Store size={64} strokeWidth={1.5} color="#fff" aria-hidden="true" />
-
         <p
           style={{
             fontSize: '20px',
@@ -44,7 +45,7 @@ export default function ShowroomCTA() {
             textAlign: 'center',
           }}
         >
-          Ghé thăm showroom của chúng tôi
+          {t('home.showroom_cta')}
         </p>
       </Link>
     </section>

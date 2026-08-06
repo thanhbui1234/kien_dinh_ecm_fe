@@ -1,6 +1,7 @@
 'use client';
 
 import StickyContactBar from '@/components/ui/StickyContactBar';
+import { useTranslations } from 'next-intl';
 
 interface StickyProjectBarProps {
   projectName: string;
@@ -8,11 +9,12 @@ interface StickyProjectBarProps {
 }
 
 export default function StickyProjectBar({ projectName, ctaRef }: StickyProjectBarProps) {
+  const t = useTranslations();
   return (
     <StickyContactBar
-      entityLabel="Dự án"
+      entityLabel={t('projects.breadcrumb_projects')}
       entityName={projectName}
-      ctaLabel="Liên hệ tư vấn"
+      ctaLabel={t('common.contact_consult')}
       ctaHref="/contact/"
       bottomSectionRef={ctaRef}
     />

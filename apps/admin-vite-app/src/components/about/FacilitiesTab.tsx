@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Loader2, Plus, MapPin, Factory } from 'lucide-react';
-import { useFacilities, useUpdateFacility, useDeleteFacility } from '@/queries/about';
+import { useFacilities, useFacilitiesEN, useUpdateFacility, useDeleteFacility } from '@/queries/about';
 import { FacilityCard } from './FacilityCard';
 import { AddFacilityForm } from './AddFacilityForm';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
@@ -9,6 +9,7 @@ import type { Facility } from '@/types/about';
 
 export function FacilitiesTab() {
   const { data: facilities, isLoading } = useFacilities();
+  const { data: facilitiesEN } = useFacilitiesEN();
   const updateMutation = useUpdateFacility();
   const deleteMutation = useDeleteFacility();
   const [showAddForm, setShowAddForm] = useState(false);
@@ -84,6 +85,7 @@ export function FacilitiesTab() {
                   <FacilityCard
                     key={facility.id}
                     facility={facility}
+                    enFacility={facilitiesEN?.find((e) => e.id === facility.id)}
                     onUpdate={(id, data) => updateMutation.mutate({ id, data })}
                     onDelete={setDeleteId}
                     isDeleting={deleteMutation.isPending}

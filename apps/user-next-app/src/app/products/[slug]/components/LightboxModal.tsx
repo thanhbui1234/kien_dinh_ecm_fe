@@ -14,9 +14,10 @@ interface LightboxModalProps {
   slides: any[];
   index: number;
   onView: (index: number) => void;
+  videoTitle?: string;
 }
 
-export default function LightboxModal({ open, close, slides, index, onView }: LightboxModalProps) {
+export default function LightboxModal({ open, close, slides, index, onView, videoTitle }: LightboxModalProps) {
   return (
     <Lightbox
       open={open}
@@ -53,7 +54,7 @@ export default function LightboxModal({ open, close, slides, index, onView }: Li
               <div className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden shadow-2xl bg-black">
                 <iframe
                   src={`https://www.youtube.com/embed/${slide.youtubeId}?autoplay=0&controls=1&rel=0&enablejsapi=1`}
-                  title="Video sản phẩm"
+                  title={videoTitle || 'Video'}
                   className="w-full h-full border-0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen

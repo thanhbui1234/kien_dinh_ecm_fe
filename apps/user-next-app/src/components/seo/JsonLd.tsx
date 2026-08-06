@@ -1,4 +1,4 @@
-import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 export default function JsonLd() {
   const schema = {
@@ -8,8 +8,8 @@ export default function JsonLd() {
     name: "Công Ty Cổ Phần Thanh Bằng",
     alternateName: SITE_NAME,
     url: SITE_URL,
-    logo: `${SITE_URL}/images/logo_thanh_bang.png`,
-    image: `${SITE_URL}/images/logo_thanh_bang.png`,
+    logo: `${SITE_URL}${DEFAULT_OG_IMAGE}`,
+    image: `${SITE_URL}${DEFAULT_OG_IMAGE}`,
     telephone: "+84943676869",
     priceRange: "$$",
     address: {
@@ -34,7 +34,7 @@ export default function JsonLd() {
       closes: "23:59",
     },
     sameAs: [
-      "https://thanhbang.com",
+      SITE_URL,
     ],
     description:
       "Công Ty Cổ Phần Thanh Bằng chuyên sản xuất máy móc, máy công cụ CNC, phụ tùng và dụng cụ cắt gọt chính hãng tại Việt Nam.",

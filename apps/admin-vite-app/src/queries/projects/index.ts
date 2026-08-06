@@ -6,6 +6,8 @@ import { projectKeys } from 'shared-api';
 import { Project, CreateProjectInput, UpdateProjectInput, PageMeta } from 'shared-api';
 import { triggerRevalidate } from '@/utils/revalidate';
 
+export { useSaveProjectTranslation } from './useSaveProjectTranslation';
+
 export const useProjects = (params?: Record<string, any>) => {
   const client = axiosInstance;
   return useQuery({

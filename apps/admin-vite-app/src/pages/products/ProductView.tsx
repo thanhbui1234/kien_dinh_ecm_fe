@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { Edit, Loader2, DollarSign, Eye, Package, ZoomIn } from 'lucide-react';
+import { Edit, Loader2, DollarSign, Eye, Package, ZoomIn, Globe, AlertTriangle } from 'lucide-react';
 import { AdminPageHeader } from '@/components/common/AdminPageHeader';
 import { ImageLightbox } from '@/components/common/ImageLightbox';
 import { useProductDetail } from '@/queries/products';
@@ -18,6 +18,17 @@ export default function ProductView() {
   const { data: product, isLoading } = useProductDetail(id || '');
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [previewLang, setPreviewLang] = useState<'VI' | 'EN'>('VI');
+
+  const enTranslation = (product as any)?.translations?.find((t: any) => t.lang === 'EN');
+  const hasEnTranslation = !!enTranslation;
+
+  // Active display values based on preview language
+  const displayName = previewLang === 'EN' && enTranslation?.name ? enTranslation.name : product?.name || '';
+  const displaySlug = previewLang === 'EN' && enTranslation?.slug ? enTranslation.slug : product?.slug || '';
+  const displayContent = previewLang === 'EN' && enTranslation?.contentDetail ? enTranslation.contentDetail : product?.detail?.contentDetail || '';
+  const displaySpecs = previewLang === 'EN' && enTranslation?.specifications ? enTranslation.specifications : product?.detail?.specifications || {};
+  const displayFeatures = previewLang === 'EN' && enTranslation?.features ? enTranslation.features : product?.detail?.features || {};
 
   const galleryImages: string[] = [];
   if (product?.thumbnailUrl) galleryImages.push(product.thumbnailUrl);
@@ -61,19 +72,52 @@ export default function ProductView() {
   return (
     <div className="space-y-6 max-w-6xl">
       <AdminPageHeader
-        title={product.name}
-        subtitle={`/${product.slug}`}
+        title={displayName}
+        subtitle={`/${displaySlug}`}
         onBack={() => navigate('/products')}
-        clientUrl={`/products/${product.slug}`}
+        clientUrl={`/products/${displaySlug}`}
         actions={
-          <Link
-            to={`/products/${id}/edit`}
-            className="flex items-center gap-1.5 h-9 px-4 rounded-md bg-black text-white text-xs font-bold shadow-sm hover:bg-gray-800 transition-colors no-underline"
-          >
-            <Edit className="h-3.5 w-3.5" /> Chỉnh sửa
-          </Link>
+          <div className="flex items-center gap-3">
+            {/* View language preview switcher */}
+            <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg border border-gray-200">
+              <button
+                type="button"
+                onClick={() => setPreviewLang('VI')}
+                className={`px-2.5 py-1 rounded text-xs font-bold transition-all cursor-pointer ${
+                  previewLang === 'VI' ? 'bg-white text-black shadow-xs' : 'text-gray-500 hover:text-black'
+                }`}
+              >
+                🇻🇳 Tiếng Việt
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewLang('EN')}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold transition-all cursor-pointer ${
+                  previewLang === 'EN' ? 'bg-white text-purple-700 shadow-xs' : 'text-gray-500 hover:text-black'
+                }`}
+              >
+                <Globe className="w-3 h-3 text-purple-600" />
+                🇬🇧 English
+              </button>
+            </div>
+
+            <Link
+              to={`/products/${id}/edit`}
+              className="flex items-center gap-1.5 h-9 px-4 rounded-md bg-black text-white text-xs font-bold shadow-sm hover:bg-gray-800 transition-colors no-underline"
+            >
+              <Edit className="h-3.5 w-3.5" /> Chỉnh sửa
+            </Link>
+          </div>
         }
       />
+
+      {/* Warning banner if EN selected but missing */}
+      {previewLang === 'EN' && !hasEnTranslation && (
+        <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs font-medium text-amber-800">
+          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+          <span>Sản phẩm này chưa được tạo bản dịch Tiếng Anh. Đang hiển thị bản dịch Tiếng Việt mặc định.</span>
+        </div>
+      )}
 
       {/* Balanced 2-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
@@ -96,7 +140,7 @@ export default function ProductView() {
               {product.thumbnailUrl ? (
                 <img
                   src={product.thumbnailUrl}
-                  alt={product.name}
+                  alt={displayName}
                   className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
                 />
               ) : (
@@ -181,21 +225,21 @@ export default function ProductView() {
           {/* Basic Info */}
           <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm space-y-4">
             <h2 className="text-xs font-bold text-black uppercase tracking-wider border-b border-gray-100 pb-2.5">
-              THÔNG TIN SẢN PHẨM
+              THÔNG TIN SẢN PHẨM ({previewLang === 'EN' ? 'ENGLISH PREVIEW' : 'TIẾNG VIỆT'})
             </h2>
             <div className="space-y-3">
               <div>
                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-0.5">
                   Tên sản phẩm
                 </label>
-                <p className="text-base text-black font-bold leading-snug">{product.name}</p>
+                <p className="text-base text-black font-bold leading-snug">{displayName}</p>
               </div>
               <div>
                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
                   Đường dẫn slug
                 </label>
                 <code className="text-xs font-semibold text-gray-700 bg-gray-100 border border-gray-200 px-2 py-1 rounded inline-block">
-                  /{product.slug}
+                  /{displaySlug}
                 </code>
               </div>
             </div>
@@ -238,13 +282,13 @@ export default function ProductView() {
           </div>
 
           {/* Specifications */}
-          {product.detail?.specifications && Object.keys(product.detail.specifications).length > 0 && (
+          {displaySpecs && Object.keys(displaySpecs).length > 0 && (
             <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm space-y-3">
               <h2 className="text-xs font-bold text-black uppercase tracking-wider border-b border-gray-100 pb-2.5">
                 THÔNG SỐ KỸ THUẬT
               </h2>
               <div className="space-y-0 text-xs rounded-lg border border-gray-100 overflow-hidden">
-                {Object.entries(product.detail.specifications).map(([key, val], idx) => (
+                {Object.entries(displaySpecs).map(([key, val], idx) => (
                   <div key={idx} className="flex border-b border-gray-100 last:border-0">
                     <div className="w-2/5 py-2.5 font-bold text-gray-600 bg-gray-50/80 px-3 border-r border-gray-100">
                       {key}
@@ -257,13 +301,13 @@ export default function ProductView() {
           )}
 
           {/* Features */}
-          {product.detail?.features && Object.keys(product.detail.features).length > 0 && (
+          {displayFeatures && Object.keys(displayFeatures).length > 0 && (
             <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm space-y-3">
               <h2 className="text-xs font-bold text-black uppercase tracking-wider border-b border-gray-100 pb-2.5">
                 TÍNH NĂNG NỔI BẬT
               </h2>
               <div className="space-y-0 text-xs rounded-lg border border-gray-100 overflow-hidden">
-                {Object.entries(product.detail.features).map(([key, val], idx) => (
+                {Object.entries(displayFeatures).map(([key, val], idx) => (
                   <div key={idx} className="flex border-b border-gray-100 last:border-0">
                     <div className="w-2/5 py-2.5 font-bold text-gray-600 bg-gray-50/80 px-3 border-r border-gray-100">
                       {key}
@@ -277,7 +321,7 @@ export default function ProductView() {
         </div>
 
         {/* FULL WIDTH BOTTOM SECTION: Detailed Content */}
-        {product.detail?.contentDetail && (
+        {displayContent && (
           <div className="col-span-1 lg:col-span-2 rounded-xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm space-y-4">
             <h2 className="text-xs font-bold text-black uppercase tracking-wider border-b border-gray-100 pb-3">
               NỘI DUNG MÔ TẢ CHI TIẾT
@@ -285,7 +329,7 @@ export default function ProductView() {
             <div className="w-full overflow-x-auto">
               <div
                 className="prose prose-sm max-w-none text-gray-800 prose-headings:text-black prose-a:text-blue-600 break-words [&>img]:max-w-full [&>img]:h-auto [&>img]:rounded-lg"
-                dangerouslySetInnerHTML={{ __html: product.detail.contentDetail }}
+                dangerouslySetInnerHTML={{ __html: displayContent }}
               />
             </div>
           </div>

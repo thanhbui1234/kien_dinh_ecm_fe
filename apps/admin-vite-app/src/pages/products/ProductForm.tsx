@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ChevronLeft, Loader2, Sparkles } from 'lucide-react';
+import { ChevronLeft, Loader2, Sparkles, Globe, Plus, Trash2 } from 'lucide-react';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { AIGenerator } from '@/components/common/AIGenerator';
 import { generateProductContent } from '@/utils/ai';
-import { useCreateProduct, useUpdateProduct, useProductDetail } from '@/queries/products';
+import { useCreateProduct, useUpdateProduct, useProductDetail, useSaveProductTranslation } from '@/queries/products';
 import { useCategories } from '@/queries/categories';
 import { resolveImageValue } from '@/queries/upload/useUpload';
-import { CreateProductSchema, CreateProductImageSchema, CreateProductInput } from 'shared-api';
+import { CreateProductSchema, CreateProductImageSchema, CreateProductInput, productKeys } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 import { useObjectUrlCache } from '@/hooks/useObjectUrlCache';
 import { ImageLightbox } from '@/components/common/ImageLightbox';
@@ -23,6 +24,10 @@ import { ProductSpecsSection } from '@/components/products/ProductSpecsSection';
 import { ProductFeaturesSection } from '@/components/products/ProductFeaturesSection';
 import { ProductVideoSection } from '@/components/products/ProductVideoSection';
 import { ProductGallerySection } from '@/components/products/ProductGallerySection';
+import { LanguageTabs } from '@/components/common/LanguageTabs';
+import { ProductEnglishTranslationSection } from '@/components/products/ProductEnglishTranslationSection';
+
+import { TranslationWarningBanner } from '@/components/common/TranslationWarningBanner';
 
 const fileOrString = z.union([z.string(), z.instanceof(Blob)]);
 const ProductFormSchema = CreateProductSchema.extend({
@@ -54,16 +59,30 @@ type FormValues = Omit<CreateProductInput, 'thumbnailUrl' | 'images' | 'videoUrl
   videoList: { url: string }[];
 };
 
+const inputCls = "w-full h-9 px-3 rounded-md bg-white border border-gray-300 text-sm font-medium text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all shadow-sm";
+const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2";
+
 export default function ProductForm() {
   const { id } = useParams();
   const isEdit = !!id;
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: categoriesData } = useCategories({ limit: 100 });
   const categories = categoriesData || [];
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
   const { data: productData, isLoading: isLoadingDetail } = useProductDetail(id || '');
+
+  const [activeTab, setActiveTab] = useState<'VI' | 'EN'>('VI');
+  const [enTranslation, setEnTranslation] = useState({
+    name: '',
+    slug: '',
+    contentDetail: '',
+    specList: [{ key: '', value: '' }],
+    featureList: [{ key: '', value: '' }],
+  });
+  const saveEnTranslation = useSaveProductTranslation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(ProductFormSchema as any),
@@ -120,6 +139,17 @@ export default function ProductForm() {
     if (result.features && result.features.length > 0) {
       featureFieldArray.replace(result.features);
     }
+
+    if (result.english) {
+      setEnTranslation({
+        name: result.english.name || '',
+        slug: '',
+        contentDetail: result.english.contentDetail || '',
+        specList: result.english.specs || [{ key: '', value: '' }],
+        featureList: result.english.features || [{ key: '', value: '' }],
+      });
+      toast.success('Đã sinh tự động dữ liệu song ngữ Tiếng Việt & Tiếng Anh!');
+    }
   };
 
   useEffect(() => {
@@ -149,9 +179,27 @@ export default function ProductForm() {
         })),
         videoList: videoUrls.map((url: string) => ({ url })),
       });
+
+      const enTrans = (productData as any)?.translations?.find((t: any) => t.lang === 'EN');
+      if (enTrans) {
+        const enSpecs = enTrans.specifications || {};
+        const enSpecsArray = Object.entries(enSpecs).map(([key, value]) => ({ key, value: String(value) }));
+        const enFeatures = enTrans.features || {};
+        const enFeaturesArray = Object.entries(enFeatures).map(([key, value]) => ({ key, value: String(value) }));
+
+        setEnTranslation({
+          name: enTrans.name || '',
+          slug: enTrans.slug || '',
+          contentDetail: enTrans.contentDetail || '',
+          specList: enSpecsArray.length ? enSpecsArray : [{ key: '', value: '' }],
+          featureList: enFeaturesArray.length ? enFeaturesArray : [{ key: '', value: '' }],
+        });
+      }
+
       setIsFormReady(true);
     }
   }, [isEdit, productData, reset]);
+
 
   const onSubmit = async (validatedData: any) => {
     const data: CreateProductInput = { ...validatedData };
@@ -228,10 +276,33 @@ export default function ProductForm() {
       );
     } else {
       createMutation.mutate(data, {
-        onSuccess: (res: any) => {
+        onSuccess: async (res: any) => {
           markSaved();
-          toast.success('Tạo sản phẩm thành công!');
           const newId = res?.id || res?.data?.id;
+
+          // Save EN translation if provided during creation
+          if (newId && enTranslation.name.trim()) {
+            const specsObj = enTranslation.specList.reduce((acc: any, item) => {
+              if (item.key && item.key.trim()) acc[item.key.trim()] = item.value;
+              return acc;
+            }, {});
+            const featuresObj = enTranslation.featureList.reduce((acc: any, item) => {
+              if (item.key && item.key.trim()) acc[item.key.trim()] = item.value;
+              return acc;
+            }, {});
+
+            saveEnTranslation.mutate({
+              productId: newId,
+              lang: 'EN',
+              name: enTranslation.name.trim(),
+              slug: enTranslation.slug.trim() || undefined,
+              contentDetail: enTranslation.contentDetail || undefined,
+              specifications: Object.keys(specsObj).length > 0 ? specsObj : undefined,
+              features: Object.keys(featuresObj).length > 0 ? featuresObj : undefined,
+            });
+          }
+
+          toast.success('Tạo sản phẩm thành công!');
           if (newId) {
             navigate(`/products/${newId}`);
           } else {
@@ -260,6 +331,8 @@ export default function ProductForm() {
     );
   }
 
+  const hasEnTranslation = !!(productData as any)?.translations?.some((t: any) => t.lang === 'EN');
+
   return (
     <div className="space-y-6 max-w-5xl pb-12">
       <UnsavedChangesModal />
@@ -281,7 +354,45 @@ export default function ProductForm() {
         }
       />
 
-      {showAI && !isEdit && (
+      {isEdit && (
+        <TranslationWarningBanner
+          hasEnTranslation={hasEnTranslation || !!enTranslation.name.trim()}
+          activeTab={activeTab}
+          onSwitchToEnTab={() => setActiveTab('EN')}
+          mismatches={[
+            {
+              label: 'dòng thông số kỹ thuật',
+              viCount: specListValue ? specListValue.filter(s => s.key?.trim() || s.value?.trim()).length : 0,
+              enCount: enTranslation.specList ? enTranslation.specList.filter(s => s.key?.trim() || s.value?.trim()).length : 0,
+              onSync: () => {
+                const syncedSpecs = (specListValue || []).map((item) => ({ key: item.key || '', value: item.value || '' }));
+                setEnTranslation((prev) => ({ ...prev, specList: syncedSpecs }));
+                setActiveTab('EN');
+                toast.success('Đã đồng bộ thông số kỹ thuật sang Tiếng Anh!');
+              },
+            },
+            {
+              label: 'tính năng nổi bật',
+              viCount: featureListValue ? featureListValue.filter(f => f.key?.trim() || f.value?.trim()).length : 0,
+              enCount: enTranslation.featureList ? enTranslation.featureList.filter(f => f.key?.trim() || f.value?.trim()).length : 0,
+              onSync: () => {
+                const syncedFeatures = (featureListValue || []).map((item) => ({ key: item.key || '', value: item.value || '' }));
+                setEnTranslation((prev) => ({ ...prev, featureList: syncedFeatures }));
+                setActiveTab('EN');
+                toast.success('Đã đồng bộ tính năng nổi bật sang Tiếng Anh!');
+              },
+            },
+          ]}
+        />
+      )}
+
+      <LanguageTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        hasEnTranslation={hasEnTranslation || !!enTranslation.name.trim()}
+      />
+
+      {showAI && !isEdit && activeTab === 'VI' && (
         <AIGenerator
           title="Sinh dữ liệu sản phẩm tự động bằng AI"
           description="Nhập yêu cầu chi tiết để AI phân tích và tự điền Tên, Giá bán, Thông số kỹ thuật, Tính năng nổi bật và Nội dung mô tả."
@@ -292,84 +403,105 @@ export default function ProductForm() {
         />
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      {/* English Translation View */}
+      <div className={activeTab === 'EN' ? 'block' : 'hidden'}>
+        {isFormReady && (
+          <ProductEnglishTranslationSection
+            isEdit={isEdit}
+            productId={id}
+            enTranslation={enTranslation}
+            setEnTranslation={setEnTranslation}
+            viSpecsCount={specListValue ? specListValue.filter(s => s.key?.trim() || s.value?.trim()).length : 0}
+            viFeaturesCount={featureListValue ? featureListValue.filter(f => f.key?.trim() || f.value?.trim()).length : 0}
+            viName={watch('name')}
+            viContentDetail={watch('contentDetail')}
+            viSpecList={specListValue}
+            viFeatureList={featureListValue}
+            hasExistingEnTranslation={hasEnTranslation}
+            onSwitchToViTab={() => setActiveTab('VI')}
+          />
+        )}
+      </div>
+
+      {/* Vietnamese (Default) Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className={`space-y-5 ${activeTab === 'VI' ? 'block' : 'hidden'}`}>
         <div className="grid grid-cols-3 gap-5">
-          {/* Main content */}
-          <div className="col-span-2 space-y-5">
-            <ProductBasicInfoSection form={form} categories={categories} />
-            <ProductSpecsSection form={form} specFieldArray={specFieldArray} />
-            <ProductFeaturesSection form={form} featureFieldArray={featureFieldArray} />
+            {/* Main content */}
+            <div className="col-span-2 space-y-5">
+              <ProductBasicInfoSection form={form} categories={categories} />
+              <ProductSpecsSection form={form} specFieldArray={specFieldArray} />
+              <ProductFeaturesSection form={form} featureFieldArray={featureFieldArray} />
 
-            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-              <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">NỘI DUNG CHI TIẾT</h2>
-              <Controller
-                name="contentDetail"
-                control={control}
-                render={({ field }) => (
-                  <RichTextEditor
-                    value={field.value || ''}
-                    onChange={field.onChange}
-                    placeholder="Nhập mô tả chi tiết sản phẩm..."
-                  />
-                )}
-              />
-            </div>
-
-            <ProductGallerySection
-              form={form}
-              imageFieldArray={imageFieldArray}
-              getImagePreviewSrc={getImagePreviewSrc}
-              onOpenLightbox={(idx) => {
-                setLightboxIndex(idx);
-                setLightboxOpen(true);
-              }}
-            />
-          </div>
-
-          {/* Right sidebar */}
-          <div className="col-span-1">
-            <div className="sticky top-6 space-y-5">
               <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-                <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">ẢNH ĐẠI DIỆN</h2>
+                <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">NỘI DUNG CHI TIẾT</h2>
                 <Controller
-                  name="thumbnailUrl"
+                  name="contentDetail"
                   control={control}
-                  render={({ field }) => <FileUpload label="" value={field.value} onChange={field.onChange} bgOption="none" />}
+                  render={({ field }) => (
+                    <RichTextEditor
+                      value={field.value || ''}
+                      onChange={field.onChange}
+                      placeholder="Nhập mô tả chi tiết sản phẩm..."
+                    />
+                  )}
                 />
-                {errors.thumbnailUrl && <p className="text-xs font-medium text-red-500">{(errors.thumbnailUrl as any).message}</p>}
               </div>
 
-              <ProductVideoSection form={form} videoFieldArray={videoFieldArray} videoListValue={videoListValue} />
-
-              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
-                <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">CÀI ĐẶT</h2>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-black">Hiển thị</p>
-                    <p className="text-xs font-medium text-gray-500">Hiện trên website</p>
-                  </div>
-                  <Toggle checked={!!statusValue} onToggle={() => setValue('status', !statusValue, { shouldDirty: true })} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-black">Nổi bật</p>
-                    <p className="text-xs font-medium text-gray-500">Trang chủ</p>
-                  </div>
-                  <Toggle checked={!!isFeaturedValue} onToggle={() => setValue('isFeatured', !isFeaturedValue, { shouldDirty: true })} />
-                </div>
-              </div>
-
-              <FormActionButtons
-                isEdit={isEdit}
-                isSaving={isSaving}
-                isDirty={isDirty}
-                submitText={isUploadingImages ? 'ĐANG TẢI ẢNH LÊN...' : undefined}
-                onCancel={handleCancel}
+              <ProductGallerySection
+                form={form}
+                imageFieldArray={imageFieldArray}
+                getImagePreviewSrc={getImagePreviewSrc}
+                onOpenLightbox={(idx) => {
+                  setLightboxIndex(idx);
+                  setLightboxOpen(true);
+                }}
               />
             </div>
+
+            {/* Right sidebar */}
+            <div className="col-span-1">
+              <div className="sticky top-6 space-y-5">
+                <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
+                  <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">ẢNH ĐẠI DIỆN</h2>
+                  <Controller
+                    name="thumbnailUrl"
+                    control={control}
+                    render={({ field }) => <FileUpload label="" value={field.value} onChange={field.onChange} bgOption="none" />}
+                  />
+                  {errors.thumbnailUrl && <p className="text-xs font-medium text-red-500">{(errors.thumbnailUrl as any).message}</p>}
+                </div>
+
+                <ProductVideoSection form={form} videoFieldArray={videoFieldArray} videoListValue={videoListValue} />
+
+                <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
+                  <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">CÀI ĐẶT</h2>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-black">Hiển thị</p>
+                      <p className="text-xs font-medium text-gray-500">Hiện trên website</p>
+                    </div>
+                    <Toggle checked={!!statusValue} onToggle={() => setValue('status', !statusValue, { shouldDirty: true })} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-black">Nổi bật</p>
+                      <p className="text-xs font-medium text-gray-500">Trang chủ</p>
+                    </div>
+                    <Toggle checked={!!isFeaturedValue} onToggle={() => setValue('isFeatured', !isFeaturedValue, { shouldDirty: true })} />
+                  </div>
+                </div>
+
+                <FormActionButtons
+                  isEdit={isEdit}
+                  isSaving={isSaving}
+                  isDirty={isDirty}
+                  submitText={isUploadingImages ? 'ĐANG TẢI ẢNH LÊN...' : undefined}
+                  onCancel={handleCancel}
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
 
       <ImageLightbox
         open={lightboxOpen}

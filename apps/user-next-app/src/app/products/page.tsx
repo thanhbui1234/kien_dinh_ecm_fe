@@ -5,7 +5,9 @@ import { PageBreadcrumb } from 'shared-ui';
 import { api } from '@/lib/api';
 import { getCachedCategories } from '@/lib/cached-api';
 import FilterDrawer from './FilterDrawer';
+import SearchInput from './SearchInput';
 import { buildBaseMetadata, generateItemListSchema, generateBreadcrumbSchema } from '@/lib/seo';
+import { getTranslations } from 'next-intl/server';
 
 interface SearchParams {
   category?: string;
@@ -35,36 +37,26 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const queryPath = categorySlug
     ? `/products/?category=${categorySlug}`
     : search
-    ? `/products/?search=${encodeURIComponent(search)}`
-    : '/products/';
+      ? `/products/?search=${encodeURIComponent(search)}`
+      : '/products/';
 
-  return buildBaseMetadata({
-    title,
-    description,
-    path: queryPath,
-  });
-}
-
-
-interface SearchParams {
-  category?: string;
-  page?: string;
-  search?: string;
+  return buildBaseMetadata({ title, description, path: queryPath });
 }
 
 function ProductCard({
   product,
   categoryName,
+  viewDetailLabel,
 }: {
   product: { id: string; name: string; slug: string; thumbnailUrl: string };
   categoryName?: string;
+  viewDetailLabel: string;
 }) {
   return (
     <Link
       href={`/products/${product.slug}`}
       className="group flex flex-col bg-white border border-gray-100 no-underline hover:shadow-xl hover:border-gray-200 rounded-2xl transition-all duration-300 overflow-hidden"
     >
-      {/* Image */}
       <div className="relative w-full aspect-[4/3] bg-[#f8f8f8] overflow-hidden">
         {product.thumbnailUrl ? (
           <Image
@@ -83,8 +75,6 @@ function ProductCard({
           </div>
         )}
       </div>
-
-      {/* Info */}
       <div className="flex flex-col p-5 sm:p-6 grow">
         {categoryName && (
           <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5e8dd1] m-0 mb-2">
@@ -96,7 +86,7 @@ function ProductCard({
         </h3>
         <div className="mt-auto pt-4">
           <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-gray-400 group-hover:text-[#5e8dd1] transition-colors duration-200 w-fit">
-            Xem chi tiết
+            {viewDetailLabel}
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="transition-transform duration-300 group-hover:translate-x-1">
               <path d="M2.33 7H11.67M11.67 7L7.58 3M11.67 7L7.58 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -107,7 +97,7 @@ function ProductCard({
   );
 }
 
-function EmptyState() {
+function EmptyState({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-24 gap-4">
       <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
@@ -115,7 +105,7 @@ function EmptyState() {
           <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
         </svg>
       </div>
-      <p className="text-gray-400 text-[14px]">Không tìm thấy sản phẩm phù hợp.</p>
+      <p className="text-gray-400 text-[14px]">{label}</p>
     </div>
   );
 }
@@ -153,10 +143,17 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const page = Number(params.page ?? 1);
   const search = params.search;
 
-  const [categoriesResponse, productsResponse] = await Promise.all([
+  const [t, categoriesResponse] = await Promise.all([
+    getTranslations(),
     getCachedCategories(),
-    api.products.getProducts({ page: String(page), limit: '12', ...(search ? { search } : {}) }),
   ]);
+
+
+  const productsResponse = await api.products.getProducts({
+    page: String(page),
+    limit: '12',
+    ...(search ? { search } : {}),
+  });
 
   const categories = (categoriesResponse ?? []).filter((c) => !c.parentId);
 
@@ -170,11 +167,11 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
   const filteredProducts = activeCategoryId
     ? await api.products.getProducts({
-        page: String(page),
-        limit: '12',
-        categoryId: activeCategoryId,
-        ...(search ? { search } : {}),
-      })
+      page: String(page),
+      limit: '12',
+      categoryId: activeCategoryId,
+      ...(search ? { search } : {}),
+    })
     : productsResponse;
 
   const items = filteredProducts?.items ?? [];
@@ -182,53 +179,56 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const categoryMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
 
   const breadcrumbItems = activeCategoryName
-    ? [{ label: 'Trang chủ', href: '/' }, { label: 'Sản phẩm', href: '/products/' }, { label: activeCategoryName }]
-    : [{ label: 'Trang chủ', href: '/' }, { label: 'Sản phẩm' }];
+    ? [
+      { label: t('products.breadcrumb_home'), href: '/' },
+      { label: t('products.breadcrumb_products'), href: '/products/' },
+      { label: activeCategoryName },
+    ]
+    : [
+      { label: t('products.breadcrumb_home'), href: '/' },
+      { label: t('products.breadcrumb_products') },
+    ];
 
   const itemListSchema = generateItemListSchema(items.map((i) => ({ name: i.name, slug: i.slug })));
   const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
 
-  return (
-    <div className="min-h-screen bg-white pt-[80px]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
+  const pageHeading = activeCategoryName
+    ?? (search ? `${t('products.search_prefix')} "${search}"` : t('products.all_products'));
 
-      <PageBreadcrumb
-        variant="light"
-        LinkComponent={Link}
-        items={breadcrumbItems}
-      />
-      {/* Page header */}
+  return (
+    <div className="min-h-screen bg-white pt-20">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+
+      <PageBreadcrumb variant="light" LinkComponent={Link} items={breadcrumbItems} />
+
       <div className="border-b border-gray-100">
-        <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-6">
+        <div className="max-w-325 mx-auto px-6 md:px-10 py-6">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-            <h1 className="break-words text-[26px] sm:text-[30px] md:text-[40px] font-light text-[#111] leading-tight md:leading-none m-0">
-              {activeCategoryName ?? (search ? `Tìm kiếm: "${search}"` : 'Tất cả sản phẩm')}
+            <h1 className="wrap-break-word text-[26px] sm:text-[30px] md:text-[40px] font-light text-[#111] leading-tight md:leading-none m-0">
+              {pageHeading}
             </h1>
-            {meta && <p className="text-gray-400 text-[13px] m-0">{meta.totalItems} sản phẩm</p>}
+            {meta && <p className="text-gray-400 text-[13px] m-0">{meta.totalItems} {t('products.count_suffix')}</p>}
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-8">
-        {/* Toolbar with FilterDrawer */}
+      <div className="max-w-325 mx-auto px-6 md:px-10 py-8">
+        {/* search row */}
+        <div className="mb-5">
+          <SearchInput categories={categories} />
+        </div>
+
         <div className="flex flex-wrap items-center justify-between gap-3 mb-8 pb-4 border-b border-gray-100">
           <p className="text-gray-500 text-[14px] m-0 shrink-0">
-            Hiển thị <strong className="text-[#111] font-medium">{items.length}</strong> sản phẩm
+            {t('products.showing_prefix')} <strong className="text-[#111] font-medium">{items.length}</strong> {t('products.showing_suffix')}
           </p>
           <FilterDrawer categories={categories} activeSlug={categorySlug} />
         </div>
 
-        {/* Product list */}
         <main className="w-full">
           {items.length === 0 ? (
-            <EmptyState />
+            <EmptyState label={t('products.not_found')} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {items.map((product) => (
@@ -236,6 +236,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                   key={product.id}
                   product={product}
                   categoryName={categoryMap[product.categoryId]}
+                  viewDetailLabel={t('products.view_detail')}
                 />
               ))}
             </div>
@@ -249,4 +250,3 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     </div>
   );
 }
-

@@ -2,26 +2,33 @@ import Link from 'next/link';
 import { PageWrapper, PageBreadcrumb, PageTitle } from 'shared-ui';
 import { api } from '@/lib/api';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+import { buildBaseMetadata } from '@/lib/seo';
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: 'Sơ lược về công ty | Thanh Bằng',
-  description: 'Thông tin tổng quan về công ty Thanh Bằng — tầm nhìn, sứ mệnh và các thông tin doanh nghiệp.',
-  alternates: { canonical: 'https://thanhbang.com/about-us/company-outline/' },
-};
-
-const breadcrumbs = [
-  { label: 'Trang chủ', href: '/' },
-  { label: 'Trang giới thiệu', href: '/about-us/' },
-  { label: 'Sơ lược về công ty' },
-];
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return buildBaseMetadata({
+    title: t('about.outline_title'),
+    description: 'Thông tin tổng quan về công ty Thanh Bằng — tầm nhìn, sứ mệnh và các thông tin doanh nghiệp.',
+    path: '/about-us/company-outline/',
+  });
+}
 
 function sanitizeHtml(html: string): string {
   return html.replace(/&nbsp;/g, ' ').replace(/ /g, ' ');
 }
 
 export default async function CompanyOutlinePage() {
+  const t = await getTranslations();
+
+  const breadcrumbs = [
+    { label: t('common.home'), href: '/' },
+    { label: t('about.parent_breadcrumb'), href: '/about-us/' },
+    { label: t('about.outline_breadcrumb') },
+  ];
+
   const [companyInfo, settings] = await Promise.all([
     api.about.getCompanyInfo({ next: { revalidate: 3600 } } as RequestInit),
     api.settings.getSystemSettings({ next: { revalidate: 3600 } } as RequestInit),
@@ -33,11 +40,10 @@ export default async function CompanyOutlinePage() {
     <PageWrapper>
       <PageBreadcrumb items={breadcrumbs} LinkComponent={Link} />
       <div className="page-content">
-        <PageTitle>Sơ lược về công ty</PageTitle>
+        <PageTitle>{t('about.outline_title')}</PageTitle>
 
-        {/* Bảng thông tin công ty từ API */}
         {(companyInfo ?? []).length > 0 && (
-          <table className="info-table" aria-label="Thông tin công ty">
+          <table className="info-table" aria-label={t('about.outline_table_aria')}>
             <tbody>
               {(companyInfo ?? []).map((row) => (
                 <tr key={row.id}>
@@ -49,7 +55,6 @@ export default async function CompanyOutlinePage() {
           </table>
         )}
 
-        {/* Nội dung giới thiệu HTML từ settings */}
         {introHtml && (
           <div
             className="project-article-body mt-8"

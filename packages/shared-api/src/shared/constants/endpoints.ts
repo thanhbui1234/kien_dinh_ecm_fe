@@ -10,6 +10,7 @@ export const API_ENDPOINTS = {
   CATEGORIES: {
     BASE: '/api/v1/categories',
     DETAIL: (id: string) => `/api/v1/categories/${id}`,
+    TRANSLATION: (id: string) => `/api/v1/categories/${id}/translation`,
   },
   PRODUCTS: {
     BASE: '/api/v1/products',
@@ -17,15 +18,18 @@ export const API_ENDPOINTS = {
     RELATED: (id: string) => `/api/v1/products/${id}/related`,
     VIEW: (id: string) => `/api/v1/products/${id}/view`,
     COPY: (id: string) => `/api/v1/products/${id}/copy`,
+    TRANSLATION: (id: string) => `/api/v1/products/${id}/translation`,
   },
   PROJECTS: {
     BASE: '/api/v1/projects',
     DETAIL: (id: string) => `/api/v1/projects/${id}`,
+    TRANSLATION: (id: string) => `/api/v1/projects/${id}/translation`,
   },
   JOBS: {
     BASE: '/api/v1/jobs',
     DETAIL_SLUG: (slug: string) => `/api/v1/jobs/${slug}`,
     DETAIL_ID: (id: string) => `/api/v1/jobs/${id}`,
+    TRANSLATION: (id: string) => `/api/v1/jobs/${id}/translation`,
   },
   LEADS: {
     BASE: '/api/v1/leads',
@@ -40,27 +44,36 @@ export const API_ENDPOINTS = {
     SYSTEM_KEY: (key: string) => `/api/v1/settings/system/${key}`,
     SLOGANS: '/api/v1/settings/slogans',
     SLOGANS_DETAIL: (id: string) => `/api/v1/settings/slogans/${id}`,
+    SLOGAN_TRANSLATION: (id: string) => `/api/v1/settings/slogans/${id}/translation`,
     TIMELINES: '/api/v1/settings/timelines',
     TIMELINES_DETAIL: (id: string) => `/api/v1/settings/timelines/${id}`,
     BANNERS: '/api/v1/settings/banners',
     BANNERS_DETAIL: (id: string) => `/api/v1/settings/banners/${id}`,
+    BANNER_TRANSLATION: (id: string) => `/api/v1/settings/banners/${id}/translation`,
   },
   CONTACT_SETTING: {
     BASE: '/api/v1/contact-setting',
+    TRANSLATION: '/api/v1/contact-setting/translation',
   },
   FOOTER_SETTING: {
     BASE: '/api/v1/footer-setting',
+    TRANSLATION: '/api/v1/footer-setting/translation',
   },
   ABOUT: {
     PROFILE: '/api/v1/about/profile',
+    PROFILE_TRANSLATION: '/api/v1/about/profile/translation',
     COMPANY_INFO: '/api/v1/about/company-info',
     COMPANY_INFO_DETAIL: (id: string) => `/api/v1/about/company-info/${id}`,
+    COMPANY_INFO_TRANSLATION: (id: string) => `/api/v1/about/company-info/${id}/translation`,
     FACILITIES: '/api/v1/about/facilities',
     FACILITY_DETAIL: (id: string) => `/api/v1/about/facilities/${id}`,
+    FACILITY_TRANSLATION: (id: string) => `/api/v1/about/facilities/${id}/translation`,
     HISTORY_EVENTS: '/api/v1/about/history-events',
     HISTORY_EVENT_DETAIL: (id: string) => `/api/v1/about/history-events/${id}`,
+    HISTORY_EVENT_TRANSLATION: (id: string) => `/api/v1/about/history-events/${id}/translation`,
     LOCATIONS: '/api/v1/about/locations',
     LOCATION_DETAIL: (id: string) => `/api/v1/about/locations/${id}`,
+    LOCATION_TRANSLATION: (id: string) => `/api/v1/about/locations/${id}/translation`,
     LOCATIONS_ORDER: '/api/v1/about/locations/order',
   },
   USERS: {

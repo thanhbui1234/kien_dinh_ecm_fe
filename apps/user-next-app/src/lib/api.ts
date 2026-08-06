@@ -10,6 +10,19 @@ export const fetchClient = createFetchClient({
       return localStorage.getItem('accessToken');
     }
     return null;
+  },
+  getLanguage: async () => {
+    if (typeof window === 'undefined') {
+      try {
+        const { cookies } = await import('next/headers');
+        const cookieStore = await cookies();
+        return cookieStore.get('NEXT_LOCALE')?.value || 'VI';
+      } catch (e) {
+        return 'VI';
+      }
+    } else {
+      return document.documentElement.lang || 'VI';
+    }
   }
 });
 

@@ -6,6 +6,8 @@ import { jobKeys } from 'shared-api';
 import { Job, CreateJobInput, UpdateJobInput, PageMeta } from 'shared-api';
 import { triggerRevalidate } from '@/utils/revalidate';
 
+export { useSaveJobTranslation } from './useSaveJobTranslation';
+
 export const useJobs = (params?: Record<string, any>) => {
   const client = axiosInstance;
   return useQuery({

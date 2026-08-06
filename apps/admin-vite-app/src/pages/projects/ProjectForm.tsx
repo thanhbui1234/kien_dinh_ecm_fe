@@ -1,26 +1,32 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ChevronLeft, Loader2, Sparkles, ExternalLink } from 'lucide-react';
+import { ChevronLeft, Loader2, Sparkles } from 'lucide-react';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { AIGenerator } from '@/components/common/AIGenerator';
 import { generateProjectContent } from '@/utils/ai';
-import { useCreateProject, useUpdateProject, useProjectDetail } from '@/queries/projects';
+import { useCreateProject, useUpdateProject, useProjectDetail, useSaveProjectTranslation } from '@/queries/projects';
 import { resolveImageValue, resolveImageValues } from '@/queries/upload/useUpload';
 import { CreateProjectSchema, CreateProjectInput } from 'shared-api';
 import { useLeaveConfirm } from '@/hooks/useLeaveConfirm';
 import { ProductVideoSection } from '@/components/products/ProductVideoSection';
-import { useFieldArray } from 'react-hook-form';
 import { AdminPageHeader } from '@/components/common/AdminPageHeader';
 import { FormActionButtons } from '@/components/common/FormActionButtons';
 import { ProjectBasicInfoSection } from '@/components/projects/ProjectBasicInfoSection';
 import { ProductPickerSection } from '@/components/projects/ProductPickerSection';
 import { CategoryPickerSection } from '@/components/projects/CategoryPickerSection';
 import { GalleryImagesSection } from '@/components/projects/GalleryImagesSection';
+import { LanguageTabs } from '@/components/common/LanguageTabs';
+import { ProjectEnglishTranslationSection } from '@/components/projects/ProjectEnglishTranslationSection';
 import { toast } from '@/utils/toast';
+
+import { TranslationWarningBanner } from '@/components/common/TranslationWarningBanner';
+
+const inputCls = "w-full h-9 px-3 rounded-md bg-white border border-gray-300 text-sm font-medium text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all shadow-sm";
+const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2";
 
 const Toggle = ({ checked, onToggle }: { checked: boolean; onToggle: () => void }) => (
   <button type="button" onClick={onToggle}
@@ -29,12 +35,8 @@ const Toggle = ({ checked, onToggle }: { checked: boolean; onToggle: () => void 
   </button>
 );
 
-// coverImage may hold a File that hasn't been uploaded yet — upload is
-// deferred until submit — so extend the API schema locally for form validation.
 type ProjectFormValues = Omit<CreateProjectInput, 'coverImage'> & { coverImage: string | File; videoList?: { url: string }[] };
 const ProjectFormSchema = CreateProjectSchema.extend({
-  // browser-image-compression's runtime output is a Blob, not a real File
-  // instance (despite its .d.ts claiming otherwise), so validate against Blob.
   coverImage: z.union([z.string().min(1, 'Ảnh bìa là bắt buộc'), z.instanceof(Blob)]),
 });
 
@@ -45,6 +47,11 @@ export default function ProjectForm() {
   const [galleryImages, setGalleryImages] = useState<(string | File)[]>([]);
   const [isGalleryDirty, setIsGalleryDirty] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<'VI' | 'EN'>('VI');
+  const [enTranslation, setEnTranslation] = useState({ name: '', slug: '', description: '', contentDetail: '' });
+  const [isDataSynced, setIsDataSynced] = useState(!isEdit);
+  const saveEnTranslation = useSaveProjectTranslation();
 
   const handleGalleryImagesChange = (images: (string | File)[]) => {
     setGalleryImages(images);
@@ -75,6 +82,16 @@ export default function ProjectForm() {
     if (result.name) setValue('name', result.name, { shouldDirty: true });
     if (result.description) setValue('description', result.description, { shouldDirty: true });
     if (result.contentDetail) setValue('contentDetail' as any, result.contentDetail, { shouldDirty: true });
+
+    if (result.english) {
+      setEnTranslation({
+        name: result.english.name || '',
+        slug: '',
+        description: result.english.description || '',
+        contentDetail: result.english.contentDetail || '',
+      });
+      toast.success('Đã sinh tự động dữ liệu dự án song ngữ Tiếng Việt & Tiếng Anh!');
+    }
   };
 
   const statusValue = watch('status');
@@ -98,8 +115,20 @@ export default function ProjectForm() {
       });
       setGalleryImages((projectData as any).images || []);
       setIsGalleryDirty(false);
+
+      const enTrans = (projectData as any).translations?.find((t: any) => t.lang === 'EN');
+      if (enTrans) {
+        setEnTranslation({
+          name: enTrans.name || '',
+          slug: enTrans.slug || '',
+          description: enTrans.description || '',
+          contentDetail: enTrans.contentDetail || '',
+        });
+      }
+      setIsDataSynced(true);
     }
   }, [isEdit, projectData, reset]);
+
 
   const isSaving = createMutation.isPending || updateMutation.isPending || isSubmitting || isUploadingImages;
 
@@ -145,11 +174,23 @@ export default function ProjectForm() {
       });
     } else {
       createMutation.mutate(payload, { 
-        onSuccess: (res: any) => { 
+        onSuccess: async (res: any) => { 
           markSaved(); 
           setIsGalleryDirty(false);
-          toast.success('Tạo dự án thành công!');
           const newId = res?.id || res?.data?.id;
+
+          if (newId && enTranslation.name.trim()) {
+            saveEnTranslation.mutate({
+              projectId: newId,
+              lang: 'EN',
+              name: enTranslation.name.trim(),
+              slug: enTranslation.slug.trim() || undefined,
+              description: enTranslation.description || undefined,
+              contentDetail: enTranslation.contentDetail || undefined,
+            });
+          }
+
+          toast.success('Tạo dự án thành công!');
           if (newId) {
             navigate(`/projects/${newId}/edit`);
           } else {
@@ -163,7 +204,6 @@ export default function ProjectForm() {
   const handleCancel = () => {
     if (isEdit) {
       reset();
-      setIsGalleryDirty(false);
     } else {
       navigate('/projects');
     }
@@ -172,6 +212,8 @@ export default function ProjectForm() {
   if (isEdit && isLoadingDetail) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 text-black animate-spin" /></div>;
   }
+
+  const hasEnTranslation = !!(projectData as any)?.translations?.some((t: any) => t.lang === 'EN');
 
   return (
     <div className="space-y-6 max-w-5xl pb-12">
@@ -194,86 +236,118 @@ export default function ProjectForm() {
         }
       />
 
-      {showAI && !isEdit && (
-      <AIGenerator
-        title="Sinh nội dung dự án tự động bằng AI"
-        description="Nhập yêu cầu chi tiết để AI phân tích và tự điền Tên dự án, Mô tả ngắn và Nội dung chi tiết."
-        placeholder="Ví dụ: Tạo nội dung cho dự án 'Lắp đặt máy CNC tại xưởng A', bối cảnh là xưởng cần tăng năng suất, mục tiêu hoàn thành trong 1 tháng..."
-        generateContent={generateProjectContent}
-        onGenerateSuccess={handleAIGenerateSuccess}
-        onClose={() => setShowAI(false)}
-      />
+      {isEdit && (
+        <TranslationWarningBanner
+          hasEnTranslation={hasEnTranslation || !!enTranslation.name.trim()}
+          activeTab={activeTab}
+          onSwitchToEnTab={() => setActiveTab('EN')}
+        />
       )}
 
-      <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-5">
-        <div className="grid grid-cols-3 gap-5">
-          {/* Main */}
-          <div className="col-span-2 space-y-5">
-            <ProjectBasicInfoSection register={register as any} errors={errors as any} />
+      <LanguageTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        hasEnTranslation={hasEnTranslation || !!enTranslation.name.trim()}
+      />
 
-            <CategoryPickerSection
-              selectedIds={selectedCategoryIds as string[]}
-              onChange={(ids) => setValue('categoryIds' as any, ids, { shouldDirty: true })}
-            />
+      {showAI && !isEdit && activeTab === 'VI' && (
+        <AIGenerator
+          title="Sinh nội dung dự án tự động bằng AI"
+          description="Nhập mô tả vắt tắt dự án để AI tự viết tiêu đề, mô tả ngắn và bài viết chi tiết chuyên nghiệp."
+          placeholder="Ví dụ: Dự án lắp đặt dây chuyền sản xuất máy ép gạch tự động 100% tại Ninh Bình cho tập đoàn Hòa Phát..."
+          generateContent={generateProjectContent}
+          onGenerateSuccess={handleAIGenerateSuccess}
+          onClose={() => setShowAI(false)}
+        />
+      )}
 
-            <ProductPickerSection
-              selectedIds={selectedProductIds as string[]}
-              onChange={(ids) => setValue('productIds' as any, ids, { shouldDirty: true })}
-            />
+      {/* English Translation View */}
+      <div className={activeTab === 'EN' ? 'block' : 'hidden'}>
+        {isDataSynced && (
+          <ProjectEnglishTranslationSection
+            isEdit={isEdit}
+            projectId={id}
+            enTranslation={enTranslation}
+            setEnTranslation={setEnTranslation}
+            viName={watch('name')}
+            viDescription={watch('description')}
+            viContentDetail={watch('contentDetail' as any)}
+            onSwitchToViTab={() => setActiveTab('VI')}
+          />
+        )}
+      </div>
 
-            {/* Rich text */}
-            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-4">
-              <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">NỘI DUNG CHI TIẾT</h2>
-              <Controller name={'contentDetail' as any} control={control}
-                render={({ field }) => <RichTextEditor value={field.value || ''} onChange={field.onChange} placeholder="Nhập nội dung chi tiết về dự án..." />}
-              />
-            </div>
-
-            <GalleryImagesSection images={galleryImages} onChange={handleGalleryImagesChange} />
-          </div>
-
-          {/* Right sidebar */}
-          <div className="col-span-1">
-            <div className="sticky top-6 space-y-5">
-              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-4">
-                <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">ẢNH BÌA</h2>
-                <Controller name="coverImage" control={control}
-                  render={({ field }) => <FileUpload label="" value={field.value} onChange={field.onChange} bgOption="none" />}
+      {/* Vietnamese (Default) Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className={`space-y-6 ${activeTab === 'VI' ? 'block' : 'hidden'}`}>
+          <div className="grid grid-cols-3 gap-5">
+            {/* Main content */}
+            <div className="col-span-2 space-y-5">
+              <ProjectBasicInfoSection register={register as any} errors={errors as any} />
+              
+              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
+                <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">NỘI DUNG CHI TIẾT DỰ ÁN</h2>
+                <Controller
+                  name="contentDetail"
+                  control={control}
+                  render={({ field }) => (
+                    <RichTextEditor
+                      value={field.value || ''}
+                      onChange={field.onChange}
+                      placeholder="Nhập bài viết giới thiệu chi tiết về dự án..."
+                    />
+                  )}
                 />
-                {errors.coverImage && <p className="text-xs font-medium text-red-500">{errors.coverImage.message}</p>}
               </div>
 
-              <ProductVideoSection form={form as any} videoFieldArray={videoFieldArray as any} videoListValue={videoListValue as any} />
+              <ProductPickerSection selectedIds={selectedProductIds} onChange={(ids) => setValue('productIds', ids, { shouldDirty: true })} />
+              <CategoryPickerSection selectedIds={selectedCategoryIds} onChange={(ids) => setValue('categoryIds', ids, { shouldDirty: true })} />
+              <GalleryImagesSection images={galleryImages} onChange={handleGalleryImagesChange} />
+            </div>
 
-              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3 mb-4">CÀI ĐẶT</h2>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-black">Hiển thị dự án</p>
-                    <p className="text-xs font-medium text-gray-500">Hiện trên website</p>
-                  </div>
-                  <Toggle checked={!!statusValue} onToggle={() => setValue('status' as any, !statusValue, { shouldDirty: true })} />
+            {/* Right sidebar */}
+            <div className="col-span-1">
+              <div className="sticky top-6 space-y-5">
+                <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
+                  <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">ẢNH BÌA DỰ ÁN</h2>
+                  <Controller
+                    name="coverImage"
+                    control={control}
+                    render={({ field }) => <FileUpload label="" value={field.value} onChange={field.onChange} bgOption="none" />}
+                  />
+                  {errors.coverImage && <p className="text-xs font-medium text-red-500">{(errors.coverImage as any).message}</p>}
                 </div>
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                  <div>
-                    <p className="text-sm font-bold text-black">Nổi bật</p>
-                    <p className="text-xs font-medium text-gray-500">Hiển ở trang chủ</p>
+
+                <ProductVideoSection form={form} videoFieldArray={videoFieldArray} videoListValue={videoListValue} />
+
+                <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-5">
+                  <h2 className="text-sm font-bold text-black border-b border-gray-100 pb-3">CÀI ĐẶT DỰ ÁN</h2>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-black">Hiển thị</p>
+                      <p className="text-xs font-medium text-gray-500">Hiện trên website</p>
+                    </div>
+                    <Toggle checked={!!statusValue} onToggle={() => setValue('status', !statusValue, { shouldDirty: true })} />
                   </div>
-                  <Toggle checked={!!isFeaturedValue} onToggle={() => setValue('isFeatured' as any, !isFeaturedValue, { shouldDirty: true })} />
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-black">Dự án Nổi bật</p>
+                      <p className="text-xs font-medium text-gray-500">Hiển thị trang chủ</p>
+                    </div>
+                    <Toggle checked={!!isFeaturedValue} onToggle={() => setValue('isFeatured', !isFeaturedValue, { shouldDirty: true })} />
+                  </div>
                 </div>
+
+                <FormActionButtons
+                  isEdit={isEdit}
+                  isSaving={isSaving}
+                  isDirty={isDirty || isGalleryDirty}
+                  submitText={isUploadingImages ? 'ĐANG TẢI ẢNH LÊN...' : undefined}
+                  onCancel={handleCancel}
+                />
               </div>
-
-              <FormActionButtons
-                isEdit={isEdit}
-                isSaving={isSaving}
-                isDirty={isDirty || isGalleryDirty}
-                submitText={isUploadingImages ? 'ĐANG TẢI ẢNH LÊN...' : undefined}
-                onCancel={handleCancel}
-              />
             </div>
           </div>
-        </div>
-      </form>
+        </form>
     </div>
   );
 }

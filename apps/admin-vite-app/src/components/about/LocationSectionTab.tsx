@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   useCompanyLocations,
+  useCompanyLocationsEN,
   useCreateCompanyLocation,
   useUpdateCompanyLocation,
   useDeleteCompanyLocation,
+  useSaveLocationTranslation,
 } from '@/queries/about';
-import { Loader2, Plus, Edit2, Trash2, MapPin, Navigation, Save, Eye } from 'lucide-react';
+import { Loader2, Plus, Edit2, Trash2, MapPin, Navigation, Save, Eye, Globe } from 'lucide-react';
 import { CompanyLocation, CreateCompanyLocationInput } from 'shared-api';
+import { EnTranslationModal } from '@/components/common/EnTranslationModal';
 
 function getEmbedUrl(addressOrIframe?: string): string {
   if (!addressOrIframe) return '';
@@ -19,12 +22,18 @@ function getEmbedUrl(addressOrIframe?: string): string {
 
 export function LocationSectionTab() {
   const { data: locations, isLoading } = useCompanyLocations();
+  const { data: locationsEN } = useCompanyLocationsEN();
   const createMutation = useCreateCompanyLocation();
   const updateMutation = useUpdateCompanyLocation();
   const deleteMutation = useDeleteCompanyLocation();
+  const saveTranslation = useSaveLocationTranslation();
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [enModalLocId, setEnModalLocId] = useState<string | null>(null);
+  const [enTitle, setEnTitle] = useState('');
+  const [enAddressLabel, setEnAddressLabel] = useState('');
+  const [enAddress, setEnAddress] = useState('');
 
   const { register, handleSubmit, reset, watch, formState: { isSubmitting } } = useForm<CreateCompanyLocationInput>({
     defaultValues: {
@@ -89,6 +98,29 @@ export function LocationSectionTab() {
     if (confirm('Bạn có chắc chắn muốn xóa vị trí này?')) {
       deleteMutation.mutate(id);
     }
+  };
+
+  const handleOpenEnModal = (loc: CompanyLocation) => {
+    const enLoc = locationsEN?.find((e) => e.id === loc.id);
+    setEnModalLocId(loc.id);
+    setEnTitle(enLoc?.title ?? '');
+    setEnAddressLabel(enLoc?.addressLabel ?? '');
+    setEnAddress(enLoc?.address ?? '');
+  };
+
+  const handleSaveEN = (loc: CompanyLocation) => {
+    saveTranslation.mutate(
+      {
+        id: loc.id,
+        data: {
+          lang: 'EN',
+          title: enTitle || loc.title,
+          addressLabel: enAddressLabel || loc.addressLabel,
+          address: enAddress || loc.address,
+        },
+      },
+      { onSuccess: () => setEnModalLocId(null) }
+    );
   };
 
   if (isLoading) {
@@ -212,12 +244,12 @@ export function LocationSectionTab() {
                 <Eye className="h-4 w-4 text-[#5e8dd1]" />
                 <span>Xem trước bản đồ (Live Preview)</span>
               </div>
-              <div className="flex-1 min-h-[260px] rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
+              <div className="flex-1 min-h-65 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
                 {previewSrc ? (
                   <iframe
                     src={previewSrc}
                     title="Live Preview Map"
-                    className="w-full h-full min-h-[260px] border-0"
+                    className="w-full h-full min-h-65 border-0"
                     loading="lazy"
                     allowFullScreen
                   />
@@ -251,21 +283,40 @@ export function LocationSectionTab() {
             if (isEditingThis) return null;
 
             const locEmbedSrc = getEmbedUrl(loc.mapUrl || loc.address);
+            const enLoc = locationsEN?.find((e) => e.id === loc.id);
+            const hasEnTranslation = !!enLoc?.title;
+
+            const isEnDirty =
+              enTitle !== (enLoc?.title ?? '') ||
+              enAddressLabel !== (enLoc?.addressLabel ?? '') ||
+              enAddress !== (enLoc?.address ?? '');
 
             return (
+              <React.Fragment key={loc.id}>
               <div
-                key={loc.id}
-                className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm space-y-4 hover:border-gray-300 transition-colors"
+                className="rounded-lg border border-gray-200 bg-white shadow-sm hover:border-gray-300 transition-colors overflow-hidden"
               >
-                <div className="flex items-start justify-between">
+                {/* Card header */}
+                <div className="flex items-start justify-between p-4">
                   <div className="space-y-1">
                     <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-[#5e8dd1] bg-[#5e8dd1]/10 px-2 py-0.5 rounded">
                       {loc.addressLabel || 'VỊ TRÍ'}
                     </span>
                     <h3 className="text-base font-semibold text-black">{loc.title}</h3>
                   </div>
-
                   <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEnModal(loc)}
+                      className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-colors cursor-pointer bg-gray-100 text-gray-500 hover:bg-purple-100 hover:text-purple-700"
+                    >
+                      <Globe className="h-3 w-3" />
+                      EN
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full inline-block ml-0.5 ${hasEnTranslation ? 'bg-emerald-500' : 'bg-amber-400'}`}
+                        title={hasEnTranslation ? 'Đã có bản dịch EN' : 'Chưa có bản dịch EN'}
+                      />
+                    </button>
                     <button
                       type="button"
                       onClick={() => handleStartEdit(loc)}
@@ -286,38 +337,59 @@ export function LocationSectionTab() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2 border-t border-gray-100">
-                  <div className="space-y-2">
-                    <div className="flex items-start gap-2 text-xs text-gray-700">
-                      <MapPin className="h-4 w-4 shrink-0 text-[#5e8dd1] mt-0.5" />
-                      <span>{loc.address}</span>
+                {/* VI content */}
+                <div className="px-4 pb-4 border-t border-gray-100">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-3">
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2 text-xs text-gray-700">
+                        <MapPin className="h-4 w-4 shrink-0 text-[#5e8dd1] mt-0.5" />
+                        <span>{loc.address}</span>
+                      </div>
+                      {loc.directionsUrl && (
+                        <a
+                          href={loc.directionsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs text-[#5e8dd1] font-medium hover:underline pt-1"
+                        >
+                          <Navigation className="h-3.5 w-3.5" />
+                          Chỉ đường Google Maps
+                        </a>
+                      )}
                     </div>
-
-                    {loc.directionsUrl && (
-                      <a
-                        href={loc.directionsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs text-[#5e8dd1] font-medium hover:underline pt-1"
-                      >
-                        <Navigation className="h-3.5 w-3.5" />
-                        Chỉ đường Google Maps
-                      </a>
+                    {locEmbedSrc && (
+                      <div className="h-36 rounded-md overflow-hidden border border-gray-200 bg-gray-50">
+                        <iframe
+                          src={locEmbedSrc}
+                          title={`Bản đồ - ${loc.title}`}
+                          className="w-full h-full border-0"
+                          loading="lazy"
+                        />
+                      </div>
                     )}
                   </div>
-
-                  {locEmbedSrc && (
-                    <div className="h-36 rounded-md overflow-hidden border border-gray-200 bg-gray-50">
-                      <iframe
-                        src={locEmbedSrc}
-                        title={`Bản đồ - ${loc.title}`}
-                        className="w-full h-full border-0"
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
+
+              <EnTranslationModal
+                isOpen={enModalLocId === loc.id}
+                onOpenChange={(open) => !open && setEnModalLocId(null)}
+                title={loc.title}
+                fields={[
+                  { key: 'title', label: 'Tiêu đề', viValue: loc.title, enValue: enTitle, required: true },
+                  { key: 'addressLabel', label: 'Nhãn địa chỉ', viValue: loc.addressLabel ?? '', enValue: enAddressLabel },
+                  { key: 'address', label: 'Địa chỉ chi tiết', viValue: loc.address ?? '', enValue: enAddress, multiline: true },
+                ]}
+                onChange={(key, value) => {
+                  if (key === 'title') setEnTitle(value);
+                  else if (key === 'addressLabel') setEnAddressLabel(value);
+                  else if (key === 'address') setEnAddress(value);
+                }}
+                onSave={() => handleSaveEN(loc)}
+                isSaving={saveTranslation.isPending}
+                isDirty={isEnDirty}
+              />
+              </React.Fragment>
             );
           })
         )}

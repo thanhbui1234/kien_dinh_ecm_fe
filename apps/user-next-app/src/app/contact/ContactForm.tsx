@@ -9,6 +9,7 @@ import { CreateLeadSchema } from 'shared-api';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
+import { useTranslations } from 'next-intl';
 
 type ContactFormValues = z.infer<typeof CreateLeadSchema>;
 
@@ -25,6 +26,7 @@ export default function ContactForm({
   jobTitle?: string;
   defaultMessage?: string;
 }) {
+  const t = useTranslations();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +62,7 @@ export default function ContactForm({
       reset();
     } catch (err) {
       console.error(err);
-      setError('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+      setError(t('contact.form_error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -75,12 +77,12 @@ export default function ContactForm({
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
         </div>
-        <h3 className="text-[24px] font-semibold text-[#111] mb-2">Gửi yêu cầu thành công!</h3>
+        <h3 className="text-[24px] font-semibold text-[#111] mb-2">{t('contact.success_heading')}</h3>
         <p className="text-gray-600 mb-8 max-w-md">
-          Cảm ơn bạn đã liên hệ. Chúng tôi đã nhận được yêu cầu và sẽ phản hồi lại bạn trong thời gian sớm nhất.
+          {t('contact.success_body')}
         </p>
         <Button onClick={() => setIsSuccess(false)} variant="secondary" size="lg">
-          Gửi yêu cầu khác
+          {t('contact.send_another')}
         </Button>
       </div>
     );
@@ -105,7 +107,7 @@ export default function ContactForm({
           </div>
           <div>
             <p className="text-[12px] font-semibold uppercase tracking-wider text-gray-400 m-0 mb-1">
-              Sản phẩm quan tâm
+              {t('contact.interested_product')}
             </p>
             <p className="text-[15px] font-medium text-[#111] m-0 leading-snug">
               {productName}
@@ -124,7 +126,7 @@ export default function ContactForm({
           </div>
           <div>
             <p className="text-[12px] font-semibold uppercase tracking-wider text-gray-400 m-0 mb-1">
-              Vị trí ứng tuyển
+              {t('contact.applying_for')}
             </p>
             <p className="text-[15px] font-medium text-[#111] m-0 leading-snug">
               {jobTitle}
@@ -133,23 +135,22 @@ export default function ContactForm({
         </div>
       )}
 
-      {/* Hidden inputs */}
       <input type="hidden" {...register('targetProductId')} />
       <input type="hidden" {...register('targetJobId')} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Input
-          label="Họ và tên"
-          placeholder="VD: Nguyễn Văn A"
+          label={t('contact.field_name')}
+          placeholder={t('contact.field_name_placeholder')}
           required
           error={errors.fullName?.message}
           {...register('fullName')}
         />
 
         <Input
-          label="Số điện thoại"
+          label={t('contact.field_phone')}
           type="tel"
-          placeholder="VD: 0987654321"
+          placeholder={t('contact.field_phone_placeholder')}
           required
           error={errors.phoneNumber?.message}
           {...register('phoneNumber')}
@@ -157,25 +158,25 @@ export default function ContactForm({
       </div>
 
       <Input
-        label="Email"
+        label={t('contact.field_email')}
         type="email"
-        placeholder="VD: example@email.com"
+        placeholder={t('contact.field_email_placeholder')}
         error={errors.email?.message}
         {...register('email')}
       />
-      <div className="text-[13px] text-gray-400 mt-[-16px] ml-1">Không bắt buộc</div>
+      <div className="text-[13px] text-gray-400 mt-[-16px] ml-1">{t('contact.optional')}</div>
 
       <Textarea
-        label="Nội dung"
+        label={t('contact.field_message')}
         rows={5}
-        placeholder="Bạn đang cần tư vấn về vấn đề gì..."
+        placeholder={t('contact.field_message_placeholder')}
         required
         error={errors.message?.message}
         {...register('message')}
       />
 
       <Button type="submit" isLoading={isSubmitting} size="lg" className="mt-2 w-full">
-        Gửi yêu cầu ngay
+        {t('contact.submit_button')}
       </Button>
     </form>
   );

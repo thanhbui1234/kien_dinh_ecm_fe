@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { NavItem } from '@/constants/navigation';
+import { LanguageToggle } from './LanguageToggle';
 
 interface DesktopNavProps {
   navItems: NavItem[];
@@ -42,6 +43,11 @@ export const DesktopNav = ({
           </div>
         );
       })}
+      
+      {/* Language Toggle in Nav Row */}
+      <div className="pl-4 ml-2 flex items-center h-[80px]">
+        <LanguageToggle textClass={navTextClass} />
+      </div>
     </nav>
   );
 };

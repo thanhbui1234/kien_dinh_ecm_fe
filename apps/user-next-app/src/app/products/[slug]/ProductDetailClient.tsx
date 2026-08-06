@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { Product, Category } from 'shared-api';
 import ProductViewTracker from './ProductViewTracker';
 import StickyContactBar from './StickyContactBar';
@@ -18,6 +19,8 @@ interface Props {
 
 export default function ProductDetailClient({ product, category, relatedProducts = [] }: Props) {
   const bottomSectionRef = useRef<HTMLDivElement>(null);
+  const tProducts = useTranslations('products');
+  const tCommon = useTranslations('common');
   const hasPrice = product.price != null && product.price > 0;
 
   return (
@@ -29,10 +32,18 @@ export default function ProductDetailClient({ product, category, relatedProducts
         hasPrice={hasPrice}
         bottomSectionRef={bottomSectionRef}
       />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20">
-        <ProductMediaGallery images={product.images} thumbnail={product.thumbnailUrl} name={product.name} videoUrls={product.detail?.videoUrls} />
 
+      {/* 2-Column Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20">
+        
+        {/* Left Column: Gallery */}
+        <div className="w-full">
+          <ProductMediaGallery images={product.images} thumbnail={product.thumbnailUrl} name={product.name} videoUrls={product.detail?.videoUrls} />
+        </div>
+
+        {/* Right Column: Info & Details */}
         <div className="flex flex-col gap-5 sm:gap-6">
+          
           {category && (
             <Link
               href={`/products/?category=${category.slug}`}
@@ -46,6 +57,7 @@ export default function ProductDetailClient({ product, category, relatedProducts
             {product.name}
           </h1>
 
+          {/* Price Box */}
           {hasPrice ? (
             <p className="text-[20px] font-semibold text-[#5e8dd1] m-0">
               {product.price!.toLocaleString('vi-VN')} ₫
@@ -58,19 +70,19 @@ export default function ProductDetailClient({ product, category, relatedProducts
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
               </svg>
-              Giá: Liên hệ báo giá
+              {tProducts('price_contact')}
             </Link>
           )}
 
-          {product.detail?.specifications &&
-            Object.keys(product.detail.specifications).length > 0 && (
-              <div className="pt-4 border-t border-gray-100">
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 mb-4">
-                  Thông số kỹ thuật
-                </h3>
-                <SpecificationsTable specs={product.detail.specifications} />
-              </div>
-            )}
+          {/* Specifications Table */}
+          {product.detail?.specifications && Object.keys(product.detail.specifications).length > 0 && (
+            <div className="pt-4 border-t border-gray-100">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 mb-4">
+                {tProducts('specs_heading')}
+              </h3>
+              <SpecificationsTable specs={product.detail.specifications} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -80,7 +92,7 @@ export default function ProductDetailClient({ product, category, relatedProducts
 
       {product.detail?.contentDetail && (
         <div className="mt-12 sm:mt-16 pt-8 sm:pt-12 border-t border-gray-100">
-          <h2 className="text-[20px] sm:text-[22px] font-light text-[#111] mb-6 sm:mb-8">Mô tả sản phẩm</h2>
+          <h2 className="text-[20px] sm:text-[22px] font-light text-[#111] mb-6 sm:mb-8">{tProducts('description_heading')}</h2>
           <div
             className="prose prose-sm max-w-none break-words text-gray-600 leading-relaxed"
             dangerouslySetInnerHTML={{
@@ -95,10 +107,10 @@ export default function ProductDetailClient({ product, category, relatedProducts
       <div ref={bottomSectionRef} className="mt-12 sm:mt-16 bg-[#111] rounded-2xl px-6 sm:px-8 py-8 sm:py-10 flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
           <p className="text-[#5e8dd1] text-[11px] font-semibold uppercase tracking-[0.22em] mb-2 m-0">
-            Liên hệ với chúng tôi
+            {tProducts('contact_label')}
           </p>
           <p className="text-white text-[18px] sm:text-[22px] font-light m-0">
-            Cần tư vấn về <span className="font-semibold">{product.name}</span>?
+            {tProducts('consult_intro')} <span className="font-semibold">{product.name}</span>?
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
@@ -106,7 +118,7 @@ export default function ProductDetailClient({ product, category, relatedProducts
             href={`/contact/?productId=${product.id}`}
             className="inline-flex items-center justify-center gap-2 bg-[#5e8dd1] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#356098] transition-colors no-underline w-full sm:w-auto"
           >
-            {hasPrice ? 'Liên hệ tư vấn' : 'Báo giá ngay'}
+            {hasPrice ? tCommon('contact_consult') : tCommon('get_quote')}
           </Link>
           <a
             href="https://zalo.me/0943676869"
@@ -114,7 +126,7 @@ export default function ProductDetailClient({ product, category, relatedProducts
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 bg-[#0068FF] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:opacity-90 transition-opacity no-underline w-full sm:w-auto"
           >
-            Chat Zalo
+            {tCommon('chat_zalo')}
           </a>
         </div>
       </div>

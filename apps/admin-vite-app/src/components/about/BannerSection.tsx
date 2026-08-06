@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { Banner } from 'shared-api';
-import { useBanners, useCreateBanner, useUpdateBanner, useDeleteBanner, useUpdateBannerOrders } from '@/queries/settings';
+import { useBanners, useBannersEN, useCreateBanner, useUpdateBanner, useDeleteBanner, useUpdateBannerOrders } from '@/queries/settings';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { uploadFileAndGetUrl } from '@/queries/upload/useUpload';
 import { toast } from '@/utils/toast';
@@ -12,6 +12,7 @@ import { ConfirmModal } from '@/components/common/ConfirmModal';
 
 export function BannerSection() {
   const { data, isLoading } = useBanners();
+  const { data: bannersEN } = useBannersEN();
   const createMutation = useCreateBanner();
   const updateMutation = useUpdateBanner();
   const deleteMutation = useDeleteBanner();
@@ -103,6 +104,7 @@ export function BannerSection() {
                     <BannerCard
                       key={banner.id}
                       banner={banner}
+                      enBanner={bannersEN?.find((e) => e.id === banner.id)}
                       onToggleStatus={handleToggleStatus}
                       onDelete={setDeleteId}
                       onUpdate={(id, data) => updateMutation.mutate({ id, data })}

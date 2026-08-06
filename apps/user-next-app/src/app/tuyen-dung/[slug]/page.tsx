@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { PageBreadcrumb } from 'shared-ui';
 import { api } from '@/lib/api';
 import { buildBaseMetadata } from '@/lib/seo';
+import { getTranslations } from 'next-intl/server';
 
 export const revalidate = 3600;
 
@@ -36,7 +37,11 @@ type Section = { title: string; content: string };
 export default async function JobDetailPage({ params }: Props) {
   const { slug } = await params;
 
-  const job = await api.jobs.getJobDetail(slug, { next: { revalidate: 3600 } });
+  const [t, job] = await Promise.all([
+    getTranslations(),
+    api.jobs.getJobDetail(slug, { next: { revalidate: 3600 } }),
+  ]);
+
   if (!job) notFound();
 
   const sections = ((job as any).sections ?? (job.detail as any)?.sections ?? []) as Section[];
@@ -47,8 +52,8 @@ export default async function JobDetailPage({ params }: Props) {
         variant="light"
         LinkComponent={Link}
         items={[
-          { label: 'Trang chủ', href: '/' },
-          { label: 'Tuyển dụng', href: '/tuyen-dung/' },
+          { label: t('common.home'), href: '/' },
+          { label: t('recruitment.breadcrumb'), href: '/tuyen-dung/' },
           { label: job.title },
         ]}
       />
@@ -58,7 +63,6 @@ export default async function JobDetailPage({ params }: Props) {
 
           {/* Main content */}
           <div>
-            {/* Job header */}
             <div className="mb-10 pb-10 border-b border-gray-100">
               <div className="flex items-center gap-3 mb-4 flex-wrap">
                 <span
@@ -71,7 +75,7 @@ export default async function JobDetailPage({ params }: Props) {
                       <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
                     </span>
                   )}
-                  {job.status ? 'Đang tuyển' : 'Đã đóng'}
+                  {job.status ? t('recruitment.status_open') : t('recruitment.status_closed')}
                 </span>
               </div>
 
@@ -86,14 +90,13 @@ export default async function JobDetailPage({ params }: Props) {
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                   </svg>
                   <span className="text-[15px] text-[#111]">
-                    <span className="text-gray-400 font-medium">Mức lương:</span>{' '}
+                    <span className="text-gray-400 font-medium">{t('recruitment.salary_label')}</span>{' '}
                     <span className="font-semibold text-[#5e8dd1]">{job.salary}</span>
                   </span>
                 </div>
               )}
             </div>
 
-            {/* Sections */}
             {sections.length > 0 ? (
               <div className="flex flex-col gap-10">
                 {sections.map((section, i) => (
@@ -109,7 +112,7 @@ export default async function JobDetailPage({ params }: Props) {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-400 text-[15px]">Chưa có thông tin chi tiết.</p>
+              <p className="text-gray-400 text-[15px]">{t('recruitment.no_detail')}</p>
             )}
           </div>
 
@@ -118,10 +121,10 @@ export default async function JobDetailPage({ params }: Props) {
             <div className="relative rounded-2xl border border-[#5e8dd1]/25 p-7 flex flex-col gap-5 shadow-[0_0_50px_-12px_rgba(94,141,209,0.4)]">
               <div>
                 <p className="text-[#111] text-[18px] font-light leading-snug m-0">
-                  Quan tâm đến vị trí này?
+                  {t('recruitment.sidebar_heading')}
                 </p>
                 <p className="text-gray-500 text-[13px] mt-2 m-0 leading-relaxed">
-                  Liên hệ với chúng tôi để tìm hiểu thêm về vị trí này.
+                  {t('recruitment.sidebar_body')}
                 </p>
               </div>
 
@@ -132,7 +135,7 @@ export default async function JobDetailPage({ params }: Props) {
                   href={`/contact/?jobId=${encodeURIComponent(job.id)}`}
                   className="inline-flex items-center justify-center gap-2 bg-[#5e8dd1] text-white text-[14px] font-semibold px-6 py-3 rounded-full hover:bg-[#356098] active:scale-[0.98] transition-all no-underline text-center"
                 >
-                  Liên hệ ứng tuyển
+                  {t('recruitment.apply_cta')}
                 </Link>
                 <a
                   href="https://zalo.me/0943676869"
@@ -140,14 +143,14 @@ export default async function JobDetailPage({ params }: Props) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 bg-transparent border border-gray-200 text-[#111] text-[14px] font-semibold px-6 py-3 rounded-full hover:bg-gray-50 active:scale-[0.98] transition-all no-underline text-center"
                 >
-                  Chat Zalo
+                  {t('contact.zalo_label')}
                 </a>
               </div>
 
               <div className="w-full h-px bg-gray-100" />
 
               <p className="text-gray-400 text-[12px] m-0 leading-relaxed">
-                Bạn sẽ được chuyển đến trang liên hệ để gửi thông tin.
+                {t('recruitment.sidebar_note')}
               </p>
             </div>
 
@@ -158,7 +161,7 @@ export default async function JobDetailPage({ params }: Props) {
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M11.67 7H2.33M2.33 7L6.42 3M2.33 7L6.42 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              Xem tất cả vị trí
+              {t('recruitment.all_positions')}
             </Link>
           </div>
 

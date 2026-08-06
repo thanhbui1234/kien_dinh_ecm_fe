@@ -7,6 +7,7 @@ import { Project } from "shared-api";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "shared-ui";
 import { m, useInView } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 const EASE_EXPO = [0.16, 1, 0.3, 1] as const;
 
@@ -27,6 +28,7 @@ const item = {
 export default function FeaturedProjectsSection({ projects = [] }: FeaturedProjectsSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
+  const t = useTranslations();
 
   if (projects.length === 0) return null;
 
@@ -42,7 +44,7 @@ export default function FeaturedProjectsSection({ projects = [] }: FeaturedProje
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, ease: EASE_EXPO }}
         >
-          <SectionHeading>Dự án nổi bật</SectionHeading>
+          <SectionHeading>{t('common.featured_projects')}</SectionHeading>
         </m.div>
 
         {/* Bento Grid */}
@@ -52,14 +54,12 @@ export default function FeaturedProjectsSection({ projects = [] }: FeaturedProje
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
         >
-          {/* Hero card — col span 2, row span 2 */}
           {displayed[0] && (
             <m.div variants={item} className="md:col-span-2 md:row-span-2">
               <BentoCard project={displayed[0]} hero />
             </m.div>
           )}
 
-          {/* Side cards */}
           {displayed[1] && (
             <m.div variants={item}>
               <BentoCard project={displayed[1]} />
@@ -71,7 +71,6 @@ export default function FeaturedProjectsSection({ projects = [] }: FeaturedProje
             </m.div>
           )}
 
-          {/* Bottom row */}
           {displayed[3] && (
             <m.div variants={item}>
               <BentoCard project={displayed[3]} />
@@ -100,7 +99,7 @@ export default function FeaturedProjectsSection({ projects = [] }: FeaturedProje
             href="/projects/"
             className="group inline-flex items-center gap-2.5 border border-[#111]/20 text-[#111] text-[13px] font-semibold px-7 py-3 rounded-full hover:bg-[#111] hover:text-white hover:border-[#111] active:scale-[0.98] transition-all no-underline"
           >
-            Xem tất cả dự án
+            {t('home.all_projects')}
             <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </m.div>
@@ -124,13 +123,13 @@ const overlayVariants = {
   hover: { opacity: 1, transition: { duration: 0.4 } },
 };
 
-// Title luôn hiện, chỉ rise-up nhẹ khi hover
+// Title always visible, slight rise on hover
 const titleVariants = {
   rest: { y: 0 },
   hover: { y: -6, transition: { duration: 0.45, ease: EASE_EXPO } },
 };
 
-// Description + CTA ẩn khi rest, stagger rise-up khi hover
+// Description + CTA hidden at rest, stagger rise-up on hover
 const descVariants = {
   rest: { y: 20, opacity: 0 },
   hover: { y: 0, opacity: 1, transition: { duration: 0.45, ease: EASE_EXPO, delay: 0.07 } },
@@ -141,7 +140,14 @@ const ctaVariants = {
   hover: { y: 0, opacity: 1, transition: { duration: 0.4, ease: EASE_EXPO, delay: 0.15 } },
 };
 
-function BentoCard({ project, hero = false }: { project: Project; hero?: boolean }) {
+function BentoCard({
+  project,
+  hero = false,
+}: {
+  project: Project;
+  hero?: boolean;
+}) {
+  const t = useTranslations();
   return (
     <m.div
       className={`relative overflow-hidden rounded-lg bg-gray-100 cursor-pointer ${hero ? "h-[460px] md:h-full min-h-[460px]" : "h-[220px]"}`}
@@ -167,10 +173,10 @@ function BentoCard({ project, hero = false }: { project: Project; hero?: boolean
         <div className="absolute inset-0 bg-gray-200" />
       )}
 
-      {/* Persistent gradient — luôn hiện để title đọc được */}
+      {/* Persistent gradient — always visible so title is readable */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-      {/* Hover overlay tối thêm — đủ contrast cho description */}
+      {/* Hover overlay — extra contrast for description */}
       <m.div
         className="absolute inset-0 bg-black/40"
         variants={overlayVariants}
@@ -180,11 +186,10 @@ function BentoCard({ project, hero = false }: { project: Project; hero?: boolean
       <div className="absolute inset-x-0 bottom-0 p-5 z-[2] overflow-hidden">
         {hero && (
           <p className="text-[#5e8dd1] text-[11px] font-semibold uppercase tracking-[0.18em] mb-2">
-            Dự án tiêu biểu
+            {t('home.featured_label')}
           </p>
         )}
 
-        {/* Title luôn visible */}
         <m.h3
           className={`text-white font-semibold leading-snug line-clamp-2 ${hero ? "text-xl md:text-2xl" : "text-sm"}`}
           variants={titleVariants}
@@ -192,7 +197,6 @@ function BentoCard({ project, hero = false }: { project: Project; hero?: boolean
           {project.name}
         </m.h3>
 
-        {/* Description — hidden at rest */}
         {project.description && (
           <m.p
             className={`text-white/70 mt-2 line-clamp-3 ${hero ? "text-sm" : "text-xs"}`}
@@ -202,12 +206,11 @@ function BentoCard({ project, hero = false }: { project: Project; hero?: boolean
           </m.p>
         )}
 
-        {/* CTA — hidden at rest */}
         <m.div
           className="flex items-center gap-1.5 mt-3 text-[#5e8dd1] text-xs font-semibold uppercase tracking-wider"
           variants={ctaVariants}
         >
-          Xem dự án <ArrowRight className="w-3 h-3" />
+          {t('home.view_project')} <ArrowRight className="w-3 h-3" />
         </m.div>
       </div>
     </m.div>

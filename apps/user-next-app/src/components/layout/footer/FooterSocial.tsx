@@ -1,8 +1,11 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { FacebookIcon, YouTubeIcon } from '@/components/icons';
 import { Mail, Phone } from 'lucide-react';
 import { footerHeadingClass } from './FooterNavColumn';
+import { useTranslations } from 'next-intl';
 
 interface FooterSocialProps {
   introText?: string;
@@ -19,15 +22,13 @@ export const FooterSocial = ({
   email = 'maygachbetongtb@gmail.com',
   phone = '0943676869',
 }: FooterSocialProps) => {
-  const displayIntro =
-    introText ||
-    'Công ty Cổ Phần Thanh Bằng tự hào là một trong những công ty uy tín nhất hiện nay và sẵn sàng cam kết với khách hàng về các vấn đề chất lượng, nguồn gốc xuất xứ của sản phẩm cũng như các dịch vụ đi kèm khác.';
-
+  const t = useTranslations();
+  const displayIntro = introText || t('footer.company_intro_fallback');
   const cleanPhone = phone?.replace(/\s+/g, '');
 
   return (
     <div>
-      <Link href="/" aria-label="Trang chủ Thanh Bằng" className="inline-block mb-6">
+      <Link href="/" aria-label={t('footer.home_label')} className="inline-block mb-6">
         <Image
           src="/images/logo_thanh_bang.png"
           alt="Thanh Bằng"
@@ -42,14 +43,14 @@ export const FooterSocial = ({
       </p>
 
       <div>
-        <h3 className={footerHeadingClass + " uppercase"}>Kết nối với chúng tôi</h3>
+        <h3 className={footerHeadingClass + " uppercase"}>{t('footer.connect_with_us')}</h3>
         <div className="flex gap-3 items-center mb-3">
           {facebookUrl && (
             <a
               href={facebookUrl}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Facebook Thanh Bằng"
+              aria-label={t('footer.facebook_label')}
               className="hover:opacity-80 transition-opacity"
             >
               <FacebookIcon />
@@ -60,7 +61,7 @@ export const FooterSocial = ({
               href={youtubeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="YouTube Thanh Bằng"
+              aria-label={t('footer.youtube_label')}
               className="hover:opacity-80 transition-opacity"
             >
               <YouTubeIcon />
@@ -69,7 +70,7 @@ export const FooterSocial = ({
           {email && (
             <a
               href={`mailto:${email}`}
-              aria-label="Gửi email"
+              aria-label={t('footer.email_icon_label')}
               className="w-10 h-10 rounded-full border border-[#333] flex items-center justify-center text-white hover:bg-[#333] transition-colors"
             >
               <Mail className="w-[18px] h-[18px]" />
@@ -78,19 +79,19 @@ export const FooterSocial = ({
           {phone && (
             <a
               href={`tel:${cleanPhone}`}
-              aria-label="Gọi điện thoại"
+              aria-label={t('footer.phone_label')}
               className="w-10 h-10 rounded-full border border-[#333] flex items-center justify-center text-white hover:bg-[#333] transition-colors"
             >
               <Phone className="w-[18px] h-[18px]" />
             </a>
           )}
         </div>
-        
-        <Link 
-          href="/contact" 
+
+        <Link
+          href="/contact"
           className="inline-block text-[13px] text-[#aaa] hover:text-[#5e8dd1] underline underline-offset-4 transition-colors"
         >
-          Liên hệ ngay →
+          {t('footer.contact_now_arrow')}
         </Link>
       </div>
     </div>

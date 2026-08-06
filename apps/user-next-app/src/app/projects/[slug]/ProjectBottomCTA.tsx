@@ -3,6 +3,7 @@
 import type { RefObject } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 const E = [0.16, 1, 0.3, 1] as const;
 
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function ProjectBottomCTA({ ctaRef }: Props) {
+  const t = useTranslations();
   return (
     <motion.div
       ref={ctaRef}
@@ -26,10 +28,10 @@ export default function ProjectBottomCTA({ ctaRef }: Props) {
       <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
         <div className="max-w-[460px]">
           <p className="text-white text-[24px] md:text-[28px] font-light leading-tight m-0">
-            Quan tâm đến dự án tương tự?
+            {t('projects.bottom_cta_heading')}
           </p>
           <p className="text-white/50 text-[14px] mt-3 m-0 leading-relaxed">
-            Đội ngũ kỹ sư Thanh Bằng sẵn sàng tư vấn, lên phương án và báo giá miễn phí.
+            {t('projects.bottom_cta_sub')}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 shrink-0">
@@ -37,7 +39,7 @@ export default function ProjectBottomCTA({ ctaRef }: Props) {
             href="/contact/"
             className="inline-flex items-center justify-center gap-2 bg-[#5e8dd1] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-[#356098] active:scale-[0.98] transition-all no-underline"
           >
-            Liên hệ tư vấn
+            {t('common.contact_consult')}
           </Link>
           <a
             href="https://zalo.me/0943676869"
@@ -45,7 +47,7 @@ export default function ProjectBottomCTA({ ctaRef }: Props) {
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 bg-white/[0.05] border border-white/[0.12] text-white text-[14px] font-semibold px-8 py-3.5 rounded-full hover:bg-white/[0.10] active:scale-[0.98] transition-all no-underline"
           >
-            Chat Zalo
+            {t('common.chat_zalo')}
           </a>
         </div>
       </div>

@@ -4,17 +4,11 @@ export interface FooterNavLink {
   indent?: boolean;
 }
 
-export const COMPANY_ADDRESS = 'Công Ty Cổ Phần Thanh Bằng, Xuân Trường, Ninh Bình 420000, Việt Nam';
-
-export const CUSTOMER_SUPPORT_GROUP = {
-  heading: 'HỖ TRỢ KHÁCH HÀNG',
-  headingHref: '#',
-  links: [
-    { label: 'Tư vấn ngay', href: '/contact' },
-    { label: 'Chính sách bảo hành', href: '/warranty-policy' },
-    { label: 'Hướng dẫn mua hàng', href: '/shopping-guide' },
-    { label: 'Hướng dẫn thanh toán', href: '/payment-guide' },
-    { label: 'Đối tác và khách hàng', href: '/partners' },
-    { label: 'Về chúng tôi', href: '/about-us' },
-  ]
-};
+export const DEFAULT_SUPPORT_LINKS = [
+  { label_key: 'footer.consultation', href: '/contact' },
+  { label_key: 'footer.warranty_policy', href: '/warranty-policy' },
+  { label_key: 'footer.shopping_guide', href: '/shopping-guide' },
+  { label_key: 'footer.payment_guide', href: '/payment-guide' },
+  { label_key: 'footer.partners', href: '/partners' },
+  { label_key: 'footer.about_us', href: '/about-us' },
+];

@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { Product } from 'shared-api';
 
 interface RelatedProductsSectionProps {
@@ -9,11 +10,13 @@ interface RelatedProductsSectionProps {
 }
 
 export default function RelatedProductsSection({ products }: RelatedProductsSectionProps) {
+  const t = useTranslations('products');
+  
   if (!products || products.length === 0) return null;
 
   return (
     <div className="mt-12 sm:mt-16 pt-8 sm:pt-12 border-t border-gray-100">
-      <h2 className="text-[20px] sm:text-[22px] font-light text-[#111] mb-6 sm:mb-8">Sản phẩm liên quan</h2>
+      <h2 className="text-[20px] sm:text-[22px] font-light text-[#111] mb-6 sm:mb-8">{t('related_heading')}</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
         {products.slice(0, 6).map((related) => (
           <Link

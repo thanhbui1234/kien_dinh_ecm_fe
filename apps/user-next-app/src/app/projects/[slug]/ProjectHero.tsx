@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Calendar } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { Project } from 'shared-api';
 
 const EASE_EXPO = [0.16, 1, 0.3, 1] as const;
@@ -13,6 +14,7 @@ interface ProjectHeroProps {
 }
 
 export default function ProjectHero({ project }: ProjectHeroProps) {
+  const t = useTranslations();
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -66,7 +68,7 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: EASE_EXPO, delay: 0.1 }}
           >
-            Dự án tiêu biểu
+            {t('projects.featured_project_badge')}
           </motion.p>
         )}
 

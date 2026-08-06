@@ -6,13 +6,20 @@ import type { CompanyProfile, UpdateCompanyProfileInput, CompanyHistoryEvent, Co
 import type { CompanyInfoItem, Facility } from '@/types/about';
 import { triggerRevalidate } from '@/utils/revalidate';
 
+// ─── Translation input types (inline — mirrors DTOs from dto-api) ─────────────
+export interface ProfileTranslationInput { lang: 'VI' | 'EN'; introHtml: string }
+export interface CompanyInfoTranslationInput { lang: 'VI' | 'EN'; label: string; value: string }
+export interface FacilityTranslationInput { lang: 'VI' | 'EN'; name: string; country: string; address: string }
+export interface HistoryEventTranslationInput { lang: 'VI' | 'EN'; period: string; text: string }
+export interface LocationTranslationInput { lang: 'VI' | 'EN'; title: string; addressLabel: string; address: string }
+
 const aboutKeys = {
   all: ['about'] as const,
-  profile: () => [...aboutKeys.all, 'profile'] as const,
-  historyEvents: () => [...aboutKeys.all, 'history-events'] as const,
-  companyInfo: () => [...aboutKeys.all, 'company-info'] as const,
-  facilities: () => [...aboutKeys.all, 'facilities'] as const,
-  locations: () => [...aboutKeys.all, 'locations'] as const,
+  profile: (lang?: string) => lang ? [...aboutKeys.all, 'profile', lang] as const : [...aboutKeys.all, 'profile'] as const,
+  historyEvents: (lang?: string) => lang ? [...aboutKeys.all, 'history-events', lang] as const : [...aboutKeys.all, 'history-events'] as const,
+  companyInfo: (lang?: string) => lang ? [...aboutKeys.all, 'company-info', lang] as const : [...aboutKeys.all, 'company-info'] as const,
+  facilities: (lang?: string) => lang ? [...aboutKeys.all, 'facilities', lang] as const : [...aboutKeys.all, 'facilities'] as const,
+  locations: (lang?: string) => lang ? [...aboutKeys.all, 'locations', lang] as const : [...aboutKeys.all, 'locations'] as const,
 };
 
 // Company Profile
@@ -22,6 +29,16 @@ export const useCompanyProfile = () => {
     queryKey: aboutKeys.profile(),
     queryFn: async () => {
       const res = await axiosInstance.get<any, { data: CompanyProfile }>(API_ENDPOINTS.ABOUT.PROFILE);
+      return res.data;
+    },
+  });
+};
+
+export const useCompanyProfileEN = () => {
+  return useQuery({
+    queryKey: aboutKeys.profile('EN'),
+    queryFn: async () => {
+      const res = await axiosInstance.get<any, { data: CompanyProfile }>(API_ENDPOINTS.ABOUT.PROFILE, { params: { lang: 'EN' } });
       return res.data;
     },
   });
@@ -50,6 +67,17 @@ export const useHistoryEvents = () => {
     queryKey: aboutKeys.historyEvents(),
     queryFn: async () => {
       const res = await axiosInstance.get<any, { data: CompanyHistoryEvent[] }>(API_ENDPOINTS.ABOUT.HISTORY_EVENTS);
+      return res.data;
+    },
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useHistoryEventsEN = () => {
+  return useQuery({
+    queryKey: aboutKeys.historyEvents('EN'),
+    queryFn: async () => {
+      const res = await axiosInstance.get<any, { data: CompanyHistoryEvent[] }>(API_ENDPOINTS.ABOUT.HISTORY_EVENTS, { params: { lang: 'EN' } });
       return res.data;
     },
     placeholderData: keepPreviousData,
@@ -140,6 +168,17 @@ export const useCompanyInfo = () => {
   });
 };
 
+export const useCompanyInfoEN = () => {
+  return useQuery({
+    queryKey: aboutKeys.companyInfo('EN'),
+    queryFn: async () => {
+      const res = await axiosInstance.get<any, { data: CompanyInfoItem[] }>(API_ENDPOINTS.ABOUT.COMPANY_INFO, { params: { lang: 'EN' } });
+      return res.data;
+    },
+    placeholderData: keepPreviousData,
+  });
+};
+
 export const useCreateCompanyInfo = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -200,6 +239,17 @@ export const useFacilities = () => {
     queryKey: aboutKeys.facilities(),
     queryFn: async () => {
       const res = await axiosInstance.get<any, { data: Facility[] }>(API_ENDPOINTS.ABOUT.FACILITIES);
+      return res.data;
+    },
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useFacilitiesEN = () => {
+  return useQuery({
+    queryKey: aboutKeys.facilities('EN'),
+    queryFn: async () => {
+      const res = await axiosInstance.get<any, { data: Facility[] }>(API_ENDPOINTS.ABOUT.FACILITIES, { params: { lang: 'EN' } });
       return res.data;
     },
     placeholderData: keepPreviousData,
@@ -272,6 +322,17 @@ export const useCompanyLocations = () => {
   });
 };
 
+export const useCompanyLocationsEN = () => {
+  return useQuery({
+    queryKey: aboutKeys.locations('EN'),
+    queryFn: async () => {
+      const res = await axiosInstance.get<any, { data: CompanyLocation[] }>(API_ENDPOINTS.ABOUT.LOCATIONS, { params: { lang: 'EN' } });
+      return res.data;
+    },
+    placeholderData: keepPreviousData,
+  });
+};
+
 export const useCreateCompanyLocation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -282,6 +343,88 @@ export const useCreateCompanyLocation = () => {
     onSuccess: () => {
       toast.success('Thêm vị trí thành công');
       queryClient.invalidateQueries({ queryKey: aboutKeys.locations() });
+      triggerRevalidate('about-locations');
+    },
+    onError: (error: any) => toast.error(error),
+  });
+};
+
+// ─── Translation Hooks ────────────────────────────────────────────────────────
+
+export const useSaveProfileTranslation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: ProfileTranslationInput) => {
+      const res = await axiosInstance.post(API_ENDPOINTS.ABOUT.PROFILE_TRANSLATION, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Lưu bản dịch Tiếng Anh thành công');
+      queryClient.invalidateQueries({ queryKey: aboutKeys.profile('EN') });
+      triggerRevalidate('about');
+    },
+    onError: (error: any) => toast.error(error),
+  });
+};
+
+export const useSaveCompanyInfoTranslation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: CompanyInfoTranslationInput }) => {
+      const res = await axiosInstance.post(API_ENDPOINTS.ABOUT.COMPANY_INFO_TRANSLATION(id), data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Lưu bản dịch Tiếng Anh thành công');
+      queryClient.invalidateQueries({ queryKey: aboutKeys.companyInfo('EN') });
+      triggerRevalidate('about');
+    },
+    onError: (error: any) => toast.error(error),
+  });
+};
+
+export const useSaveFacilityTranslation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: FacilityTranslationInput }) => {
+      const res = await axiosInstance.post(API_ENDPOINTS.ABOUT.FACILITY_TRANSLATION(id), data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Lưu bản dịch Tiếng Anh thành công');
+      queryClient.invalidateQueries({ queryKey: aboutKeys.facilities('EN') });
+      triggerRevalidate('about');
+    },
+    onError: (error: any) => toast.error(error),
+  });
+};
+
+export const useSaveHistoryEventTranslation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: HistoryEventTranslationInput }) => {
+      const res = await axiosInstance.post(API_ENDPOINTS.ABOUT.HISTORY_EVENT_TRANSLATION(id), data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Lưu bản dịch Tiếng Anh thành công');
+      queryClient.invalidateQueries({ queryKey: aboutKeys.historyEvents('EN') });
+      triggerRevalidate('about');
+    },
+    onError: (error: any) => toast.error(error),
+  });
+};
+
+export const useSaveLocationTranslation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: LocationTranslationInput }) => {
+      const res = await axiosInstance.post(API_ENDPOINTS.ABOUT.LOCATION_TRANSLATION(id), data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Lưu bản dịch Tiếng Anh thành công');
+      queryClient.invalidateQueries({ queryKey: aboutKeys.locations('EN') });
       triggerRevalidate('about-locations');
     },
     onError: (error: any) => toast.error(error),

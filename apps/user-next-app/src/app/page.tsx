@@ -9,25 +9,13 @@ import ShowroomCTA from "@/components/home/ShowroomCTA";
 import { getCachedCategories, getCachedBanners, getCachedFeaturedProducts } from "@/lib/cached-api";
 import { api } from "@/lib/api";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { buildBaseMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Thanh Bằng — Phụ tùng & Máy công cụ CNC",
+export const metadata: Metadata = buildBaseMetadata({
+  title: "Phụ tùng & Máy công cụ CNC",
   description: "Thanh Bằng chuyên cung cấp phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Việt Nam. Tư vấn kỹ thuật chuyên sâu, giao hàng toàn quốc.",
-  alternates: { canonical: "https://thanhbang.com/" },
-  openGraph: {
-    title: "Thanh Bằng — Phụ tùng & Máy công cụ CNC",
-    description: "Thanh Bằng chuyên cung cấp phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Việt Nam.",
-    url: "https://thanhbang.com/",
-    siteName: "Thanh Bằng",
-    locale: "vi_VN",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Thanh Bằng — Phụ tùng & Máy công cụ CNC",
-    description: "Thanh Bằng chuyên cung cấp phụ tùng, dụng cụ cắt gọt và máy công cụ CNC chính hãng tại Việt Nam.",
-  },
-};
+  path: "/",
+});
 
 export const experimental_ppr = true;
 

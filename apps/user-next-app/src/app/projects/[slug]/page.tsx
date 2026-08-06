@@ -5,6 +5,7 @@ import ProjectDetailClient from './ProjectDetailClient';
 import { api } from '@/lib/api';
 import type { Metadata } from 'next';
 import { buildProjectMetadata } from '@/lib/seo';
+import { getTranslations } from 'next-intl/server';
 
 export const revalidate = 3600;
 
@@ -19,12 +20,13 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const project = await api.projects.getProjectDetail(slug, {
-    next: { revalidate: 3600 },
-  });
+  const [project, t] = await Promise.all([
+    api.projects.getProjectDetail(slug, { next: { revalidate: 3600 } }),
+    getTranslations(),
+  ]);
 
   if (!project) {
-    return { title: 'Dự án không tồn tại' };
+    return { title: t('projects.not_exist') };
   }
 
   return buildProjectMetadata({
@@ -38,13 +40,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProjectDetailPage({ params }: Props) {
   const { slug } = await params;
 
-  const [project, flatCategoriesResponse] = await Promise.all([
-    api.projects.getProjectDetail(slug, {
-      next: { revalidate: 3600 },
-    }),
-    api.categories.getCategories({
-      next: { revalidate: 3600 },
-    }),
+  const [project, flatCategoriesResponse, t] = await Promise.all([
+    api.projects.getProjectDetail(slug, { next: { revalidate: 3600 } }),
+    api.categories.getCategories({ next: { revalidate: 3600 } }),
+    getTranslations(),
   ]);
 
   if (!project) notFound();
@@ -62,8 +61,8 @@ export default async function ProjectDetailPage({ params }: Props) {
           variant="light"
           LinkComponent={Link}
           items={[
-            { label: 'Trang chủ', href: '/' },
-            { label: 'Dự án', href: '/projects/' },
+            { label: t('common.home'), href: '/' },
+            { label: t('projects.breadcrumb_projects'), href: '/projects/' },
             { label: project.name },
           ]}
         />

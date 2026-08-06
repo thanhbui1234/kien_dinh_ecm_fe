@@ -6,7 +6,7 @@ import { createListResource, createDetailResource } from './resource-factory';
 export const createProductsApi = (client: FetchClient) => ({
   getProducts: (params?: Record<string, string>, options?: RequestInit) => {
     const listResource = createListResource<Product>(client, API_ENDPOINTS.PRODUCTS.BASE);
-    return listResource(params, { ...options, next: { tags: ['products'] } } as any);
+    return listResource(params, { ...options, next: { tags: ['products'], revalidate: 3600 } } as any);
   },
   getProductDetail: (id: string, options?: RequestInit) => {
     const detailResource = createDetailResource<Product>(client, API_ENDPOINTS.PRODUCTS.DETAIL);
@@ -23,3 +23,4 @@ export const createProductsApi = (client: FetchClient) => ({
     }
   },
 });
+

@@ -1,6 +1,7 @@
 'use client';
 
 import StickyContactBar from '@/components/ui/StickyContactBar';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   productId: string;
@@ -15,11 +16,12 @@ export default function StickyContactBar_Product({
   hasPrice,
   bottomSectionRef,
 }: Props) {
-  const ctaLabel = hasPrice ? 'Liên hệ tư vấn' : 'Báo giá ngay';
+  const t = useTranslations();
+  const ctaLabel = hasPrice ? t('common.contact_consult') : t('common.get_quote');
 
   return (
     <StickyContactBar
-      entityLabel="Sản phẩm"
+      entityLabel={t('products.breadcrumb_products')}
       entityName={productName}
       ctaLabel={ctaLabel}
       ctaHref={`/contact/?productId=${productId}`}

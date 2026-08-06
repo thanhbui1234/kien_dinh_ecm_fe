@@ -270,6 +270,15 @@ export interface CreateCategoryDto {
   parentId?: string;
 }
 
+export interface UpsertCategoryTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tên danh mục theo ngôn ngữ */
+  name: string;
+  /** Slug theo ngôn ngữ */
+  slug?: string;
+}
+
 export interface UpdateCategoryDto {
   /** Tên danh mục */
   name?: string;
@@ -398,6 +407,24 @@ export interface CreateProductDto {
   images?: CreateProductImageDto[];
 }
 
+export interface UpsertProductTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tên sản phẩm theo ngôn ngữ */
+  name: string;
+  /** Slug theo ngôn ngữ (tự sinh nếu không truyền) */
+  slug?: string;
+  /** Nội dung chi tiết bài viết */
+  contentDetail?: string;
+  /** Thông số kỹ thuật */
+  specifications?: object;
+  /** Tính năng nổi bật */
+  features?: object;
+  /** SEO Title */
+  seoTitle?: string;
+  /** SEO Description */
+  seoDescription?: string;
+}
 
 export interface UpdateProductDto {
   /** Tên sản phẩm */
@@ -510,6 +537,19 @@ export interface CreateProjectDto {
   videoUrls?: string[];
 }
 
+export interface UpsertProjectTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tên dự án theo ngôn ngữ */
+  name: string;
+  /** Slug theo ngôn ngữ */
+  slug?: string;
+  /** Mô tả ngắn */
+  description?: string;
+  /** Nội dung chi tiết */
+  contentDetail?: string;
+}
+
 export interface UpdateProjectDto {
   /** Tên dự án */
   name?: string;
@@ -586,6 +626,19 @@ export interface CreateJobDto {
   status?: boolean;
   /** Mảng các mục chi tiết (JSON) */
   sections: object[];
+}
+
+export interface UpsertJobPostTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tiêu đề tuyển dụng theo ngôn ngữ */
+  title: string;
+  /** Slug theo ngôn ngữ */
+  slug?: string;
+  /** Mức lương */
+  salary?: string;
+  /** Mô tả công việc & Yêu cầu (sections JSON) */
+  sections?: object;
 }
 
 export interface UpdateJobDto {
@@ -737,6 +790,15 @@ export interface UpdateSloganDto {
   orderIndex?: number;
 }
 
+export interface UpsertCompanySloganTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tiêu đề slogan theo ngôn ngữ */
+  title: string;
+  /** Mô tả slogan theo ngôn ngữ */
+  description?: string;
+}
+
 export interface BannerResponseDto {
   /** Tiêu đề banner */
   title?: string;
@@ -803,6 +865,15 @@ export interface UpdateBannerDto {
   status?: boolean;
 }
 
+export interface UpsertBannerTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tiêu đề banner theo ngôn ngữ */
+  title?: string;
+  /** Mô tả banner theo ngôn ngữ */
+  description?: string;
+}
+
 export interface CompanyProfileResponseDto {
   id: string;
   introHtml: string;
@@ -814,6 +885,13 @@ export interface UpdateCompanyProfileDto {
   introHtml?: string;
   /** URL ảnh thumbnail trang About */
   thumbnailUrl?: string;
+}
+
+export interface UpsertCompanyProfileTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Nội dung introHtml theo ngôn ngữ */
+  introHtml: string;
 }
 
 export interface CompanyInfoResponseDto {
@@ -876,6 +954,15 @@ export interface UpdateCompanyInfoDto {
    * @default 0
    */
   orderIndex?: number;
+}
+
+export interface UpsertCompanyInfoTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Nhãn theo ngôn ngữ */
+  label: string;
+  /** Giá trị theo ngôn ngữ */
+  value: string;
 }
 
 export interface FacilityResponseDto {
@@ -970,6 +1057,17 @@ export interface UpdateFacilityDto {
   orderIndex?: number;
 }
 
+export interface UpsertFacilityTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tên cơ sở theo ngôn ngữ */
+  name: string;
+  /** Quốc gia theo ngôn ngữ */
+  country: string;
+  /** Địa chỉ theo ngôn ngữ */
+  address: string;
+}
+
 export interface CompanyHistoryEventResponseDto {
   /**
    * Giai đoạn
@@ -1057,6 +1155,15 @@ export interface UpdateCompanyHistoryEventDto {
    * @default 0
    */
   orderIndex?: number;
+}
+
+export interface UpsertHistoryEventTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Nhãn giai đoạn theo ngôn ngữ */
+  period: string;
+  /** Nội dung sự kiện theo ngôn ngữ */
+  text: string;
 }
 
 export interface CompanyLocationResponseDto {
@@ -1182,6 +1289,17 @@ export interface UpdateCompanyLocationDto {
   orderIndex?: number;
 }
 
+export interface UpsertCompanyLocationTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tên vị trí theo ngôn ngữ */
+  title: string;
+  /** Nhãn địa chỉ theo ngôn ngữ */
+  addressLabel: string;
+  /** Địa chỉ chi tiết theo ngôn ngữ */
+  address: string;
+}
+
 export interface AiChatDto {
   /**
    * Câu hỏi hoặc tin nhắn gửi cho AI (Tối đa 300 ký tự)
@@ -1299,6 +1417,19 @@ export interface UpdateContactSettingDto {
   mapUrl?: string;
 }
 
+export interface UpsertContactSettingTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Tiêu đề khối liên hệ theo ngôn ngữ */
+  title: string;
+  /** Mô tả khối liên hệ theo ngôn ngữ */
+  description: string;
+  /** Địa chỉ theo ngôn ngữ */
+  address?: string;
+  /** Giờ làm việc theo ngôn ngữ */
+  workingHours?: string;
+}
+
 export interface CustomerSupportLinkDto {
   /**
    * Nhãn liên kết
@@ -1407,4 +1538,17 @@ export interface UpdateFooterSettingDto {
   customerSupportTitle?: string;
   /** Danh sách đường dẫn hỗ trợ khách hàng */
   customerSupportLinks?: CustomerSupportLinkDto[];
+}
+
+export interface UpsertFooterSettingTranslationDto {
+  /** Ngôn ngữ dịch (VI | EN) */
+  lang: "VI" | "EN";
+  /** Văn bản giới thiệu footer theo ngôn ngữ */
+  introText: string;
+  /** Địa chỉ theo ngôn ngữ */
+  address?: string;
+  /** Tiêu đề hỗ trợ khách hàng theo ngôn ngữ */
+  customerSupportTitle?: string;
+  /** Danh sách liên kết hỗ trợ theo ngôn ngữ [{label, href}] */
+  customerSupportLinks?: object;
 }

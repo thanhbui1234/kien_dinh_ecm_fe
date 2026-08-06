@@ -90,7 +90,53 @@ export default function ProductsPage() {
 
 ---
 
-## 3. CÁCH MỞ RỘNG (THÊM API MỚI)
+## 4. QUY TẮC BẮT BUỘC: KHÔNG GỌI axiosInstance TRỰC TIẾP TRONG COMPONENTS
+
+**Tuyệt đối không được** gọi `axiosInstance.post/put/patch/delete` trực tiếp bên trong component hoặc page file. Mọi mutation **bắt buộc** phải đi qua React Query hook.
+
+### ✅ Đúng — qua React Query mutation hook
+```tsx
+// Khai báo hook tại src/queries/<domain>/useSave<Entity>Translation.ts
+export const useSave<Entity>Translation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ entityId, ...data }) => {
+      const res = await axiosInstance.post(API_ENDPOINTS.DOMAIN.TRANSLATION(entityId), data);
+      return res.data;
+    },
+    onSuccess: (_, { entityId }) => {
+      queryClient.invalidateQueries({ queryKey: domainKeys.detail(entityId) });
+      queryClient.invalidateQueries({ queryKey: domainKeys.lists() });
+      triggerRevalidate('domain');
+    },
+  });
+};
+
+// Sử dụng trong component/page
+const saveMutation = useSaveEntityTranslation();
+saveMutation.mutate({ entityId: id, lang: 'EN', name: '...' }, {
+  onSuccess: () => { /* cập nhật local state */ },
+  onError: () => { /* hiển thị lỗi */ },
+});
+```
+
+### ❌ Sai — gọi axiosInstance trực tiếp
+```tsx
+// KHÔNG làm thế này trong component/page
+await axiosInstance.post(API_ENDPOINTS.JOBS.TRANSLATION(id), { ... });
+```
+
+### Translation hooks hiện có (đã triển khai)
+| Hook | File |
+|------|------|
+| `useSaveCategoryTranslation()` | `src/queries/categories/useSaveCategoryTranslation.ts` |
+| `useSaveJobTranslation()` | `src/queries/jobs/useSaveJobTranslation.ts` |
+| `useSaveProjectTranslation()` | `src/queries/projects/useSaveProjectTranslation.ts` |
+| `useSaveProductTranslation()` | `src/queries/products/useSaveProductTranslation.ts` |
+
+Khi thêm domain mới có translation, tạo hook tương tự trong folder `src/queries/<domain>/` và export qua `index.ts` của folder đó.
+
+## 5. CÁCH MỞ RỘNG (THÊM API MỚI)
 
 Khi Backend cung cấp thêm một Module mới (VD: `news`):
 1. Chạy `pnpm run gen-api` ở thư mục `packages/shared-api` để tải DTO mới.

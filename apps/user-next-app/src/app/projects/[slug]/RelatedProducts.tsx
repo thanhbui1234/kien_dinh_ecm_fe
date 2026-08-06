@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import { ArrowRight, Tag } from 'lucide-react';
 import type { Product } from 'shared-api';
+import { useTranslations } from 'next-intl';
 
 const E = [0.16, 1, 0.3, 1] as const;
 
@@ -14,6 +15,7 @@ interface RelatedProductsProps {
 }
 
 export default function RelatedProducts({ products }: RelatedProductsProps) {
+  const t = useTranslations();
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
 
@@ -33,16 +35,16 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
           <div className="flex items-center gap-3 mb-3">
             <div className="w-6 h-[2px] bg-[#5e8dd1]" />
             <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#5e8dd1]">
-              Sản phẩm liên quan
+              {t('projects.related_products_eyebrow')}
             </span>
           </div>
-          <h2 className="text-[22px] font-light text-[#111] m-0">Thiết bị được sử dụng</h2>
+          <h2 className="text-[22px] font-light text-[#111] m-0">{t('projects.related_products_heading')}</h2>
         </div>
         <Link
           href="/products/"
           className="hidden md:flex items-center gap-1.5 text-[13px] text-gray-400 hover:text-[#111] transition-colors no-underline"
         >
-          Tất cả sản phẩm <ArrowRight className="w-3.5 h-3.5" />
+          {t('projects.related_products_cta')} <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </motion.div>
 

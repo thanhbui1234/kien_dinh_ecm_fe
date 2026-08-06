@@ -3,31 +3,26 @@ import Image from 'next/image';
 import { api } from '@/lib/api';
 import type { Metadata } from 'next';
 import type { Project } from 'shared-api';
+import { getTranslations, getLocale } from 'next-intl/server';
+import { buildBaseMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Dự án | Thanh Bằng',
-  description: 'Khám phá các dự án tiêu biểu của Thanh Bằng — lắp đặt máy CNC, hệ thống tự động hóa và tích hợp dây chuyền sản xuất.',
-  alternates: { canonical: 'https://thanhbang.com/projects/' },
-  openGraph: {
-    title: 'Dự án | Thanh Bằng',
+export async function generateMetadata(): Promise<Metadata> {
+  return buildBaseMetadata({
+    title: 'Dự án — Thanh Bằng',
     description: 'Khám phá các dự án tiêu biểu của Thanh Bằng — lắp đặt máy CNC, hệ thống tự động hóa và tích hợp dây chuyền sản xuất.',
-    url: 'https://thanhbang.com/projects/',
-    siteName: 'Thanh Bằng',
-    locale: 'vi_VN',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Dự án | Thanh Bằng',
-    description: 'Khám phá các dự án tiêu biểu của Thanh Bằng — lắp đặt máy CNC, hệ thống tự động hóa và tích hợp dây chuyền sản xuất.',
-  },
-};
+    path: '/projects/',
+  });
+}
 
 interface SearchParams {
   page?: string;
 }
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project, viewLabel, featuredBadge }: {
+  project: Project;
+  viewLabel: string;
+  featuredBadge: string;
+}) {
   const formattedDate = new Date(project.createdAt).toLocaleDateString('vi-VN', {
     year: 'numeric',
     month: 'short',
@@ -39,7 +34,6 @@ function ProjectCard({ project }: { project: Project }) {
       href={`/projects/${project.slug}`}
       className="group flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden no-underline hover:shadow-xl hover:border-gray-200 transition-all duration-300"
     >
-      {/* Cover image */}
       <div className="relative w-full aspect-[16/10] bg-[#111] overflow-hidden shrink-0">
         {project.coverImage ? (
           <Image
@@ -53,7 +47,6 @@ function ProjectCard({ project }: { project: Project }) {
           <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900" />
         )}
 
-        {/* Gradient fade at bottom */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
         {project.isFeatured && (
@@ -62,12 +55,11 @@ function ProjectCard({ project }: { project: Project }) {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-60" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
             </span>
-            Tiêu biểu
+            {featuredBadge}
           </div>
         )}
       </div>
 
-      {/* Info */}
       <div className="flex flex-col p-5 grow">
         <p className="text-[11px] text-gray-400 m-0 mb-2 tabular-nums">{formattedDate}</p>
         <h3 className="text-[15px] font-medium text-[#111] leading-snug m-0 line-clamp-2 group-hover:text-[#5e8dd1] transition-colors duration-200">
@@ -80,11 +72,8 @@ function ProjectCard({ project }: { project: Project }) {
         )}
         <div className="mt-auto pt-4 flex items-center justify-between">
           <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-gray-400 group-hover:text-[#5e8dd1] transition-colors duration-200">
-            Xem dự án
-            <svg
-              width="14" height="14" viewBox="0 0 14 14" fill="none"
-              className="transition-transform duration-300 group-hover:translate-x-1"
-            >
+            {viewLabel}
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="transition-transform duration-300 group-hover:translate-x-1">
               <path d="M2.33 7H11.67M11.67 7L7.58 3M11.67 7L7.58 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
@@ -94,7 +83,7 @@ function ProjectCard({ project }: { project: Project }) {
   );
 }
 
-function EmptyState() {
+function EmptyState({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-32 gap-4">
       <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
@@ -103,7 +92,7 @@ function EmptyState() {
           <path d="M16 7V5a2 2 0 0 0-4 0v2M8 7V5a2 2 0 0 1 4 0" />
         </svg>
       </div>
-      <p className="text-gray-400 text-[14px]">Chưa có dự án nào.</p>
+      <p className="text-gray-400 text-[14px]">{label}</p>
     </div>
   );
 }
@@ -130,9 +119,7 @@ function Pagination({ meta, searchParams }: { meta: { page: number; totalPages: 
           key={p}
           href={buildHref(p)}
           className={`w-9 h-9 flex items-center justify-center rounded-full text-[13px] no-underline transition-all ${
-            p === page
-              ? 'bg-[#5e8dd1] text-white'
-              : 'border border-gray-200 text-gray-500 hover:border-[#5e8dd1] hover:text-[#5e8dd1]'
+            p === page ? 'bg-[#5e8dd1] text-white' : 'border border-gray-200 text-gray-500 hover:border-[#5e8dd1] hover:text-[#5e8dd1]'
           }`}
         >
           {p}
@@ -149,52 +136,54 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   const params = await searchParams;
   const page = Number(params.page ?? 1);
 
-  const response = await api.projects.getProjects(
-    { page: String(page), limit: '12' },
-    { next: { revalidate: 3600 } },
-  );
+  const [t, response] = await Promise.all([
+    getTranslations(),
+    api.projects.getProjects({ page: String(page), limit: '12' }, { next: { revalidate: 3600 } }),
+  ]);
 
   const items = response?.items ?? [];
   const meta = response?.meta;
 
   return (
     <div className="min-h-screen bg-white pt-[80px]">
-      {/* Page header */}
       <div className="border-b border-gray-100">
         <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-6">
           <div className="flex items-center gap-2 text-[14px] text-gray-400 mb-4">
-            <Link href="/" className="hover:text-[#5e8dd1] no-underline transition-colors">Trang chủ</Link>
+            <Link href="/" className="hover:text-[#5e8dd1] no-underline transition-colors">
+              {t('projects.breadcrumb_home')}
+            </Link>
             <span>/</span>
-            <span className="text-[#111]">Dự án</span>
+            <span className="text-[#111]">{t('projects.breadcrumb_projects')}</span>
           </div>
           <div className="flex items-end justify-between gap-4">
             <h1 className="text-[30px] md:text-[40px] font-light text-[#111] leading-none m-0">
-              Tất cả dự án
+              {t('projects.all_projects')}
             </h1>
             {meta && (
-              <p className="text-gray-400 text-[13px] shrink-0 m-0">{meta.totalItems} dự án</p>
+              <p className="text-gray-400 text-[13px] shrink-0 m-0">{meta.totalItems} {t('projects.count_suffix')}</p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Content */}
       <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-10">
         {items.length === 0 ? (
-          <EmptyState />
+          <EmptyState label={t('projects.empty')} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {items.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+              <ProjectCard
+                key={project.id}
+                project={project}
+                viewLabel={t('projects.view_project')}
+                featuredBadge={t('projects.featured_badge')}
+              />
             ))}
           </div>
         )}
 
         {meta && (
-          <Pagination
-            meta={{ page: meta.currentPage, totalPages: meta.totalPages }}
-            searchParams={params}
-          />
+          <Pagination meta={{ page: meta.currentPage, totalPages: meta.totalPages }} searchParams={params} />
         )}
       </div>
     </div>
